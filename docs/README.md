@@ -2,127 +2,77 @@ SoleMuseum Documentation
 
 Overview
 
-This directory contains all project documentation for SoleMuseum.
-
 SoleMuseum is a digital museum for sneaker collections.
 
 Core philosophy:
 
-Collect.
-Record.
-Exhibit.
+Collect. Record. Exhibit.
 
 ---
 
-Project Documents
+Getting Started
+
+If you are new to the project, read documents in the following order:
+
+1. "ROADMAP" (ROADMAP.md)
+2. "USER_STORIES" (USER_STORIES.md)
+3. "SCREEN_SPEC" (SCREEN_SPEC.md)
+4. "ARCHITECTURE" (ARCHITECTURE.md)
+5. "CONTRIBUTING" (CONTRIBUTING.md)
+
+---
 
 Product
 
-ROADMAP.md
-
-Product roadmap and sprint plan.
-
-Read first.
-
----
-
-RELEASE_PLAN.md
-
-Defines the requirements for v1.0 release.
-
----
-
-USER_STORIES.md
-
-Defines collector experiences and product goals.
+Document| Purpose
+"ROADMAP.md" (ROADMAP.md)| Product roadmap and sprint plan
+"RELEASE_PLAN.md" (RELEASE_PLAN.md)| v1.0 release requirements
+"USER_STORIES.md" (USER_STORIES.md)| Collector experience definition
 
 ---
 
 Specifications
 
-SCREEN_SPEC.md
-
-Screen specifications and navigation.
-
----
-
-SPRINT3_SPEC.md
-
-Photo system specification.
+Document| Purpose
+"SCREEN_SPEC.md" (SCREEN_SPEC.md)| Screen specifications
+"../specs/MVP_SPEC.md" (../specs/MVP_SPEC.md)| MVP scope
+"../specs/SPRINT3_SPEC.md" (../specs/SPRINT3_SPEC.md)| Photo system specification
 
 ---
 
 Architecture
 
-ARCHITECTURE.md
-
-System architecture and technology decisions.
-
----
-
-DECISIONS.md
-
-Historical architecture decisions.
-
----
-
-CONTRIBUTING.md
-
-Development rules and coding principles.
+Document| Purpose
+"ARCHITECTURE.md" (ARCHITECTURE.md)| System architecture
+"DECISIONS.md" (DECISIONS.md)| Architecture decisions
+"CONTRIBUTING.md" (CONTRIBUTING.md)| Development rules
 
 ---
 
 Brand
 
-BRAND_GUIDELINES.md
-
-Brand identity and design direction.
-
----
-
-APP_STORE_DESCRIPTION.md
-
-Store listing description and marketing copy.
+Document| Purpose
+"BRAND_GUIDELINES.md" (BRAND_GUIDELINES.md)| Brand identity
+"APP_STORE_DESCRIPTION.md" (APP_STORE_DESCRIPTION.md)| Store listing content
 
 ---
 
 Project Management
 
-CHANGELOG.md
-
-Version history.
-
----
-
-ISSUES.md
-
-Open issues and future considerations.
-
----
-
-Reading Order
-
-New contributors should read documents in the following order:
-
-1. ROADMAP.md
-2. USER_STORIES.md
-3. SCREEN_SPEC.md
-4. ARCHITECTURE.md
-5. CONTRIBUTING.md
+Document| Purpose
+"CHANGELOG.md" (CHANGELOG.md)| Version history
+"ISSUES.md" (ISSUES.md)| Open issues
 
 ---
 
 Current Status
 
-Sprint1: Complete
-
-Sprint2: Code Reviewed
-
-Sprint3: Specified
-
-Sprint4: Planned
-
-Sprint5: Planned
+Sprint| Status
+Sprint1| Complete
+Sprint2| Reviewed
+Sprint3| Specified
+Sprint4| Planned
+Sprint5| Planned
 
 ---
 
