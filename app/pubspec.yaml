@@ -11,18 +11,22 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  
+
   # State Management
   riverpod: ^2.4.0
   flutter_riverpod: ^2.4.0
-  
+
+  # Local Database
+  sqflite: ^2.3.0
+  path: ^1.8.3
+
   # Material Design
   flutter_adaptive_scaffold: ^0.2.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  
+
   flutter_lints: ^3.0.0
 
 flutter:
