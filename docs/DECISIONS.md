@@ -1,218 +1,85 @@
-SoleMuseum Architecture Decisions
+# DECISIONS.md
 
-This document records major architectural and product decisions.
+## Decision 001
 
----
+### Riverpod採用
 
-DECISION-001
+採用理由
 
-Title
+- Flutter標準に近い
+- 学習コストが低い
+- MVPに十分
 
-Offline First Architecture
+却下
 
-Status
-
-Accepted
-
-Date
-
-2026-06
-
-Decision
-
-SoleMuseum will function completely offline.
-
-No account is required.
-
-No internet connection is required.
-
-Reason
-
-Collectors should always own their collection data.
-
-The application must continue working even if external services disappear.
-
-Consequences
-
-Positive
-
-- Fast
-- Reliable
-- No login required
-- User owns data
-
-Negative
-
-- Multi-device sync requires future work
+- Bloc
+- Provider
 
 ---
 
-DECISION-002
+## Decision 002
 
-Title
+### Drift採用
 
-SQLite as Primary Database
+採用理由
 
-Status
+- 型安全
+- SQLite利用可能
+- Flutter実績多数
 
-Accepted
+却下
 
-Date
-
-2026-06
-
-Decision
-
-Use SQLite for local storage.
-
-Reason
-
-- Proven technology
-- Flutter support
-- Offline capable
-- Easy backup
-
-Rejected Alternatives
-
-Firebase
-
-Rejected before v1.0.
-
-Reason:
-
-Adds complexity and account requirements.
+- Hive
+- Isar
 
 ---
 
-DECISION-003
+## Decision 003
 
-Title
+### Offline First
 
-Museum Before Marketplace
+採用理由
 
-Status
+- 個人利用中心
+- ログイン不要
+- MVP高速化
 
-Accepted
-
-Date
-
-2026-06
-
-Decision
-
-Focus on collection preservation rather than buying and selling.
-
-Reason
-
-Most sneaker apps focus on transactions.
-
-SoleMuseum focuses on ownership history and preservation.
-
-Consequences
-
-Features intentionally delayed:
-
-- Marketplace
-- Auctions
-- Price tracking
-
----
-
-DECISION-004
-
-Title
-
-Photos Before Wear History
-
-Status
-
-Accepted
-
-Date
-
-2026-06
-
-Decision
-
-Sprint3 implements photos before wear history.
-
-Reason
-
-Photos are essential to the museum concept.
-
-Without photos, the collection cannot be exhibited.
-
----
-
-DECISION-005
-
-Title
-
-No Cloud Sync Before v1.0
-
-Status
-
-Accepted
-
-Date
-
-2026-06
-
-Decision
-
-Cloud sync is postponed until after v1.0.
-
-Reason
-
-Focus on completing core collector workflows first.
-
-Deferred
+却下
 
 - Firebase
-- Google Drive sync
-- Multi-device sync
+- Supabase
 
 ---
 
-DECISION-006
+## Decision 004
 
-Title
+### Dark Theme First
 
-Riverpod State Management
+採用理由
 
-Status
-
-Accepted
-
-Date
-
-2026-06
-
-Decision
-
-Use Riverpod as the only state management solution.
-
-Reason
-
-- Scalable
-- Testable
-- Flutter ecosystem support
-
-Avoid
-
-- Global mutable state
-- Multiple state management systems
+- Museumコンセプト
+- スニーカー写真が映える
+- 高級感
 
 ---
 
-Future Decisions
+## Decision 005
 
-New decisions should be added using:
+### MVP範囲
 
-DECISION-XXX
+含む
 
-Format.
+- 登録
+- 一覧
+- 詳細
+- 編集
+- 削除
 
-Never modify historical decisions.
+含まない
 
-Only append new entries.
+- AI鑑定
+- 相場取得
+- SNS共有
+- 売買
+- クラウド同期
+```
