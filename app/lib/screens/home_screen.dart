@@ -19,10 +19,15 @@ class HomeScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('SoleMuseum'),
-        subtitle: Text(
-          'Collect. Preserve. Showcase.',
-          style: Theme.of(context).textTheme.bodySmall,
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('SoleMuseum'),
+            Text(
+              'Collect. Preserve. Showcase.',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ],
         ),
       ),
       body: shoesAsync.when(
@@ -54,22 +59,14 @@ class _HomeContent extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        Text(
-          'MY COLLECTION',
-          style: Theme.of(context).textTheme.labelLarge,
-        ),
+        Text('MY COLLECTION', style: Theme.of(context).textTheme.labelLarge),
         const SizedBox(height: 8),
         Text(
           '${shoes.length} PAIRS',
-          style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+          style: Theme.of(context).textTheme.displaySmall?.copyWith(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 24),
-        Text(
-          '最近追加',
-          style: Theme.of(context).textTheme.titleLarge,
-        ),
+        Text('最近追加', style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: 12),
         if (recentShoes.isEmpty)
           EmptyState(
@@ -79,9 +76,7 @@ class _HomeContent extends StatelessWidget {
             actionLabel: '最初の一足を登録',
             onAction: () {
               Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (_) => const ShoeFormScreen(),
-                ),
+                MaterialPageRoute(builder: (_) => const ShoeFormScreen()),
               );
             },
           )
@@ -97,26 +92,18 @@ class _HomeContent extends StatelessWidget {
                 isFavorite: shoe.isFavorite,
                 onTap: () {
                   Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => ShoeDetailScreen(shoeId: shoe.id!),
-                    ),
+                    MaterialPageRoute(builder: (_) => ShoeDetailScreen(shoeId: shoe.id!)),
                   );
                 },
               ),
             ),
           ),
         const SizedBox(height: 24),
-        Text(
-          'MY TOP 5',
-          style: Theme.of(context).textTheme.titleLarge,
-        ),
+        Text('MY TOP 5', style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: 8),
         const Text('Sprint3以降で実装予定です'),
         const SizedBox(height: 24),
-        Text(
-          'ブランド別所有数',
-          style: Theme.of(context).textTheme.titleLarge,
-        ),
+        Text('ブランド別所有数', style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: 8),
         const Text('Sprint3以降で実装予定です'),
       ],
