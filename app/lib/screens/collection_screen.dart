@@ -328,7 +328,8 @@ class _CollectionContent extends StatelessWidget {
       final brandName = brandNames[shoe.brandId] ?? '';
       final matchesSearch = query.isEmpty ||
           shoe.modelName.toLowerCase().contains(query) ||
-          brandName.toLowerCase().contains(query);
+          brandName.toLowerCase().contains(query) ||
+          shoe.archiveNumber.toLowerCase().contains(query);
 
       return matchesBrand && matchesFavorite && matchesSearch;
     }).toList();

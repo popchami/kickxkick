@@ -53,6 +53,54 @@ class WearHistorySection extends ConsumerWidget {
     }
   }
 
+  Future<void> _editWearLog(
+    BuildContext context,
+    WidgetRef ref,
+    WearLog wearLog,
+  ) async {
+    final id = wearLog.id;
+    if (id == null) return;
+
+    final controller = TextEditingController(text: wearLog.memo ?? '');
+    final result = await showDialog<String?>(
+      context: context,
+      builder: (dlgCtx) => AlertDialog(
+        title: const Text('メモを編集'),
+        content: TextField(
+          controller: controller,
+          decoration: const InputDecoration(
+            labelText: 'メモ（任意）',
+            hintText: '行き先や天気など',
+          ),
+          maxLines: 3,
+          autofocus: true,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dlgCtx).pop(),
+            child: const Text('キャンセル'),
+          ),
+          if (wearLog.memo != null)
+            TextButton(
+              onPressed: () => Navigator.of(dlgCtx).pop(''),
+              child: const Text('メモを削除'),
+            ),
+          FilledButton(
+            onPressed: () => Navigator.of(dlgCtx).pop(controller.text.trim()),
+            child: const Text('保存'),
+          ),
+        ],
+      ),
+    );
+    controller.dispose();
+    if (result == null) return;
+
+    final newMemo = result.isEmpty ? null : result;
+    await ref.read(wearLogRepositoryProvider).updateWearLogMemo(id, newMemo);
+    ref.invalidate(wearLogsByShoeIdProvider(shoeId));
+    ref.invalidate(allWearLogsProvider);
+  }
+
   Future<void> _deleteWearLog(
     BuildContext context,
     WidgetRef ref,
@@ -128,11 +176,22 @@ class WearHistorySection extends ConsumerWidget {
                         title: Text(_formatDate(wearLog.wornDate)),
                         subtitle:
                             wearLog.memo == null ? null : Text(wearLog.memo!),
-                        trailing: IconButton(
-                          icon: const Icon(Icons.delete_outline),
-                          tooltip: '着用記録を削除',
-                          onPressed: () =>
-                              _deleteWearLog(context, ref, wearLog),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.edit_outlined),
+                              tooltip: 'メモを編集',
+                              onPressed: () =>
+                                  _editWearLog(context, ref, wearLog),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.delete_outline),
+                              tooltip: '着用記録を削除',
+                              onPressed: () =>
+                                  _deleteWearLog(context, ref, wearLog),
+                            ),
+                          ],
                         ),
                       ),
                     ),

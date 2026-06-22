@@ -48,6 +48,24 @@ class PhotoRepository {
     );
   }
 
+  Future<void> setAsMainPhoto(int photoId, int shoeId) async {
+    final db = await AppDatabase.instance.database;
+    await db.transaction((txn) async {
+      await txn.update(
+        'photos',
+        {'photo_type': PhotoType.gallery.databaseValue},
+        where: 'shoe_id = ? AND photo_type = ?',
+        whereArgs: [shoeId, PhotoType.main.databaseValue],
+      );
+      await txn.update(
+        'photos',
+        {'photo_type': PhotoType.main.databaseValue},
+        where: 'id = ?',
+        whereArgs: [photoId],
+      );
+    });
+  }
+
   Future<int> deletePhoto(int id) async {
     final db = await AppDatabase.instance.database;
     return db.delete(

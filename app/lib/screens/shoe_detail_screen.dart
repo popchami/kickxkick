@@ -428,7 +428,22 @@ class _DetailBody extends ConsumerWidget {
         photosAsync.when(
           data: (photos) => _PhotoSections(
             photos: photos,
+            shoeId: shoe.id!,
             onDeletePhoto: (photo) => _deletePhoto(context, ref, photo),
+            onSetAsMain: (photo) async {
+              if (photo.id == null) return;
+              await ref.read(photoRepositoryProvider).setAsMainPhoto(
+                    photo.id!,
+                    shoe.id!,
+                  );
+              ref.invalidate(photosByShoeIdProvider(shoe.id!));
+              ref.invalidate(mainPhotoProvider(shoe.id!));
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('メイン写真に設定しました')),
+                );
+              }
+            },
           ),
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (_, __) => const Text('写真一覧を読み込めませんでした'),
@@ -542,9 +557,16 @@ class _PhotoPlaceholder extends StatelessWidget {
 
 class _PhotoSections extends StatelessWidget {
   final List<Photo> photos;
+  final int shoeId;
   final ValueChanged<Photo> onDeletePhoto;
+  final ValueChanged<Photo> onSetAsMain;
 
-  const _PhotoSections({required this.photos, required this.onDeletePhoto});
+  const _PhotoSections({
+    required this.photos,
+    required this.shoeId,
+    required this.onDeletePhoto,
+    required this.onSetAsMain,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -557,11 +579,21 @@ class _PhotoSections extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (galleryPhotos.isNotEmpty) ...[
-          _PhotoGrid(title: 'ギャラリー', photos: galleryPhotos, onDeletePhoto: onDeletePhoto),
+          _PhotoGrid(
+            title: 'ギャラリー',
+            photos: galleryPhotos,
+            onDeletePhoto: onDeletePhoto,
+            onSetAsMain: onSetAsMain,
+          ),
           const SizedBox(height: 20),
         ],
         if (boxPhotos.isNotEmpty)
-          _PhotoGrid(title: '箱写真', photos: boxPhotos, onDeletePhoto: onDeletePhoto),
+          _PhotoGrid(
+            title: '箱写真',
+            photos: boxPhotos,
+            onDeletePhoto: onDeletePhoto,
+            onSetAsMain: null,
+          ),
       ],
     );
   }
@@ -571,12 +603,44 @@ class _PhotoGrid extends StatelessWidget {
   final String title;
   final List<Photo> photos;
   final ValueChanged<Photo> onDeletePhoto;
+  final ValueChanged<Photo>? onSetAsMain;
 
   const _PhotoGrid({
     required this.title,
     required this.photos,
     required this.onDeletePhoto,
+    required this.onSetAsMain,
   });
+
+  void _showPhotoMenu(BuildContext context, Photo photo) {
+    showModalBottomSheet<void>(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (onSetAsMain != null)
+              ListTile(
+                leading: const Icon(Icons.star_outline),
+                title: const Text('メイン写真に設定'),
+                onTap: () {
+                  Navigator.of(ctx).pop();
+                  onSetAsMain!(photo);
+                },
+              ),
+            ListTile(
+              leading: const Icon(Icons.delete_outline),
+              title: const Text('削除'),
+              onTap: () {
+                Navigator.of(ctx).pop();
+                onDeletePhoto(photo);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -607,7 +671,7 @@ class _PhotoGrid extends StatelessWidget {
                   fullscreenDialog: true,
                 ),
               ),
-              onLongPress: () => onDeletePhoto(photo),
+              onLongPress: () => _showPhotoMenu(context, photo),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(12),
                 child: Stack(
@@ -624,7 +688,7 @@ class _PhotoGrid extends StatelessWidget {
                     const Positioned(
                       right: 4,
                       bottom: 4,
-                      child: Icon(Icons.delete_outline, size: 16, color: Colors.white),
+                      child: Icon(Icons.more_vert, size: 16, color: Colors.white),
                     ),
                   ],
                 ),

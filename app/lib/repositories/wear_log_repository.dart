@@ -34,6 +34,16 @@ class WearLogRepository {
     return maps.map(WearLog.fromMap).toList();
   }
 
+  Future<int> updateWearLogMemo(int id, String? memo) async {
+    final db = await AppDatabase.instance.database;
+    return db.update(
+      'wear_logs',
+      {'memo': memo},
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
   Future<bool> insertWearLog(WearLog wearLog) async {
     final db = await AppDatabase.instance.database;
     final id = await db.insert(
