@@ -229,6 +229,7 @@ class _ShoeFormScreenState extends ConsumerState<ShoeFormScreen> {
             controller: _memoController,
             decoration: const InputDecoration(labelText: 'メモ'),
             maxLines: 4,
+            maxLength: 500,
           ),
           const SizedBox(height: 16),
           SwitchListTile(

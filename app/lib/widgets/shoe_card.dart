@@ -56,7 +56,7 @@ class ShoeCard extends StatelessWidget {
                         backgroundColor: Theme.of(context)
                             .colorScheme
                             .surface
-                            .withOpacity(0.8),
+                            .withValues(alpha: 0.8),
                       ),
                     ),
                   ),

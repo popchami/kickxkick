@@ -531,7 +531,7 @@ class _DeleteHintChip extends StatelessWidget {
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface.withOpacity(0.85),
+        color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.85),
         borderRadius: BorderRadius.circular(999),
       ),
       child: const Padding(

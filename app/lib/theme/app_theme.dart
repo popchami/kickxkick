@@ -22,7 +22,7 @@ class AppTheme {
       ),
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: const Color(0xFFFAFAFA),
-        indicatorColor: const Color(0xFF000000).withOpacity(0.1),
+        indicatorColor: const Color(0xFF000000).withValues(alpha: 0.1),
         labelTextStyle: WidgetStateProperty.all(
           const TextStyle(
             fontSize: 12,
@@ -60,7 +60,7 @@ class AppTheme {
       ),
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: const Color(0xFF1E1E1E),
-        indicatorColor: const Color(0xFFFFFFFF).withOpacity(0.1),
+        indicatorColor: const Color(0xFFFFFFFF).withValues(alpha: 0.1),
         labelTextStyle: WidgetStateProperty.all(
           const TextStyle(
             fontSize: 12,

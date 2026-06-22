@@ -27,14 +27,34 @@ dependencies:
   share_plus: ^10.0.0
   cross_file: ^0.3.4+2
 
-  # Material Design
-  flutter_adaptive_scaffold: ^0.2.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
   flutter_lints: ^3.0.0
+  flutter_launcher_icons: ^0.14.3
+  flutter_native_splash: ^2.4.6
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/icon/icon.png"
+  min_sdk_android: 21
+  adaptive_icon_background: "#111111"
+  adaptive_icon_foreground: "assets/icon/icon_foreground.png"
+
+flutter_native_splash:
+  color: "#111111"
+  image: "assets/splash/splash_logo.png"
+  android_12:
+    color: "#111111"
+    image: "assets/splash/splash_logo.png"
+  fullscreen: false
 
 flutter:
   uses-material-design: true
+
+  assets:
+    - assets/icon/
+    - assets/splash/
