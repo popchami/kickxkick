@@ -64,6 +64,17 @@ class ShoeDetailScreen extends ConsumerWidget {
       return;
     }
 
+    final repository = ref.read(photoRepositoryProvider);
+    if (photoType == PhotoType.main) {
+      final currentMainPhoto = await repository.getMainPhoto(shoe.id!);
+      if (currentMainPhoto != null && context.mounted) {
+        final confirmed = await _confirmMainPhotoReplacement(context);
+        if (confirmed != true) {
+          return;
+        }
+      }
+    }
+
     final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
     if (pickedFile == null) {
       return;
@@ -76,13 +87,26 @@ class ShoeDetailScreen extends ConsumerWidget {
             photoType: photoType,
           );
 
-      await ref.read(photoRepositoryProvider).insertPhoto(
-            Photo.create(
-              shoeId: shoe.id!,
-              photoType: photoType,
-              filePath: filePath,
-            ),
-          );
+      final photo = Photo.create(
+        shoeId: shoe.id!,
+        photoType: photoType,
+        filePath: filePath,
+      );
+
+      if (photoType == PhotoType.main) {
+        final previousPhotos = await repository.replaceMainPhoto(photo);
+        for (final previousPhoto in previousPhotos) {
+          try {
+            await ref
+                .read(photoStorageServiceProvider)
+                .deletePhotoFile(previousPhoto.filePath);
+          } catch (_) {
+            // The database replacement succeeded; stale file cleanup is best effort.
+          }
+        }
+      } else {
+        await repository.insertPhoto(photo);
+      }
 
       ref.invalidate(photosByShoeIdProvider(shoe.id!));
       ref.invalidate(mainPhotoProvider(shoe.id!));
@@ -99,6 +123,28 @@ class ShoeDetailScreen extends ConsumerWidget {
         );
       }
     }
+  }
+
+  Future<bool?> _confirmMainPhotoReplacement(BuildContext context) {
+    return showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('メイン写真を変更しますか？'),
+        content: const Text(
+          '新しい写真を選ぶと、現在のメイン写真は削除されます。',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('キャンセル'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('写真を変更'),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<PhotoType?> _selectPhotoType(BuildContext context) {
