@@ -33,6 +33,30 @@ class PhotoRepository {
     return db.insert('photos', photo.toMap()..remove('id'));
   }
 
+  Future<List<Photo>> replaceMainPhoto(Photo photo) async {
+    if (photo.photoType != PhotoType.main) {
+      throw ArgumentError('A main photo is required.');
+    }
+
+    final db = await AppDatabase.instance.database;
+    return db.transaction((txn) async {
+      final previousMaps = await txn.query(
+        'photos',
+        where: 'shoe_id = ? AND photo_type = ?',
+        whereArgs: [photo.shoeId, PhotoType.main.databaseValue],
+      );
+
+      await txn.delete(
+        'photos',
+        where: 'shoe_id = ? AND photo_type = ?',
+        whereArgs: [photo.shoeId, PhotoType.main.databaseValue],
+      );
+      await txn.insert('photos', photo.toMap()..remove('id'));
+
+      return previousMaps.map(Photo.fromMap).toList();
+    });
+  }
+
   Future<int> updatePhoto(Photo photo) async {
     final id = photo.id;
     if (id == null) {
