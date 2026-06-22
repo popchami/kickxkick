@@ -34,12 +34,17 @@ class PhotoRepository {
   }
 
   Future<int> updatePhoto(Photo photo) async {
+    final id = photo.id;
+    if (id == null) {
+      throw ArgumentError('Photo id is required for update.');
+    }
+
     final db = await AppDatabase.instance.database;
     return db.update(
       'photos',
       photo.toMap()..remove('id'),
       where: 'id = ?',
-      whereArgs: [photo.id],
+      whereArgs: [id],
     );
   }
 
