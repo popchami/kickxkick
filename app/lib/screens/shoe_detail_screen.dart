@@ -1,8 +1,15 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
+
 import '../models/brand.dart';
+import '../models/photo.dart';
 import '../models/shoe.dart';
 import '../providers/brand_provider.dart';
+import '../providers/photo_provider.dart';
+import '../providers/photo_storage_provider.dart';
 import '../providers/shoe_provider.dart';
 import 'shoe_form_screen.dart';
 
@@ -16,6 +23,82 @@ class ShoeDetailScreen extends ConsumerWidget {
     await repository.toggleFavorite(shoe.id!, !shoe.isFavorite);
     ref.invalidate(shoesProvider);
     ref.invalidate(shoeByIdProvider(shoe.id!));
+  }
+
+  Future<void> _addPhoto(BuildContext context, WidgetRef ref, Shoe shoe) async {
+    final photoType = await _selectPhotoType(context);
+    if (photoType == null) {
+      return;
+    }
+
+    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+    if (pickedFile == null) {
+      return;
+    }
+
+    try {
+      final filePath = await ref.read(photoStorageServiceProvider).savePhoto(
+            sourceFile: File(pickedFile.path),
+            shoeId: shoe.id!,
+            photoType: photoType,
+          );
+
+      await ref.read(photoRepositoryProvider).insertPhoto(
+            Photo.create(
+              shoeId: shoe.id!,
+              photoType: photoType,
+              filePath: filePath,
+            ),
+          );
+
+      ref.invalidate(photosByShoeIdProvider(shoe.id!));
+      ref.invalidate(mainPhotoProvider(shoe.id!));
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('写真を追加しました')),
+        );
+      }
+    } catch (_) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('写真の追加に失敗しました')),
+        );
+      }
+    }
+  }
+
+  Future<PhotoType?> _selectPhotoType(BuildContext context) {
+    return showModalBottomSheet<PhotoType>(
+      context: context,
+      builder: (context) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.star_outline),
+                title: const Text('メイン写真'),
+                subtitle: const Text('Collection画面で表示する写真'),
+                onTap: () => Navigator.of(context).pop(PhotoType.main),
+              ),
+              ListTile(
+                leading: const Icon(Icons.photo_library_outlined),
+                title: const Text('ギャラリー写真'),
+                subtitle: const Text('Detail画面で表示する追加写真'),
+                onTap: () => Navigator.of(context).pop(PhotoType.gallery),
+              ),
+              ListTile(
+                leading: const Icon(Icons.inventory_2_outlined),
+                title: const Text('箱写真'),
+                subtitle: const Text('箱や付属品の記録写真'),
+                onTap: () => Navigator.of(context).pop(PhotoType.box),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   Future<void> _deleteShoe(BuildContext context, WidgetRef ref, Shoe shoe) async {
@@ -73,6 +156,10 @@ class ShoeDetailScreen extends ConsumerWidget {
           appBar: AppBar(
             title: Text(shoe.modelName),
             actions: [
+              IconButton(
+                icon: const Icon(Icons.add_photo_alternate_outlined),
+                onPressed: () => _addPhoto(context, ref, shoe),
+              ),
               IconButton(
                 icon: Icon(shoe.isFavorite ? Icons.favorite : Icons.favorite_border),
                 onPressed: () => _toggleFavorite(context, ref, shoe),
