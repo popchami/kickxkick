@@ -1,3 +1,29 @@
+enum ShoeStatus {
+  owned,
+  wishlist,
+  sold;
+
+  String get databaseValue => name;
+
+  String get label {
+    switch (this) {
+      case ShoeStatus.owned:
+        return '所有中';
+      case ShoeStatus.wishlist:
+        return 'ほしいリスト';
+      case ShoeStatus.sold:
+        return '売却済み';
+    }
+  }
+
+  static ShoeStatus fromDatabase(String? value) {
+    return ShoeStatus.values.firstWhere(
+      (s) => s.name == value,
+      orElse: () => ShoeStatus.owned,
+    );
+  }
+}
+
 class Shoe {
   final int? id;
   final int brandId;
@@ -10,6 +36,7 @@ class Shoe {
   final String? memo;
   final bool isFavorite;
   final int? topOrder;
+  final ShoeStatus status;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -25,6 +52,7 @@ class Shoe {
     this.memo,
     this.isFavorite = false,
     this.topOrder,
+    this.status = ShoeStatus.owned,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -39,6 +67,7 @@ class Shoe {
     String? purchaseStore,
     String? memo,
     bool isFavorite = false,
+    ShoeStatus status = ShoeStatus.owned,
   }) {
     final now = DateTime.now();
     return Shoe(
@@ -51,6 +80,7 @@ class Shoe {
       purchaseStore: purchaseStore,
       memo: memo,
       isFavorite: isFavorite,
+      status: status,
       createdAt: now,
       updatedAt: now,
     );
@@ -69,6 +99,7 @@ class Shoe {
       memo: map['memo'] as String?,
       isFavorite: (map['is_favorite'] as int) == 1,
       topOrder: map['top_order'] as int?,
+      status: ShoeStatus.fromDatabase(map['status'] as String?),
       createdAt: DateTime.parse(map['created_at'] as String),
       updatedAt: DateTime.parse(map['updated_at'] as String),
     );
@@ -87,6 +118,7 @@ class Shoe {
       'memo': memo,
       'is_favorite': isFavorite ? 1 : 0,
       'top_order': topOrder,
+      'status': status.databaseValue,
       'created_at': createdAt.toIso8601String(),
       'updated_at': updatedAt.toIso8601String(),
     };
@@ -104,6 +136,7 @@ class Shoe {
     String? memo,
     bool? isFavorite,
     int? topOrder,
+    ShoeStatus? status,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -119,6 +152,7 @@ class Shoe {
       memo: memo ?? this.memo,
       isFavorite: isFavorite ?? this.isFavorite,
       topOrder: topOrder ?? this.topOrder,
+      status: status ?? this.status,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );

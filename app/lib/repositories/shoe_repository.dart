@@ -106,6 +106,19 @@ class ShoeRepository {
     });
   }
 
+  Future<int> updateStatus(int id, ShoeStatus status) async {
+    final db = await AppDatabase.instance.database;
+    return db.update(
+      'shoes',
+      {
+        'status': status.databaseValue,
+        'updated_at': DateTime.now().toIso8601String(),
+      },
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
   Future<int> toggleFavorite(int id, bool isFavorite) async {
     final db = await AppDatabase.instance.database;
     return db.update(

@@ -92,9 +92,11 @@ class _HomeContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final recentShoes = shoes.take(6).toList();
-    final featuredShoe = shoes.isNotEmpty
-        ? shoes.firstWhere((s) => s.topOrder == 1, orElse: () => shoes.first)
+    final ownedShoes = shoes.where((s) => s.status == ShoeStatus.owned).toList();
+    final wishlistShoes = shoes.where((s) => s.status == ShoeStatus.wishlist).toList();
+    final recentShoes = ownedShoes.take(6).toList();
+    final featuredShoe = ownedShoes.isNotEmpty
+        ? ownedShoes.firstWhere((s) => s.topOrder == 1, orElse: () => ownedShoes.first)
         : null;
     final brandNames = {
       for (final brand in brands) if (brand.id != null) brand.id!: brand.name,
@@ -107,7 +109,7 @@ class _HomeContent extends StatelessWidget {
       children: [
         Text('MY COLLECTION', style: Theme.of(context).textTheme.labelLarge),
         const SizedBox(height: 12),
-        MuseumSummary(shoes: shoes),
+        MuseumSummary(shoes: ownedShoes),
         if (featuredShoe != null) ...[
           const SizedBox(height: 24),
           Text('注目の展示', style: Theme.of(context).textTheme.titleLarge),
@@ -135,11 +137,24 @@ class _HomeContent extends StatelessWidget {
         else
           _RecentGrid(shoes: recentShoes, brandNames: brandNames),
         const SizedBox(height: 24),
-        RecentWornSection(shoes: shoes, brands: brands),
+        RecentWornSection(shoes: ownedShoes, brands: brands),
         const SizedBox(height: 24),
-        TopFiveSection(shoes: shoes, brands: brands),
+        TopFiveSection(shoes: ownedShoes, brands: brands),
+        if (wishlistShoes.isNotEmpty) ...[
+          const SizedBox(height: 24),
+          Text('ほしいリスト', style: Theme.of(context).textTheme.titleLarge),
+          const SizedBox(height: 4),
+          Text(
+            '${wishlistShoes.length}足',
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context).colorScheme.outline,
+                ),
+          ),
+          const SizedBox(height: 8),
+          _WishlistSection(shoes: wishlistShoes, brandNames: brandNames),
+        ],
         const SizedBox(height: 24),
-        BrandSummarySection(shoes: shoes, brands: brands),
+        BrandSummarySection(shoes: ownedShoes, brands: brands),
       ],
     ),
     );
@@ -323,6 +338,56 @@ class _RecentGridCell extends ConsumerWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _WishlistSection extends StatelessWidget {
+  final List<Shoe> shoes;
+  final Map<int, String> brandNames;
+
+  const _WishlistSection({required this.shoes, required this.brandNames});
+
+  @override
+  Widget build(BuildContext context) {
+    final displayShoes = shoes.take(5).toList();
+    return Column(
+      children: [
+        ...displayShoes.map((shoe) {
+          final brandName = brandNames[shoe.brandId] ?? 'Unknown';
+          return ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.bookmark_outlined),
+            title: Text(
+              '$brandName  ${shoe.modelName}',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            subtitle: Text(
+              shoe.archiveNumber,
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                    color: Theme.of(context).colorScheme.outline,
+                  ),
+            ),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => ShoeDetailScreen(shoeId: shoe.id!),
+              ),
+            ),
+          );
+        }),
+        if (shoes.length > 5)
+          Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: Text(
+              'ほか ${shoes.length - 5}足',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.outline,
+                  ),
+            ),
+          ),
+      ],
     );
   }
 }

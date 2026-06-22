@@ -27,6 +27,7 @@ class _ShoeFormScreenState extends ConsumerState<ShoeFormScreen> {
   int? _brandId;
   DateTime? _purchaseDate;
   bool _isFavorite = false;
+  ShoeStatus _status = ShoeStatus.owned;
 
   bool get _isEditing => widget.shoe != null;
 
@@ -44,6 +45,7 @@ class _ShoeFormScreenState extends ConsumerState<ShoeFormScreen> {
       _memoController.text = shoe.memo ?? '';
       _purchaseDate = shoe.purchaseDate;
       _isFavorite = shoe.isFavorite;
+      _status = shoe.status;
     }
   }
 
@@ -84,6 +86,7 @@ class _ShoeFormScreenState extends ConsumerState<ShoeFormScreen> {
             purchaseStore: _emptyToNull(_storeController.text),
             memo: _emptyToNull(_memoController.text),
             isFavorite: _isFavorite,
+            status: _status,
           ),
         );
       } else {
@@ -98,6 +101,7 @@ class _ShoeFormScreenState extends ConsumerState<ShoeFormScreen> {
             purchaseStore: _emptyToNull(_storeController.text),
             memo: _emptyToNull(_memoController.text),
             isFavorite: _isFavorite,
+            status: _status,
           ),
         );
       }
@@ -305,6 +309,23 @@ class _ShoeFormScreenState extends ConsumerState<ShoeFormScreen> {
                 _isFavorite = value;
               });
             },
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'ステータス',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+          ),
+          const SizedBox(height: 8),
+          SegmentedButton<ShoeStatus>(
+            segments: const [
+              ButtonSegment(value: ShoeStatus.owned, label: Text('所有中')),
+              ButtonSegment(value: ShoeStatus.wishlist, label: Text('ほしいリスト')),
+              ButtonSegment(value: ShoeStatus.sold, label: Text('売却済み')),
+            ],
+            selected: {_status},
+            onSelectionChanged: (value) => setState(() => _status = value.first),
           ),
           const SizedBox(height: 24),
           SizedBox(

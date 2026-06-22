@@ -185,6 +185,43 @@ class _ShoeDetailScreenState extends ConsumerState<ShoeDetailScreen> {
     );
   }
 
+  Future<void> _changeStatus(BuildContext context, Shoe shoe) async {
+    final result = await showModalBottomSheet<ShoeStatus>(
+      context: context,
+      showDragHandle: true,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: ShoeStatus.values.map((status) {
+            return ListTile(
+              leading: Icon(
+                shoe.status == status
+                    ? Icons.radio_button_checked
+                    : Icons.radio_button_unchecked,
+                color: shoe.status == status
+                    ? Theme.of(ctx).colorScheme.primary
+                    : null,
+              ),
+              title: Text(status.label),
+              onTap: () => Navigator.of(ctx).pop(status),
+            );
+          }).toList(),
+        ),
+      ),
+    );
+    if (result == null || result == shoe.status) return;
+
+    await ref.read(shoeRepositoryProvider).updateStatus(shoe.id!, result);
+    ref.invalidate(shoesProvider);
+    ref.invalidate(shoeByIdProvider(_currentShoeId));
+
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('ステータスを「${result.label}」に変更しました')),
+      );
+    }
+  }
+
   void _shareShoe(Shoe shoe, Brand? brand) {
     final lines = <String>[
       '${brand?.name ?? ''} ${shoe.modelName}'.trim(),
@@ -310,6 +347,8 @@ class _ShoeDetailScreenState extends ConsumerState<ShoeDetailScreen> {
                   switch (action) {
                     case _ShoeAction.share:
                       _shareShoe(shoe, brand);
+                    case _ShoeAction.changeStatus:
+                      _changeStatus(context, shoe);
                     case _ShoeAction.delete:
                       _deleteShoe(context, shoe);
                   }
@@ -320,6 +359,14 @@ class _ShoeDetailScreenState extends ConsumerState<ShoeDetailScreen> {
                     child: ListTile(
                       leading: Icon(Icons.ios_share_outlined),
                       title: Text('シェア'),
+                      contentPadding: EdgeInsets.zero,
+                    ),
+                  ),
+                  PopupMenuItem(
+                    value: _ShoeAction.changeStatus,
+                    child: ListTile(
+                      leading: Icon(Icons.swap_horiz_outlined),
+                      title: Text('ステータス変更'),
                       contentPadding: EdgeInsets.zero,
                     ),
                   ),
@@ -517,6 +564,7 @@ class _DetailBody extends ConsumerWidget {
         _InfoTile(label: '購入価格', value: shoe.purchasePrice == null ? null : '${shoe.purchasePrice}円'),
         _InfoTile(label: '購入店', value: shoe.purchaseStore),
         _InfoTile(label: 'メモ', value: shoe.memo),
+        _InfoTile(label: 'ステータス', value: shoe.status.label),
         _InfoTile(label: 'お気に入り', value: shoe.isFavorite ? 'ON' : 'OFF'),
         _InfoTile(
           label: 'MY TOP 5',
@@ -828,7 +876,7 @@ class _ShoeNavBar extends StatelessWidget {
   }
 }
 
-enum _ShoeAction { share, delete }
+enum _ShoeAction { share, changeStatus, delete }
 
 class _InfoTile extends StatelessWidget {
   final String label;

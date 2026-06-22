@@ -31,6 +31,7 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen> {
   _SortOption _sortOption = _SortOption.newest;
   bool _showFavoritesOnly = false;
   _ViewMode _viewMode = _ViewMode.grid;
+  ShoeStatus _statusFilter = ShoeStatus.owned;
 
   @override
   void dispose() {
@@ -147,10 +148,16 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen> {
               sortOption: _sortOption,
               showFavoritesOnly: _showFavoritesOnly,
               viewMode: _viewMode,
+              statusFilter: _statusFilter,
               searchController: _searchController,
               onSearchChanged: (value) => setState(() => _searchText = value),
               onBrandSelected: (brandId) => setState(() => _selectedBrandId = brandId),
               onFavoritesChanged: (value) => setState(() => _showFavoritesOnly = value),
+              onStatusFilterChanged: (status) => setState(() {
+                _statusFilter = status;
+                _selectedBrandId = null;
+                _showFavoritesOnly = false;
+              }),
               onRefresh: onRefresh,
             ),
             loading: () => const Center(child: CircularProgressIndicator()),
@@ -162,10 +169,16 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen> {
               sortOption: _sortOption,
               showFavoritesOnly: _showFavoritesOnly,
               viewMode: _viewMode,
+              statusFilter: _statusFilter,
               searchController: _searchController,
               onSearchChanged: (value) => setState(() => _searchText = value),
               onBrandSelected: (brandId) => setState(() => _selectedBrandId = brandId),
               onFavoritesChanged: (value) => setState(() => _showFavoritesOnly = value),
+              onStatusFilterChanged: (status) => setState(() {
+                _statusFilter = status;
+                _selectedBrandId = null;
+                _showFavoritesOnly = false;
+              }),
               onRefresh: onRefresh,
             ),
           );
@@ -185,10 +198,12 @@ class _CollectionContent extends StatelessWidget {
   final _SortOption sortOption;
   final bool showFavoritesOnly;
   final _ViewMode viewMode;
+  final ShoeStatus statusFilter;
   final TextEditingController searchController;
   final ValueChanged<String> onSearchChanged;
   final ValueChanged<int?> onBrandSelected;
   final ValueChanged<bool> onFavoritesChanged;
+  final ValueChanged<ShoeStatus> onStatusFilterChanged;
   final Future<void> Function() onRefresh;
 
   const _CollectionContent({
@@ -199,10 +214,12 @@ class _CollectionContent extends StatelessWidget {
     required this.sortOption,
     required this.showFavoritesOnly,
     required this.viewMode,
+    required this.statusFilter,
     required this.searchController,
     required this.onSearchChanged,
     required this.onBrandSelected,
     required this.onFavoritesChanged,
+    required this.onStatusFilterChanged,
     required this.onRefresh,
   });
 
@@ -212,7 +229,8 @@ class _CollectionContent extends StatelessWidget {
       for (final brand in brands) if (brand.id != null) brand.id!: brand.name,
     };
     final brandsWithShoes = brands
-        .where((brand) => shoes.any((shoe) => shoe.brandId == brand.id))
+        .where((brand) =>
+            shoes.any((shoe) => shoe.brandId == brand.id && shoe.status == statusFilter))
         .toList();
     final filteredShoes = _filterShoes(brandNames);
 
@@ -239,7 +257,25 @@ class _CollectionContent extends StatelessWidget {
           ),
         ),
         SizedBox(
-          height: 52,
+          height: 44,
+          child: ListView(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            children: ShoeStatus.values.map((status) {
+              return Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: ChoiceChip(
+                  label: Text(status.label),
+                  selected: statusFilter == status,
+                  onSelected: (_) => onStatusFilterChanged(status),
+                ),
+              );
+            }).toList(),
+          ),
+        ),
+        const SizedBox(height: 4),
+        SizedBox(
+          height: 44,
           child: ListView(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -323,6 +359,7 @@ class _CollectionContent extends StatelessWidget {
     final query = searchText.trim().toLowerCase();
 
     var result = shoes.where((shoe) {
+      final matchesStatus = shoe.status == statusFilter;
       final matchesBrand = selectedBrandId == null || shoe.brandId == selectedBrandId;
       final matchesFavorite = !showFavoritesOnly || shoe.isFavorite;
       final brandName = brandNames[shoe.brandId] ?? '';
@@ -331,7 +368,7 @@ class _CollectionContent extends StatelessWidget {
           brandName.toLowerCase().contains(query) ||
           shoe.archiveNumber.toLowerCase().contains(query);
 
-      return matchesBrand && matchesFavorite && matchesSearch;
+      return matchesStatus && matchesBrand && matchesFavorite && matchesSearch;
     }).toList();
 
     switch (sortOption) {

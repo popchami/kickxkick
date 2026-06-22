@@ -21,7 +21,7 @@ class AppDatabase {
 
     return openDatabase(
       path,
-      version: 4,
+      version: 5,
       onConfigure: (db) async {
         await db.execute('PRAGMA foreign_keys = ON');
       },
@@ -52,6 +52,7 @@ class AppDatabase {
         memo TEXT,
         is_favorite INTEGER NOT NULL DEFAULT 0,
         top_order INTEGER,
+        status TEXT NOT NULL DEFAULT 'owned',
         created_at TEXT NOT NULL,
         updated_at TEXT NOT NULL,
         FOREIGN KEY (brand_id) REFERENCES brands(id)
@@ -74,6 +75,11 @@ class AppDatabase {
     if (oldVersion < 4) {
       await db.execute('ALTER TABLE shoes ADD COLUMN top_order INTEGER');
       await _createTopOrderIndex(db);
+    }
+    if (oldVersion < 5) {
+      await db.execute(
+        "ALTER TABLE shoes ADD COLUMN status TEXT NOT NULL DEFAULT 'owned'",
+      );
     }
   }
 
