@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../models/brand.dart';
 import '../models/photo.dart';
@@ -136,6 +137,30 @@ class ShoeDetailScreen extends ConsumerWidget {
     );
   }
 
+  void _shareShoe(Shoe shoe, Brand? brand) {
+    final lines = <String>[
+      '${brand?.name ?? ''} ${shoe.modelName}'.trim(),
+      shoe.archiveNumber,
+      '',
+    ];
+    if (shoe.size != null) lines.add('サイズ: ${shoe.size}');
+    if (shoe.color != null) lines.add('カラー: ${shoe.color}');
+    if (shoe.purchaseDate != null) {
+      final d = shoe.purchaseDate!;
+      final mm = d.month.toString().padLeft(2, '0');
+      final dd = d.day.toString().padLeft(2, '0');
+      lines.add('購入日: ${d.year}/$mm/$dd');
+    }
+    if (shoe.purchasePrice != null) {
+      lines.add('購入価格: ¥${shoe.purchasePrice}');
+    }
+    if (shoe.purchaseStore != null) lines.add('購入店: ${shoe.purchaseStore}');
+    lines.add('');
+    lines.add('#SoleMuseum');
+
+    Share.share(lines.join('\n'), subject: shoe.modelName);
+  }
+
   Future<void> _deleteShoe(BuildContext context, WidgetRef ref, Shoe shoe) async {
     final confirmed = await showDialog<bool>(
       context: context,
@@ -195,6 +220,11 @@ class ShoeDetailScreen extends ConsumerWidget {
           );
         }
 
+        final brand = brandsAsync.maybeWhen(
+          data: (brands) => _findBrand(brands, shoe.brandId),
+          orElse: () => null,
+        );
+
         return Scaffold(
           appBar: AppBar(
             title: Text(shoe.modelName),
@@ -227,9 +257,33 @@ class ShoeDetailScreen extends ConsumerWidget {
                   ref.invalidate(shoeByIdProvider(shoeId));
                 },
               ),
-              IconButton(
-                icon: const Icon(Icons.delete_outline),
-                onPressed: () => _deleteShoe(context, ref, shoe),
+              PopupMenuButton<_ShoeAction>(
+                onSelected: (action) {
+                  switch (action) {
+                    case _ShoeAction.share:
+                      _shareShoe(shoe, brand);
+                    case _ShoeAction.delete:
+                      _deleteShoe(context, ref, shoe);
+                  }
+                },
+                itemBuilder: (_) => const [
+                  PopupMenuItem(
+                    value: _ShoeAction.share,
+                    child: ListTile(
+                      leading: Icon(Icons.ios_share_outlined),
+                      title: Text('シェア'),
+                      contentPadding: EdgeInsets.zero,
+                    ),
+                  ),
+                  PopupMenuItem(
+                    value: _ShoeAction.delete,
+                    child: ListTile(
+                      leading: Icon(Icons.delete_outline),
+                      title: Text('削除'),
+                      contentPadding: EdgeInsets.zero,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -607,6 +661,8 @@ class _DeleteHintChip extends StatelessWidget {
     );
   }
 }
+
+enum _ShoeAction { share, delete }
 
 class _InfoTile extends StatelessWidget {
   final String label;
