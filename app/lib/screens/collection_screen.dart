@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/brand.dart';
 import '../models/shoe.dart';
 import '../providers/brand_provider.dart';
+import '../providers/collection_filter_provider.dart';
 import '../providers/photo_provider.dart';
 import '../providers/shoe_provider.dart';
 import '../widgets/empty_state.dart';
@@ -19,7 +20,6 @@ class CollectionScreen extends ConsumerStatefulWidget {
 
 class _CollectionScreenState extends ConsumerState<CollectionScreen> {
   final _searchController = TextEditingController();
-  int? _selectedBrandId;
   String _searchText = '';
 
   @override
@@ -32,6 +32,7 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen> {
   Widget build(BuildContext context) {
     final shoesAsync = ref.watch(shoesProvider);
     final brandsAsync = ref.watch(brandsProvider);
+    final collectionFilter = ref.watch(collectionFilterProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -44,7 +45,7 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen> {
               icon: Icons.collections_outlined,
               title: 'あなたのミュージアムは空です',
               description: '最初の1足を登録しましょう',
-              actionLabel: '最初の一足を登録',
+              actionLabel: '最初のスニーカーを登録',
               onAction: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
@@ -59,7 +60,8 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen> {
             data: (brands) => _CollectionContent(
               shoes: shoes,
               brands: brands,
-              selectedBrandId: _selectedBrandId,
+              selectedBrandId: collectionFilter.brandId,
+              favoritesOnly: collectionFilter.favoritesOnly,
               searchText: _searchText,
               searchController: _searchController,
               onSearchChanged: (value) {
@@ -68,16 +70,20 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen> {
                 });
               },
               onBrandSelected: (brandId) {
-                setState(() {
-                  _selectedBrandId = brandId;
-                });
+                ref.read(collectionFilterProvider.notifier).state =
+                    CollectionFilter(brandId: brandId);
+              },
+              onFavoritesSelected: (selected) {
+                ref.read(collectionFilterProvider.notifier).state =
+                    CollectionFilter(favoritesOnly: selected);
               },
             ),
             loading: () => const Center(child: CircularProgressIndicator()),
             error: (_, __) => _CollectionContent(
               shoes: shoes,
               brands: const [],
-              selectedBrandId: _selectedBrandId,
+              selectedBrandId: collectionFilter.brandId,
+              favoritesOnly: collectionFilter.favoritesOnly,
               searchText: _searchText,
               searchController: _searchController,
               onSearchChanged: (value) {
@@ -86,9 +92,12 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen> {
                 });
               },
               onBrandSelected: (brandId) {
-                setState(() {
-                  _selectedBrandId = brandId;
-                });
+                ref.read(collectionFilterProvider.notifier).state =
+                    CollectionFilter(brandId: brandId);
+              },
+              onFavoritesSelected: (selected) {
+                ref.read(collectionFilterProvider.notifier).state =
+                    CollectionFilter(favoritesOnly: selected);
               },
             ),
           );
@@ -104,25 +113,30 @@ class _CollectionContent extends StatelessWidget {
   final List<Shoe> shoes;
   final List<Brand> brands;
   final int? selectedBrandId;
+  final bool favoritesOnly;
   final String searchText;
   final TextEditingController searchController;
   final ValueChanged<String> onSearchChanged;
   final ValueChanged<int?> onBrandSelected;
+  final ValueChanged<bool> onFavoritesSelected;
 
   const _CollectionContent({
     required this.shoes,
     required this.brands,
     required this.selectedBrandId,
+    required this.favoritesOnly,
     required this.searchText,
     required this.searchController,
     required this.onSearchChanged,
     required this.onBrandSelected,
+    required this.onFavoritesSelected,
   });
 
   @override
   Widget build(BuildContext context) {
     final brandNames = {
-      for (final brand in brands) if (brand.id != null) brand.id!: brand.name,
+      for (final brand in brands)
+        if (brand.id != null) brand.id!: brand.name,
     };
     final filteredShoes = _filterShoes(brandNames);
 
@@ -159,8 +173,17 @@ class _CollectionContent extends StatelessWidget {
                   padding: const EdgeInsets.only(right: 8),
                   child: FilterChip(
                     label: const Text('すべて'),
-                    selected: selectedBrandId == null,
+                    selected: selectedBrandId == null && !favoritesOnly,
                     onSelected: (_) => onBrandSelected(null),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: FilterChip(
+                    avatar: const Icon(Icons.favorite, size: 18),
+                    label: const Text('お気に入り'),
+                    selected: favoritesOnly,
+                    onSelected: onFavoritesSelected,
                   ),
                 ),
                 ...brands.map(
@@ -168,7 +191,7 @@ class _CollectionContent extends StatelessWidget {
                     padding: const EdgeInsets.only(right: 8),
                     child: FilterChip(
                       label: Text(brand.name),
-                      selected: selectedBrandId == brand.id,
+                      selected: !favoritesOnly && selectedBrandId == brand.id,
                       onSelected: (_) => onBrandSelected(brand.id),
                     ),
                   ),
@@ -193,13 +216,15 @@ class _CollectionContent extends StatelessWidget {
     final query = searchText.trim().toLowerCase();
 
     return shoes.where((shoe) {
-      final matchesBrand = selectedBrandId == null || shoe.brandId == selectedBrandId;
+      final matchesBrand =
+          selectedBrandId == null || shoe.brandId == selectedBrandId;
+      final matchesFavorite = !favoritesOnly || shoe.isFavorite;
       final brandName = brandNames[shoe.brandId] ?? '';
       final matchesSearch = query.isEmpty ||
           shoe.modelName.toLowerCase().contains(query) ||
           brandName.toLowerCase().contains(query);
 
-      return matchesBrand && matchesSearch;
+      return matchesBrand && matchesFavorite && matchesSearch;
     }).toList();
   }
 }
