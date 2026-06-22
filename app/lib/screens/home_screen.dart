@@ -4,9 +4,12 @@ import '../models/brand.dart';
 import '../models/shoe.dart';
 import '../providers/brand_provider.dart';
 import '../providers/shoe_provider.dart';
+import '../widgets/brand_summary_section.dart';
 import '../widgets/empty_state.dart';
+import '../widgets/museum_summary.dart';
 import '../widgets/recent_worn_section.dart';
 import '../widgets/shoe_card.dart';
+import '../widgets/top_five_section.dart';
 import 'shoe_detail_screen.dart';
 import 'shoe_form_screen.dart';
 
@@ -61,11 +64,8 @@ class _HomeContent extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       children: [
         Text('MY COLLECTION', style: Theme.of(context).textTheme.labelLarge),
-        const SizedBox(height: 8),
-        Text(
-          '${shoes.length} PAIRS',
-          style: Theme.of(context).textTheme.displaySmall?.copyWith(fontWeight: FontWeight.bold),
-        ),
+        const SizedBox(height: 12),
+        MuseumSummary(shoes: shoes),
         const SizedBox(height: 24),
         Text('最近追加', style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: 12),
@@ -102,13 +102,9 @@ class _HomeContent extends StatelessWidget {
         const SizedBox(height: 24),
         RecentWornSection(shoes: shoes, brands: brands),
         const SizedBox(height: 24),
-        Text('MY TOP 5', style: Theme.of(context).textTheme.titleLarge),
-        const SizedBox(height: 8),
-        const Text('Sprint3以降で実装予定です'),
+        TopFiveSection(shoes: shoes, brands: brands),
         const SizedBox(height: 24),
-        Text('ブランド別所有数', style: Theme.of(context).textTheme.titleLarge),
-        const SizedBox(height: 8),
-        const Text('Sprint3以降で実装予定です'),
+        BrandSummarySection(shoes: shoes, brands: brands),
       ],
     );
   }
