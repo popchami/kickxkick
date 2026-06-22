@@ -8,7 +8,7 @@ ISSUE-001
 
 Title
 
-Sprint2 Runtime Verification Not Completed
+Runtime Verification (All Sprints)
 
 Priority
 
@@ -20,15 +20,20 @@ Open
 
 Description
 
-Sprint2 has completed code review.
-
-Runtime verification has not yet been completed.
+Sprint1-6 code is merged. Runtime verification on a physical device
+is required before v1.0 release.
 
 Required:
 
-- flutter pub get
-- flutter analyze
-- flutter run
+- flutter pub get (pubspec.lock refresh after dependency changes)
+- flutter analyze (zero warnings target)
+- flutter run on Android device
+- Verify all 5 screens render correctly
+- Verify CRUD operations end-to-end
+- Verify data persistence across app restarts
+- Verify photo add / delete flow
+- Verify backup export and import
+- Verify dark mode
 
 ---
 
@@ -44,19 +49,15 @@ Medium
 
 Status
 
-Planned
+Resolved
 
-Description
+Decision
 
-Sprint3 supports photo storage.
-
-Photo deletion flow must be designed.
-
-Questions:
-
-- Confirmation dialog?
-- Delete file immediately?
-- Delete metadata only?
+- Confirmation dialog: Yes (AlertDialog with "キャンセル" / "削除")
+- Main photo: long-press to trigger deletion dialog
+- Gallery/box photos: long-press on thumbnail to trigger deletion dialog
+- Delete metadata and file simultaneously via transaction
+- UI hint chip ("長押しで削除") displayed on main photo
 
 ---
 
@@ -225,16 +226,25 @@ Medium
 
 Status
 
-Open
+In Progress
 
 Description
 
-Still required:
+Progress:
 
-- App icon
-- Splash screen
-- Screenshots
-- Feature graphic
+- App icon: asset created (assets/icon/icon.png 1024x1024, Museum Black + Gallery Gold "S")
+- Adaptive icon foreground: created (assets/icon/icon_foreground.png)
+- Splash logo: created (assets/splash/splash_logo.png)
+- flutter_launcher_icons: configured in pubspec.yaml
+- flutter_native_splash: configured in pubspec.yaml
+
+Still required (needs Flutter SDK):
+
+- Run: flutter pub run flutter_launcher_icons
+- Run: flutter pub run flutter_native_splash:create
+- App Store / Play Store screenshots (5 screens minimum)
+- Play Store feature graphic (1024x500)
+- App description localization
 
 ---
 
@@ -250,16 +260,23 @@ High
 
 Status
 
-Open
+In Progress
 
 Description
 
-Requirements:
+Code status:
 
-- Sprint3 complete
-- Sprint4 complete
-- Sprint5 complete
-- Critical bugs fixed
+- Sprint1-6: merged to main
+- Analyzer: zero warnings (CI green on Flutter 3.24.x, updated to stable)
+- Release assets: icon + splash configured
+
+Remaining before release:
+
+- ISSUE-001: Device runtime verification
+- ISSUE-009: Run launcher_icons + native_splash generators, take screenshots
+- Android release build (flutter build apk --release)
+- Performance check (list load <3s, detail <1s)
+- Play Store / App Store submission
 
 Goal:
 
