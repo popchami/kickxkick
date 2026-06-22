@@ -23,6 +23,9 @@ dependencies:
 
   # Media
   image_picker: ^1.0.7
+  file_picker: ^8.0.0
+  share_plus: ^10.0.0
+  cross_file: ^0.3.4+2
 
   # Material Design
   flutter_adaptive_scaffold: ^0.2.0
