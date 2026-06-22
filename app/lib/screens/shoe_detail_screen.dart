@@ -13,6 +13,7 @@ import '../providers/photo_storage_provider.dart';
 import '../providers/shoe_provider.dart';
 import '../providers/wear_log_provider.dart';
 import '../widgets/wear_history_section.dart';
+import 'photo_viewer_screen.dart';
 import 'shoe_form_screen.dart';
 
 class ShoeDetailScreen extends ConsumerWidget {
@@ -424,6 +425,12 @@ class _MainPhoto extends StatelessWidget {
     }
 
     return GestureDetector(
+      onTap: () => Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => PhotoViewerScreen(paths: [photo.filePath]),
+          fullscreenDialog: true,
+        ),
+      ),
       onLongPress: onDelete,
       child: Stack(
         children: [
@@ -535,7 +542,17 @@ class _PhotoGrid extends StatelessWidget {
           itemCount: photos.length,
           itemBuilder: (context, index) {
             final photo = photos[index];
+            final allPaths = photos.map((p) => p.filePath).toList();
             return GestureDetector(
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => PhotoViewerScreen(
+                    paths: allPaths,
+                    initialIndex: index,
+                  ),
+                  fullscreenDialog: true,
+                ),
+              ),
               onLongPress: () => onDeletePhoto(photo),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(12),
@@ -583,7 +600,7 @@ class _DeleteHintChip extends StatelessWidget {
           children: [
             Icon(Icons.touch_app_outlined, size: 16),
             SizedBox(width: 4),
-            Text('長押しで削除'),
+            Text('タップで拡大・長押しで削除'),
           ],
         ),
       ),
