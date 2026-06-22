@@ -133,7 +133,7 @@ class _DetailBody extends StatelessWidget {
         Container(
           height: 220,
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surfaceVariant,
+            color: Theme.of(context).colorScheme.surfaceContainerHighest,
             borderRadius: BorderRadius.circular(24),
           ),
           child: Center(
