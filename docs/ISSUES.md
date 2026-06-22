@@ -100,17 +100,14 @@ Medium
 
 Status
 
-Open
+Resolved
 
-Description
+Decision
 
-Sprint4 requires wear history.
-
-Open questions:
-
-- One entry per day?
-- Multiple entries per day?
-- Notes field required?
+- One entry per shoe per day
+- Duplicate records for the same shoe and date are ignored
+- Notes are optional
+- Records are stored locally in SQLite
 
 ---
 
