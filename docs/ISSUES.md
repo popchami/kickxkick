@@ -123,21 +123,15 @@ Low
 
 Status
 
-Open
+Resolved
 
-Description
+Decision
 
-Sprint5 introduces MY TOP 5.
-
-Open questions:
-
-- Manual selection?
-- Automatic ranking?
-- Drag and drop ordering?
-
-Current assumption:
-
-Manual selection.
+- Selection is manual from the shoe detail screen
+- A maximum of five shoes can be selected
+- Display order follows selection order
+- Favorites remain a separate feature
+- Drag and drop ordering is deferred
 
 ---
 
