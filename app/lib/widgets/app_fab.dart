@@ -50,10 +50,10 @@ class AppFab extends StatelessWidget {
                         );
                       },
                     ),
-                    ListTile(
-                      leading: const Icon(Icons.ios_share_outlined),
-                      title: const Text('コレクション共有'),
-                      subtitle: const Text('今後のアップデートで追加予定'),
+                    const ListTile(
+                      leading: Icon(Icons.ios_share_outlined),
+                      title: Text('コレクション共有'),
+                      subtitle: Text('今後のアップデートで追加予定'),
                       enabled: false,
                     ),
                   ],
@@ -163,7 +163,11 @@ class _TodayWornPicker extends ConsumerWidget {
     WidgetRef ref,
     Shoe shoe,
   ) async {
+    final navigator = Navigator.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    final wearLogRepository = ref.read(wearLogRepositoryProvider);
     final controller = TextEditingController();
+
     final memo = await showDialog<String>(
       context: context,
       builder: (dialogContext) => AlertDialog(
@@ -192,19 +196,20 @@ class _TodayWornPicker extends ConsumerWidget {
     );
     controller.dispose();
 
-    if (memo == null || !context.mounted) return;
+    if (memo == null || !navigator.mounted || !messenger.mounted) {
+      return;
+    }
 
-    final messenger = ScaffoldMessenger.of(context);
-    Navigator.of(context).pop();
+    navigator.pop();
 
     try {
-      final inserted = await ref.read(wearLogRepositoryProvider).insertWearLog(
-            WearLog.create(
-              shoeId: shoe.id!,
-              wornDate: DateTime.now(),
-              memo: memo.isEmpty ? null : memo,
-            ),
-          );
+      final inserted = await wearLogRepository.insertWearLog(
+        WearLog.create(
+          shoeId: shoe.id!,
+          wornDate: DateTime.now(),
+          memo: memo.isEmpty ? null : memo,
+        ),
+      );
       ref.invalidate(wearLogsByShoeIdProvider(shoe.id!));
       ref.invalidate(recentWearLogsProvider);
       messenger.showSnackBar(
