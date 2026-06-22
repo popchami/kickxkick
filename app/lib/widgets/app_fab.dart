@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../screens/shoe_form_screen.dart';
 
 class AppFab extends StatelessWidget {
-  const AppFab({Key? key}) : super(key: key);
+  const AppFab({super.key});
 
   void _showSprintMessage(BuildContext context, String label) {
     ScaffoldMessenger.of(context).showSnackBar(

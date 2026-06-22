@@ -13,7 +13,7 @@ void main() {
 }
 
 class SoleMuseumApp extends ConsumerWidget {
-  const SoleMuseumApp({Key? key}) : super(key: key);
+  const SoleMuseumApp({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -31,7 +31,7 @@ class SoleMuseumApp extends ConsumerWidget {
 }
 
 class SoleMuseumHome extends ConsumerWidget {
-  const SoleMuseumHome({Key? key}) : super(key: key);
+  const SoleMuseumHome({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

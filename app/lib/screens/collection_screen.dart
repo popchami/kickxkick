@@ -10,7 +10,7 @@ import 'shoe_detail_screen.dart';
 import 'shoe_form_screen.dart';
 
 class CollectionScreen extends ConsumerStatefulWidget {
-  const CollectionScreen({Key? key}) : super(key: key);
+  const CollectionScreen({super.key});
 
   @override
   ConsumerState<CollectionScreen> createState() => _CollectionScreenState();

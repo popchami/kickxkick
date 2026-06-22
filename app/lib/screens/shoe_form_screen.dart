@@ -9,7 +9,7 @@ import '../providers/shoe_provider.dart';
 class ShoeFormScreen extends ConsumerStatefulWidget {
   final Shoe? shoe;
 
-  const ShoeFormScreen({Key? key, this.shoe}) : super(key: key);
+  const ShoeFormScreen({super.key, this.shoe});
 
   @override
   ConsumerState<ShoeFormScreen> createState() => _ShoeFormScreenState();

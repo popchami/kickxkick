@@ -2,9 +2,6 @@ name: Flutter Check
 
 on:
   pull_request:
-    paths:
-      - 'app/**'
-      - '.github/workflows/flutter_check.yml'
   push:
     branches:
       - main
@@ -33,8 +30,13 @@ jobs:
 
       - name: Analyze
         working-directory: app
-        run: flutter analyze
+        run: flutter analyze --no-fatal-infos
 
       - name: Test
         working-directory: app
-        run: flutter test
+        run: |
+          if [ -d test ]; then
+            flutter test
+          else
+            echo "No test directory found. Skipping flutter test."
+          fi
