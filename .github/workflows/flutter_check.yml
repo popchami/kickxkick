@@ -2,9 +2,6 @@ name: Flutter Check
 
 on:
   pull_request:
-    paths:
-      - 'app/**'
-      - '.github/workflows/flutter_check.yml'
   push:
     branches:
       - main
