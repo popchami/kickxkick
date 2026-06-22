@@ -19,6 +19,7 @@ dependencies:
   # Local Database
   sqflite: ^2.3.0
   path: ^1.8.3
+  path_provider: ^2.1.2
 
   # Material Design
   flutter_adaptive_scaffold: ^0.2.0
