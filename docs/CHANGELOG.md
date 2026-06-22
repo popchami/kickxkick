@@ -148,3 +148,26 @@ Museum Home
 1.0.0
 
 Public Release
+
+
+---
+
+[0.5.0] - Unreleased
+
+Sprint6: Backup Foundation
+
+Added
+
+- JSON backup export and sharing
+- JSON file import
+- Backup format validation
+- Restore confirmation
+- Collection, wear history, favorite, and TOP 5 restoration
+
+Changed
+
+- Settings screen now includes backup controls
+
+Known limitation
+
+- Photo files are not included in JSON backups
