@@ -24,13 +24,15 @@ Changed
 - Enabled SQLite foreign keys for cascade deletion
 - Marked Sprint3 and Sprint4 as code complete pending runtime verification
 
-Planned
+Added
 
 Sprint5
 
-- Museum Home
-- MY TOP 5
-- Collection summary
+- Manual MY TOP 5 selection
+- Museum collection summary
+- Brand ownership summary
+- Database migration v4 for TOP 5 ordering
+- Completed Museum Home dashboard
 
 ---
 
