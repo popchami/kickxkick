@@ -26,27 +26,27 @@ class _SneakerPlusIcon extends StatelessWidget {
   Widget build(BuildContext context) {
     final color = IconTheme.of(context).color ?? Colors.white;
     return SizedBox(
-      width: 34,
-      height: 28,
+      width: 42,
+      height: 32,
       child: Stack(
         alignment: Alignment.center,
         children: [
           Transform.flip(
             flipX: true,
             child: CustomPaint(
-              size: const Size(34, 24),
+              size: const Size(42, 28),
               painter: _SneakerPainter(color),
             ),
           ),
           Container(
-            width: 17,
-            height: 17,
+            width: 13,
+            height: 13,
             decoration: BoxDecoration(
               color:
                   Theme.of(context).floatingActionButtonTheme.backgroundColor,
               shape: BoxShape.circle,
             ),
-            child: Icon(Icons.add, size: 15, color: color),
+            child: Icon(Icons.add, size: 12, color: color),
           ),
         ],
       ),
