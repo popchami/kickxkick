@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 
 class ShoeCard extends StatelessWidget {
@@ -38,14 +40,9 @@ class ShoeCard extends StatelessWidget {
                 color: Theme.of(context).colorScheme.surfaceContainerHighest,
               ),
               child: Stack(
+                fit: StackFit.expand,
                 children: [
-                  Center(
-                    child: Icon(
-                      Icons.image_outlined,
-                      size: 64,
-                      color: Theme.of(context).colorScheme.outline,
-                    ),
-                  ),
+                  _ShoeImage(imagePath: imagePath),
                   Positioned(
                     top: 8,
                     right: 8,
@@ -93,6 +90,47 @@ class ShoeCard extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _ShoeImage extends StatelessWidget {
+  final String? imagePath;
+
+  const _ShoeImage({required this.imagePath});
+
+  @override
+  Widget build(BuildContext context) {
+    final path = imagePath;
+    if (path == null || path.isEmpty) {
+      return _ImagePlaceholder(
+        iconColor: Theme.of(context).colorScheme.outline,
+      );
+    }
+
+    return Image.file(
+      File(path),
+      fit: BoxFit.cover,
+      errorBuilder: (_, __, ___) => _ImagePlaceholder(
+        iconColor: Theme.of(context).colorScheme.outline,
+      ),
+    );
+  }
+}
+
+class _ImagePlaceholder extends StatelessWidget {
+  final Color iconColor;
+
+  const _ImagePlaceholder({required this.iconColor});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Icon(
+        Icons.image_outlined,
+        size: 64,
+        color: iconColor,
       ),
     );
   }
