@@ -206,37 +206,30 @@ class ShoeDetailScreen extends ConsumerWidget {
   }
 }
 
-class _DetailBody extends StatelessWidget {
+class _DetailBody extends ConsumerWidget {
   final Shoe shoe;
   final Brand? brand;
 
   const _DetailBody({required this.shoe, required this.brand});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final mainPhotoAsync = ref.watch(mainPhotoProvider(shoe.id!));
+    final photosAsync = ref.watch(photosByShoeIdProvider(shoe.id!));
+
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        Container(
-          height: 220,
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surfaceContainerHighest,
-            borderRadius: BorderRadius.circular(24),
-          ),
-          child: Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  Icons.image_outlined,
-                  size: 64,
-                  color: Theme.of(context).colorScheme.outline,
-                ),
-                const SizedBox(height: 12),
-                const Text('Photo will be added in Sprint3'),
-              ],
-            ),
-          ),
+        mainPhotoAsync.when(
+          data: (photo) => _MainPhoto(photo: photo),
+          loading: () => const _PhotoPlaceholder(label: '写真を読み込み中'),
+          error: (_, __) => const _PhotoPlaceholder(label: '写真を読み込めませんでした'),
+        ),
+        const SizedBox(height: 24),
+        photosAsync.when(
+          data: (photos) => _PhotoSections(photos: photos),
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (_, __) => const Text('写真一覧を読み込めませんでした'),
         ),
         const SizedBox(height: 24),
         _InfoTile(label: 'ブランド', value: brand?.name ?? 'Unknown'),
@@ -259,6 +252,139 @@ class _DetailBody extends StatelessWidget {
       return null;
     }
     return '${date.year}/${date.month}/${date.day}';
+  }
+}
+
+class _MainPhoto extends StatelessWidget {
+  final Photo? photo;
+
+  const _MainPhoto({required this.photo});
+
+  @override
+  Widget build(BuildContext context) {
+    final photo = this.photo;
+    if (photo == null) {
+      return const _PhotoPlaceholder(label: 'メイン写真を追加できます');
+    }
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(24),
+      child: Image.file(
+        File(photo.filePath),
+        height: 220,
+        width: double.infinity,
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) => const _PhotoPlaceholder(label: '写真ファイルが見つかりません'),
+      ),
+    );
+  }
+}
+
+class _PhotoPlaceholder extends StatelessWidget {
+  final String label;
+
+  const _PhotoPlaceholder({required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 220,
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(24),
+      ),
+      child: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.image_outlined,
+              size: 64,
+              color: Theme.of(context).colorScheme.outline,
+            ),
+            const SizedBox(height: 12),
+            Text(label),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _PhotoSections extends StatelessWidget {
+  final List<Photo> photos;
+
+  const _PhotoSections({required this.photos});
+
+  @override
+  Widget build(BuildContext context) {
+    final galleryPhotos = photos.where((photo) => photo.photoType == PhotoType.gallery).toList();
+    final boxPhotos = photos.where((photo) => photo.photoType == PhotoType.box).toList();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _PhotoStrip(title: 'ギャラリー写真', photos: galleryPhotos),
+        const SizedBox(height: 20),
+        _PhotoStrip(title: '箱写真', photos: boxPhotos),
+      ],
+    );
+  }
+}
+
+class _PhotoStrip extends StatelessWidget {
+  final String title;
+  final List<Photo> photos;
+
+  const _PhotoStrip({required this.title, required this.photos});
+
+  @override
+  Widget build(BuildContext context) {
+    if (photos.isEmpty) {
+      return Text(
+        '$titleは未登録です',
+        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: Theme.of(context).colorScheme.outline,
+            ),
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
+        const SizedBox(height: 12),
+        SizedBox(
+          height: 96,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            itemCount: photos.length,
+            separatorBuilder: (_, __) => const SizedBox(width: 12),
+            itemBuilder: (context, index) {
+              final photo = photos[index];
+              return ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: Image.file(
+                  File(photo.filePath),
+                  width: 96,
+                  height: 96,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => Container(
+                    width: 96,
+                    height: 96,
+                    color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                    child: const Icon(Icons.broken_image_outlined),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
   }
 }
 
