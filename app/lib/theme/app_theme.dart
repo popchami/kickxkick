@@ -9,6 +9,8 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.light,
+      fontFamily: 'Noto Sans JP',
+      fontFamilyFallback: const ['Noto Sans CJK JP', 'sans-serif'],
       colorScheme: ColorScheme.fromSeed(
         seedColor: const Color(0xFF000000),
         brightness: Brightness.light,
@@ -47,6 +49,8 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
+      fontFamily: 'Noto Sans JP',
+      fontFamilyFallback: const ['Noto Sans CJK JP', 'sans-serif'],
       colorScheme: ColorScheme.fromSeed(
         seedColor: const Color(0xFFFFFFFF),
         brightness: Brightness.dark,
