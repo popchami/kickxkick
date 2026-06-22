@@ -11,6 +11,7 @@ import '../providers/brand_provider.dart';
 import '../providers/photo_provider.dart';
 import '../providers/photo_storage_provider.dart';
 import '../providers/shoe_provider.dart';
+import '../widgets/wear_history_section.dart';
 import 'shoe_form_screen.dart';
 
 class ShoeDetailScreen extends ConsumerWidget {
@@ -285,6 +286,8 @@ class _DetailBody extends ConsumerWidget {
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (_, __) => const Text('写真一覧を読み込めませんでした'),
         ),
+        const SizedBox(height: 24),
+        WearHistorySection(shoeId: shoe.id!),
         const SizedBox(height: 24),
         _InfoTile(label: 'ブランド', value: brand?.name ?? 'Unknown'),
         _InfoTile(label: 'モデル名', value: shoe.modelName),
