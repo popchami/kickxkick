@@ -11,7 +11,7 @@ class ShoeCard extends StatelessWidget {
   final VoidCallback? onFavoriteTap;
 
   const ShoeCard({
-    Key? key,
+    super.key,
     required this.brandName,
     required this.modelName,
     required this.size,
@@ -20,7 +20,7 @@ class ShoeCard extends StatelessWidget {
     this.isFavorite = false,
     required this.onTap,
     this.onFavoriteTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
