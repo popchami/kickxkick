@@ -6,23 +6,25 @@ All notable changes to SoleMuseum will be documented in this file.
 
 [Unreleased]
 
-Planned
-
-Sprint3
-
-- Photo model
-- Photos table
-- Photo repository
-- Photo provider
-- Local photo storage
-- Collection thumbnails
-- Detail gallery
+Added
 
 Sprint4
 
-- Wear log model
-- Wear history
-- Recently worn
+- Wear log model and repository
+- wear_logs database migration v3
+- One wear record per shoe per day
+- Optional wear memo
+- Today worn action
+- Wear history on shoe detail
+- Recently worn section on home
+- Wear record deletion
+
+Changed
+
+- Enabled SQLite foreign keys for cascade deletion
+- Marked Sprint3 and Sprint4 as code complete pending runtime verification
+
+Planned
 
 Sprint5
 
