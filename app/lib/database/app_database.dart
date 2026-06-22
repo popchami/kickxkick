@@ -21,7 +21,7 @@ class AppDatabase {
 
     return openDatabase(
       path,
-      version: 3,
+      version: 4,
       onConfigure: (db) async {
         await db.execute('PRAGMA foreign_keys = ON');
       },
@@ -51,6 +51,7 @@ class AppDatabase {
         purchase_store TEXT,
         memo TEXT,
         is_favorite INTEGER NOT NULL DEFAULT 0,
+        top_order INTEGER,
         created_at TEXT NOT NULL,
         updated_at TEXT NOT NULL,
         FOREIGN KEY (brand_id) REFERENCES brands(id)
@@ -70,12 +71,23 @@ class AppDatabase {
     if (oldVersion < 3) {
       await _createWearLogsTable(db);
     }
+    if (oldVersion < 4) {
+      await db.execute('ALTER TABLE shoes ADD COLUMN top_order INTEGER');
+      await _createTopOrderIndex(db);
+    }
   }
 
   Future<void> _createShoeIndexes(Database db) async {
     await db.execute('CREATE INDEX idx_shoes_brand_id ON shoes(brand_id)');
     await db.execute('CREATE INDEX idx_shoes_created_at ON shoes(created_at)');
     await db.execute('CREATE INDEX idx_shoes_is_favorite ON shoes(is_favorite)');
+    await _createTopOrderIndex(db);
+  }
+
+  Future<void> _createTopOrderIndex(Database db) async {
+    await db.execute(
+      'CREATE INDEX IF NOT EXISTS idx_shoes_top_order ON shoes(top_order)',
+    );
   }
 
   Future<void> _createPhotosTable(Database db) async {
