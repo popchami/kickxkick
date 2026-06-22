@@ -8,14 +8,16 @@ import '../providers/shoe_provider.dart';
 import '../providers/wear_log_provider.dart';
 import '../screens/shoe_form_screen.dart';
 
-class AppFab extends StatelessWidget {
+enum _AppFabAction { addShoe, recordWear }
+
+class AppFab extends ConsumerWidget {
   const AppFab({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return FloatingActionButton(
-      onPressed: () {
-        showModalBottomSheet<void>(
+      onPressed: () async {
+        final action = await showModalBottomSheet<_AppFabAction>(
           context: context,
           showDragHandle: true,
           builder: (sheetContext) {
@@ -29,25 +31,15 @@ class AppFab extends StatelessWidget {
                       leading: const Icon(Icons.add),
                       title: const Text('靴を登録'),
                       onTap: () {
-                        Navigator.of(sheetContext).pop();
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) => const ShoeFormScreen(),
-                          ),
-                        );
+                        Navigator.of(sheetContext).pop(_AppFabAction.addShoe);
                       },
                     ),
                     ListTile(
                       leading: const Icon(Icons.today_outlined),
                       title: const Text('今日履いた'),
                       onTap: () {
-                        Navigator.of(sheetContext).pop();
-                        showModalBottomSheet<void>(
-                          context: context,
-                          isScrollControlled: true,
-                          showDragHandle: true,
-                          builder: (_) => const _TodayWornPicker(),
-                        );
+                        Navigator.of(sheetContext)
+                            .pop(_AppFabAction.recordWear);
                       },
                     ),
                     const ListTile(
@@ -62,6 +54,27 @@ class AppFab extends StatelessWidget {
             );
           },
         );
+
+        if (!context.mounted || action == null) {
+          return;
+        }
+
+        if (action == _AppFabAction.addShoe) {
+          await Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const ShoeFormScreen()),
+          );
+          return;
+        }
+
+        final shoe = await showModalBottomSheet<Shoe>(
+          context: context,
+          isScrollControlled: true,
+          showDragHandle: true,
+          builder: (_) => const _TodayWornPicker(),
+        );
+        if (shoe != null && context.mounted) {
+          await _TodayWornPicker.recordWearForShoe(context, ref, shoe);
+        }
       },
       child: const Icon(Icons.add),
     );
@@ -122,9 +135,7 @@ class _TodayWornPicker extends ConsumerWidget {
                             shoe.archiveNumber,
                             style: Theme.of(context).textTheme.labelSmall,
                           ),
-                          onTap: () async {
-                            await _recordWearForShoe(context, ref, shoe);
-                          },
+                          onTap: () => Navigator.of(context).pop(shoe),
                         );
                       },
                     );
@@ -158,22 +169,21 @@ class _TodayWornPicker extends ConsumerWidget {
     );
   }
 
-  Future<void> _recordWearForShoe(
+  static Future<void> recordWearForShoe(
     BuildContext context,
     WidgetRef ref,
     Shoe shoe,
   ) async {
-    final navigator = Navigator.of(context);
     final messenger = ScaffoldMessenger.of(context);
     final wearLogRepository = ref.read(wearLogRepositoryProvider);
-    final controller = TextEditingController();
+    var memoText = '';
 
     final memo = await showDialog<String>(
       context: context,
       builder: (dialogContext) => AlertDialog(
         title: Text('${shoe.modelName}\n今日の着用記録'),
         content: TextField(
-          controller: controller,
+          onChanged: (value) => memoText = value,
           decoration: const InputDecoration(
             labelText: 'メモ（任意）',
             hintText: '行き先や天気など',
@@ -187,20 +197,16 @@ class _TodayWornPicker extends ConsumerWidget {
             child: const Text('キャンセル'),
           ),
           FilledButton(
-            onPressed: () =>
-                Navigator.of(dialogContext).pop(controller.text.trim()),
+            onPressed: () => Navigator.of(dialogContext).pop(memoText.trim()),
             child: const Text('記録'),
           ),
         ],
       ),
     );
-    controller.dispose();
 
-    if (memo == null || !navigator.mounted || !messenger.mounted) {
+    if (memo == null || !context.mounted) {
       return;
     }
-
-    navigator.pop();
 
     try {
       final inserted = await wearLogRepository.insertWearLog(
@@ -215,9 +221,7 @@ class _TodayWornPicker extends ConsumerWidget {
       messenger.showSnackBar(
         SnackBar(
           content: Text(
-            inserted
-                ? '${shoe.modelName}の着用を記録しました'
-                : '今日はすでに記録済みです',
+            inserted ? '${shoe.modelName}の着用を記録しました' : '今日はすでに記録済みです',
           ),
         ),
       );
