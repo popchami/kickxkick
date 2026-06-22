@@ -21,7 +21,7 @@ class AppDatabase {
 
     return openDatabase(
       path,
-      version: 1,
+      version: 2,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -54,15 +54,45 @@ class AppDatabase {
       )
     ''');
 
-    await db.execute('CREATE INDEX idx_shoes_brand_id ON shoes(brand_id)');
-    await db.execute('CREATE INDEX idx_shoes_created_at ON shoes(created_at)');
-    await db.execute('CREATE INDEX idx_shoes_is_favorite ON shoes(is_favorite)');
-
+    await _createShoeIndexes(db);
+    await _createPhotosTable(db);
     await _insertInitialBrands(db);
   }
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
-    // Future migrations will be handled here.
+    if (oldVersion < 2) {
+      await _createPhotosTable(db);
+    }
+  }
+
+  Future<void> _createShoeIndexes(Database db) async {
+    await db.execute('CREATE INDEX idx_shoes_brand_id ON shoes(brand_id)');
+    await db.execute('CREATE INDEX idx_shoes_created_at ON shoes(created_at)');
+    await db.execute('CREATE INDEX idx_shoes_is_favorite ON shoes(is_favorite)');
+  }
+
+  Future<void> _createPhotosTable(Database db) async {
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS photos (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        shoe_id INTEGER NOT NULL,
+        photo_type TEXT NOT NULL,
+        file_path TEXT NOT NULL,
+        display_order INTEGER NOT NULL,
+        created_at TEXT NOT NULL,
+        FOREIGN KEY (shoe_id) REFERENCES shoes(id) ON DELETE CASCADE
+      )
+    ''');
+
+    await db.execute(
+      'CREATE INDEX IF NOT EXISTS idx_photos_shoe_id ON photos(shoe_id)',
+    );
+    await db.execute(
+      'CREATE INDEX IF NOT EXISTS idx_photos_photo_type ON photos(photo_type)',
+    );
+    await db.execute(
+      'CREATE INDEX IF NOT EXISTS idx_photos_display_order ON photos(display_order)',
+    );
   }
 
   Future<void> _insertInitialBrands(Database db) async {
