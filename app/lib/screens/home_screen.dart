@@ -5,6 +5,7 @@ import '../models/shoe.dart';
 import '../providers/brand_provider.dart';
 import '../providers/shoe_provider.dart';
 import '../widgets/empty_state.dart';
+import '../widgets/recent_worn_section.dart';
 import '../widgets/shoe_card.dart';
 import 'shoe_detail_screen.dart';
 import 'shoe_form_screen.dart';
@@ -98,6 +99,8 @@ class _HomeContent extends StatelessWidget {
               ),
             ),
           ),
+        const SizedBox(height: 24),
+        RecentWornSection(shoes: shoes, brands: brands),
         const SizedBox(height: 24),
         Text('MY TOP 5', style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: 8),
