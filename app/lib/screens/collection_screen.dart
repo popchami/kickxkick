@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/brand.dart';
 import '../models/shoe.dart';
+
+enum _SortOption { newest, oldest, brand, modelName, favoriteFirst }
 import '../providers/brand_provider.dart';
 import '../providers/photo_provider.dart';
 import '../providers/shoe_provider.dart';
@@ -21,11 +23,55 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen> {
   final _searchController = TextEditingController();
   int? _selectedBrandId;
   String _searchText = '';
+  _SortOption _sortOption = _SortOption.newest;
+  bool _showFavoritesOnly = false;
 
   @override
   void dispose() {
     _searchController.dispose();
     super.dispose();
+  }
+
+  void _showSortSheet(BuildContext context) {
+    showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (sheetContext) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text('並び替え', style: Theme.of(context).textTheme.titleMedium),
+              ),
+            ),
+            ..._SortOption.values.map(
+              (option) => RadioListTile<_SortOption>(
+                title: Text(_sortLabel(option)),
+                value: option,
+                groupValue: _sortOption,
+                onChanged: (value) {
+                  setState(() => _sortOption = value!);
+                  Navigator.of(sheetContext).pop();
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _sortLabel(_SortOption option) {
+    switch (option) {
+      case _SortOption.newest: return '新しい順';
+      case _SortOption.oldest: return '古い順';
+      case _SortOption.brand: return 'ブランド順';
+      case _SortOption.modelName: return 'モデル名順';
+      case _SortOption.favoriteFirst: return 'お気に入り優先';
+    }
   }
 
   @override
@@ -36,6 +82,18 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('コレクション'),
+        actions: [
+          IconButton(
+            icon: Icon(
+              Icons.sort,
+              color: _sortOption != _SortOption.newest
+                  ? Theme.of(context).colorScheme.primary
+                  : null,
+            ),
+            tooltip: '並び替え',
+            onPressed: () => _showSortSheet(context),
+          ),
+        ],
       ),
       body: shoesAsync.when(
         data: (shoes) {
@@ -61,17 +119,12 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen> {
               brands: brands,
               selectedBrandId: _selectedBrandId,
               searchText: _searchText,
+              sortOption: _sortOption,
+              showFavoritesOnly: _showFavoritesOnly,
               searchController: _searchController,
-              onSearchChanged: (value) {
-                setState(() {
-                  _searchText = value;
-                });
-              },
-              onBrandSelected: (brandId) {
-                setState(() {
-                  _selectedBrandId = brandId;
-                });
-              },
+              onSearchChanged: (value) => setState(() => _searchText = value),
+              onBrandSelected: (brandId) => setState(() => _selectedBrandId = brandId),
+              onFavoritesChanged: (value) => setState(() => _showFavoritesOnly = value),
             ),
             loading: () => const Center(child: CircularProgressIndicator()),
             error: (_, __) => _CollectionContent(
@@ -79,17 +132,12 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen> {
               brands: const [],
               selectedBrandId: _selectedBrandId,
               searchText: _searchText,
+              sortOption: _sortOption,
+              showFavoritesOnly: _showFavoritesOnly,
               searchController: _searchController,
-              onSearchChanged: (value) {
-                setState(() {
-                  _searchText = value;
-                });
-              },
-              onBrandSelected: (brandId) {
-                setState(() {
-                  _selectedBrandId = brandId;
-                });
-              },
+              onSearchChanged: (value) => setState(() => _searchText = value),
+              onBrandSelected: (brandId) => setState(() => _selectedBrandId = brandId),
+              onFavoritesChanged: (value) => setState(() => _showFavoritesOnly = value),
             ),
           );
         },
@@ -105,18 +153,24 @@ class _CollectionContent extends StatelessWidget {
   final List<Brand> brands;
   final int? selectedBrandId;
   final String searchText;
+  final _SortOption sortOption;
+  final bool showFavoritesOnly;
   final TextEditingController searchController;
   final ValueChanged<String> onSearchChanged;
   final ValueChanged<int?> onBrandSelected;
+  final ValueChanged<bool> onFavoritesChanged;
 
   const _CollectionContent({
     required this.shoes,
     required this.brands,
     required this.selectedBrandId,
     required this.searchText,
+    required this.sortOption,
+    required this.showFavoritesOnly,
     required this.searchController,
     required this.onSearchChanged,
     required this.onBrandSelected,
+    required this.onFavoritesChanged,
   });
 
   @override
@@ -151,34 +205,51 @@ class _CollectionContent extends StatelessWidget {
             onChanged: onSearchChanged,
           ),
         ),
-        if (brandsWithShoes.isNotEmpty)
-          SizedBox(
-            height: 52,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              children: [
-                Padding(
+        SizedBox(
+          height: 52,
+          child: ListView(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: FilterChip(
+                  label: const Text('すべて'),
+                  selected: selectedBrandId == null && !showFavoritesOnly,
+                  onSelected: (_) {
+                    onBrandSelected(null);
+                    onFavoritesChanged(false);
+                  },
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: FilterChip(
+                  avatar: Icon(
+                    Icons.favorite,
+                    size: 16,
+                    color: showFavoritesOnly
+                        ? null
+                        : Theme.of(context).colorScheme.outline,
+                  ),
+                  label: const Text('お気に入り'),
+                  selected: showFavoritesOnly,
+                  onSelected: (value) => onFavoritesChanged(value),
+                ),
+              ),
+              ...brandsWithShoes.map(
+                (brand) => Padding(
                   padding: const EdgeInsets.only(right: 8),
                   child: FilterChip(
-                    label: const Text('すべて'),
-                    selected: selectedBrandId == null,
-                    onSelected: (_) => onBrandSelected(null),
+                    label: Text(brand.name),
+                    selected: selectedBrandId == brand.id,
+                    onSelected: (_) => onBrandSelected(brand.id),
                   ),
                 ),
-                ...brandsWithShoes.map(
-                  (brand) => Padding(
-                    padding: const EdgeInsets.only(right: 8),
-                    child: FilterChip(
-                      label: Text(brand.name),
-                      selected: selectedBrandId == brand.id,
-                      onSelected: (_) => onBrandSelected(brand.id),
-                    ),
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
+        ),
         Expanded(
           child: filteredShoes.isEmpty
               ? const EmptyState(
@@ -195,15 +266,37 @@ class _CollectionContent extends StatelessWidget {
   List<Shoe> _filterShoes(Map<int, String> brandNames) {
     final query = searchText.trim().toLowerCase();
 
-    return shoes.where((shoe) {
+    var result = shoes.where((shoe) {
       final matchesBrand = selectedBrandId == null || shoe.brandId == selectedBrandId;
+      final matchesFavorite = !showFavoritesOnly || shoe.isFavorite;
       final brandName = brandNames[shoe.brandId] ?? '';
       final matchesSearch = query.isEmpty ||
           shoe.modelName.toLowerCase().contains(query) ||
           brandName.toLowerCase().contains(query);
 
-      return matchesBrand && matchesSearch;
+      return matchesBrand && matchesFavorite && matchesSearch;
     }).toList();
+
+    switch (sortOption) {
+      case _SortOption.newest:
+        result.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      case _SortOption.oldest:
+        result.sort((a, b) => a.createdAt.compareTo(b.createdAt));
+      case _SortOption.brand:
+        result.sort((a, b) =>
+            (brandNames[a.brandId] ?? '').compareTo(brandNames[b.brandId] ?? ''));
+      case _SortOption.modelName:
+        result.sort((a, b) => a.modelName.compareTo(b.modelName));
+      case _SortOption.favoriteFirst:
+        result.sort((a, b) {
+          if (a.isFavorite == b.isFavorite) {
+            return b.createdAt.compareTo(a.createdAt);
+          }
+          return a.isFavorite ? -1 : 1;
+        });
+    }
+
+    return result;
   }
 }
 
