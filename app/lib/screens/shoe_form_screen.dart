@@ -164,7 +164,7 @@ class _ShoeFormScreenState extends ConsumerState<ShoeFormScreen> {
         padding: const EdgeInsets.all(16),
         children: [
           DropdownButtonFormField<int>(
-            value: _brandId,
+            initialValue: _brandId,
             decoration: const InputDecoration(labelText: 'ブランド'),
             items: brands
                 .map(
