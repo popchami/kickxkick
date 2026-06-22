@@ -48,7 +48,7 @@ Remaining:
 
 ## Sprint3: Exhibition Foundation
 
-Status: Planned
+Status: Code Complete — Runtime Verification Pending
 
 Purpose:
 
@@ -81,7 +81,7 @@ Out of scope:
 
 ## Sprint4: History Foundation
 
-Status: Planned
+Status: Code Complete — Runtime Verification Pending
 
 Scope:
 
