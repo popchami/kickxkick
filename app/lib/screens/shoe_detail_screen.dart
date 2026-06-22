@@ -212,6 +212,54 @@ class _DetailBody extends ConsumerWidget {
 
   const _DetailBody({required this.shoe, required this.brand});
 
+  Future<void> _deletePhoto(BuildContext context, WidgetRef ref, Photo photo) async {
+    final photoId = photo.id;
+    if (photoId == null) {
+      return;
+    }
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('写真を削除しますか？'),
+        content: const Text('この写真を削除します。\nこの操作は取り消せません。'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('キャンセル'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('削除'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) {
+      return;
+    }
+
+    try {
+      await ref.read(photoRepositoryProvider).deletePhoto(photoId);
+      await ref.read(photoStorageServiceProvider).deletePhotoFile(photo.filePath);
+      ref.invalidate(photosByShoeIdProvider(shoe.id!));
+      ref.invalidate(mainPhotoProvider(shoe.id!));
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('写真を削除しました')),
+        );
+      }
+    } catch (_) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('写真の削除に失敗しました')),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final mainPhotoAsync = ref.watch(mainPhotoProvider(shoe.id!));
@@ -221,13 +269,19 @@ class _DetailBody extends ConsumerWidget {
       padding: const EdgeInsets.all(16),
       children: [
         mainPhotoAsync.when(
-          data: (photo) => _MainPhoto(photo: photo),
+          data: (photo) => _MainPhoto(
+            photo: photo,
+            onDelete: photo == null ? null : () => _deletePhoto(context, ref, photo),
+          ),
           loading: () => const _PhotoPlaceholder(label: '写真を読み込み中'),
           error: (_, __) => const _PhotoPlaceholder(label: '写真を読み込めませんでした'),
         ),
         const SizedBox(height: 24),
         photosAsync.when(
-          data: (photos) => _PhotoSections(photos: photos),
+          data: (photos) => _PhotoSections(
+            photos: photos,
+            onDeletePhoto: (photo) => _deletePhoto(context, ref, photo),
+          ),
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (_, __) => const Text('写真一覧を読み込めませんでした'),
         ),
@@ -257,8 +311,9 @@ class _DetailBody extends ConsumerWidget {
 
 class _MainPhoto extends StatelessWidget {
   final Photo? photo;
+  final VoidCallback? onDelete;
 
-  const _MainPhoto({required this.photo});
+  const _MainPhoto({required this.photo, this.onDelete});
 
   @override
   Widget build(BuildContext context) {
@@ -267,14 +322,26 @@ class _MainPhoto extends StatelessWidget {
       return const _PhotoPlaceholder(label: 'メイン写真を追加できます');
     }
 
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(24),
-      child: Image.file(
-        File(photo.filePath),
-        height: 220,
-        width: double.infinity,
-        fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) => const _PhotoPlaceholder(label: '写真ファイルが見つかりません'),
+    return GestureDetector(
+      onLongPress: onDelete,
+      child: Stack(
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(24),
+            child: Image.file(
+              File(photo.filePath),
+              height: 220,
+              width: double.infinity,
+              fit: BoxFit.cover,
+              errorBuilder: (_, __, ___) => const _PhotoPlaceholder(label: '写真ファイルが見つかりません'),
+            ),
+          ),
+          const Positioned(
+            right: 12,
+            bottom: 12,
+            child: _DeleteHintChip(),
+          ),
+        ],
       ),
     );
   }
@@ -313,8 +380,9 @@ class _PhotoPlaceholder extends StatelessWidget {
 
 class _PhotoSections extends StatelessWidget {
   final List<Photo> photos;
+  final ValueChanged<Photo> onDeletePhoto;
 
-  const _PhotoSections({required this.photos});
+  const _PhotoSections({required this.photos, required this.onDeletePhoto});
 
   @override
   Widget build(BuildContext context) {
@@ -324,9 +392,9 @@ class _PhotoSections extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _PhotoStrip(title: 'ギャラリー写真', photos: galleryPhotos),
+        _PhotoStrip(title: 'ギャラリー写真', photos: galleryPhotos, onDeletePhoto: onDeletePhoto),
         const SizedBox(height: 20),
-        _PhotoStrip(title: '箱写真', photos: boxPhotos),
+        _PhotoStrip(title: '箱写真', photos: boxPhotos, onDeletePhoto: onDeletePhoto),
       ],
     );
   }
@@ -335,8 +403,13 @@ class _PhotoSections extends StatelessWidget {
 class _PhotoStrip extends StatelessWidget {
   final String title;
   final List<Photo> photos;
+  final ValueChanged<Photo> onDeletePhoto;
 
-  const _PhotoStrip({required this.title, required this.photos});
+  const _PhotoStrip({
+    required this.title,
+    required this.photos,
+    required this.onDeletePhoto,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -365,25 +438,65 @@ class _PhotoStrip extends StatelessWidget {
             separatorBuilder: (_, __) => const SizedBox(width: 12),
             itemBuilder: (context, index) {
               final photo = photos[index];
-              return ClipRRect(
-                borderRadius: BorderRadius.circular(16),
-                child: Image.file(
-                  File(photo.filePath),
-                  width: 96,
-                  height: 96,
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => Container(
-                    width: 96,
-                    height: 96,
-                    color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                    child: const Icon(Icons.broken_image_outlined),
-                  ),
+              return GestureDetector(
+                onLongPress: () => onDeletePhoto(photo),
+                child: Stack(
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(16),
+                      child: Image.file(
+                        File(photo.filePath),
+                        width: 96,
+                        height: 96,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => Container(
+                          width: 96,
+                          height: 96,
+                          color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                          child: const Icon(Icons.broken_image_outlined),
+                        ),
+                      ),
+                    ),
+                    const Positioned(
+                      right: 4,
+                      bottom: 4,
+                      child: Icon(
+                        Icons.delete_outline,
+                        size: 18,
+                      ),
+                    ),
+                  ],
                 ),
               );
             },
           ),
         ),
       ],
+    );
+  }
+}
+
+class _DeleteHintChip extends StatelessWidget {
+  const _DeleteHintChip();
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface.withOpacity(0.85),
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: const Padding(
+        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.touch_app_outlined, size: 16),
+            SizedBox(width: 4),
+            Text('長押しで削除'),
+          ],
+        ),
+      ),
     );
   }
 }
