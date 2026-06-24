@@ -7,7 +7,7 @@ import 'package:path_provider/path_provider.dart';
 import '../database/app_database.dart';
 
 class BackupService {
-  static const String formatName = 'solemuseum-backup';
+  static const String formatName = 'kickxkick-backup';
   static const int formatVersion = 1;
 
   Future<File> createBackupFile() async {
@@ -34,7 +34,7 @@ class BackupService {
 
     final appDirectory = await getApplicationDocumentsDirectory();
     final backupDirectory = Directory(
-      path.join(appDirectory.path, 'solemuseum', 'backups'),
+      path.join(appDirectory.path, 'kickxkick', 'backups'),
     );
     if (!await backupDirectory.exists()) {
       await backupDirectory.create(recursive: true);
@@ -45,7 +45,7 @@ class BackupService {
         .replaceAll(':', '-')
         .replaceAll('.', '-');
     final file = File(
-      path.join(backupDirectory.path, 'solemuseum_backup_$stamp.json'),
+      path.join(backupDirectory.path, 'kickxkick_backup_$stamp.json'),
     );
     await file.writeAsString(
       const JsonEncoder.withIndent('  ').convert(payload),
