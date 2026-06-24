@@ -21,8 +21,8 @@ class SettingsScreen extends ConsumerWidget {
       await SharePlus.instance.share(
         ShareParams(
           files: [XFile(file.path)],
-          subject: 'SoleMuseum Backup',
-          text: 'SoleMuseumのコレクションバックアップです。',
+          subject: 'KickxKick Backup',
+          text: 'KickxKick collection backup.',
         ),
       );
     } catch (_) {
@@ -158,12 +158,12 @@ class SettingsScreen extends ConsumerWidget {
           const Divider(),
           const _SectionTitle(title: 'アプリ情報'),
           const ListTile(
-            title: Text('SoleMuseum'),
+            title: Text('KickxKick'),
             subtitle: Text('v1.0.0'),
           ),
           const ListTile(
-            title: Text('Collect. Record. Exhibit.'),
-            subtitle: Text('Digital Sneaker Collection Museum'),
+            title: Text('Collect. Create. Exhibit.'),
+            subtitle: Text('Sneaker Sticker Collection App'),
           ),
         ],
       ),
