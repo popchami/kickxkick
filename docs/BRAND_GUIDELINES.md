@@ -1,38 +1,36 @@
-SoleMuseum Brand Guidelines v1.0
+Kick×Kick Brand Guidelines v1.0
 
 Brand Name
 
-SoleMuseum
+Kick×Kick
 
 ---
 
 Tagline
 
-Collect.
-Record.
-Exhibit.
+貼って、飾って、コレクション。
 
 ---
 
 Brand Concept
 
-SoleMuseum is a digital museum for sneaker collections.
+Kick×Kick is a sneaker collection app focused on turning sneakers into digital stickers and displaying them in shelves and boards.
 
 The purpose is not buying and selling.
 
-The purpose is preserving, documenting, and exhibiting sneaker collections.
+The purpose is collecting, creating, and exhibiting sneaker collections in a playful way.
 
 ---
 
 Mission
 
-Help sneaker collectors preserve their collections for the future.
+Help sneaker collectors enjoy, organize, and display their collections.
 
 ---
 
 Vision
 
-Create a personal sneaker museum for every collector.
+Create a personal sneaker collection space for every collector.
 
 ---
 
@@ -40,31 +38,33 @@ Core Values
 
 Collect
 
-Store sneaker information permanently.
+Register sneaker information and photos.
 
-Record
+Create
 
-Record ownership and wear history.
+Turn sneakers into digital stickers.
 
 Exhibit
 
-Present collections beautifully.
+Display collections beautifully in shelves and boards.
 
 ---
 
 Positioning
 
-SoleMuseum is not:
+Kick×Kick is not:
 
 - Marketplace
 - Auction platform
 - Resale service
+- Asset management service
 
-SoleMuseum is:
+Kick×Kick is:
 
-- Collection archive
-- Collection record
+- Sneaker collection app
+- Sticker creation app
 - Digital exhibition space
+- Personal collection board
 
 ---
 
@@ -72,18 +72,19 @@ Visual Direction
 
 Keywords:
 
-- Museum
-- Archive
-- Premium
-- Minimal
-- Timeless
+- Sticker
+- Collection
+- Display
+- Playful
+- Clean
+- Premium casual
 
 Avoid:
 
-- Flashy
-- Gaming style
-- Street culture clichés
+- Overly serious museum tone
+- Marketplace-like UI
 - Excessive gradients
+- Brand-logo dependency
 
 ---
 
@@ -91,31 +92,21 @@ Color Direction
 
 Primary
 
-Deep Black
+Black / White / Gray
 
 Purpose:
 
-Luxury museum atmosphere.
-
----
-
-Secondary
-
-Off White
-
-Purpose:
-
-Gallery and exhibition space feeling.
+Clean collection space.
 
 ---
 
 Accent
 
-Museum Gold
+Orange
 
 Purpose:
 
-Highlight important collection items.
+Energetic sticker and action accent.
 
 ---
 
@@ -124,14 +115,15 @@ Logo Direction
 Logo should express:
 
 - Sneaker
-- Museum
-- Preservation
+- Sticker
 - Collection
+- Display
+- Kick×Kick identity
 
 The logo must work as:
 
 - App icon
-- Website logo
+- Store listing icon
 - Social media avatar
 
 ---
@@ -142,26 +134,30 @@ Requirements:
 
 - Simple silhouette
 - Recognizable at small size
-- Museum-inspired
-- Premium feeling
+- Sneaker or shoebox motif
+- Sticker-like outline
+- Not tied to any existing sneaker brand
 
 Avoid:
 
+- Existing brand-like designs
 - Excessive detail
-- Text inside icon
-- Complex illustrations
+- Text-heavy icon
+- Trademark-like elements
 
 ---
 
 Tone of Voice
 
-Professional
+Casual
 
-Calm
+Clear
 
-Collector-focused
+Collector-friendly
 
 Respectful
+
+Fun
 
 ---
 
@@ -169,8 +165,8 @@ Product Philosophy
 
 The collection belongs to the collector.
 
-SoleMuseum exists to preserve memories and history associated with each pair.
+Kick×Kick exists to help users enjoy their sneakers as photos, stickers, shelves, and boards.
 
 Every sneaker has a story.
 
-SoleMuseum preserves those stories.
+Kick×Kick helps users decorate those stories.
