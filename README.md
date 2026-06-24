@@ -32,7 +32,7 @@ All current product decisions are managed under:
 specs/KICKXKICK_*
 ```
 
-Legacy SoleMuseum documents may remain in the repository for history, but they must not be used as implementation source of truth.
+Legacy documents may remain in the repository for history, but they must not be used as implementation source of truth.
 
 ## Important Specs
 
@@ -66,4 +66,4 @@ Sprint1 goal:
 
 ## Repository Note
 
-The repository name may still be `solemuseum`, but the current app name and product direction are **Kick×Kick**.
+The repository name may still be legacy, but the current app name and product direction are **Kick×Kick**.
