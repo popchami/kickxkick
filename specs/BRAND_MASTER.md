@@ -1,4 +1,4 @@
-# SoleMuseum Brand Master v1.0
+# Kick×Kick Brand Master v1.0
 
 ## Purpose
 Official brand master for sneaker registration.
