@@ -1,4 +1,4 @@
-# Kick×Kick Model Master Coverage v1.0
+# Kick×Kick Model Master Coverage v1.1
 
 ## Purpose
 
@@ -46,7 +46,7 @@ BLOCKED
 
 | Brand | Priority S Models | Model Coverage | Alias | searchKeywords | Canonical Name | Status | Notes |
 |---|---:|---:|---|---|---|---|---|
-| Nike | 16 | 監査中 | 監査中 | 監査中 | 監査中 | TODO | Air Max / Dunk / AF1 / Vomero / P-6000 を重点確認 |
+| Nike | 16 | PASS | WARNING | PASS | PASS | WARNING | MVP主要モデルは整備済み。Aliasは追加余地あり。 |
 | Air Jordan | 12 | 監査中 | 監査中 | 監査中 | 監査中 | TODO | AJ1 / AJ3 / AJ4 / AJ11 を重点確認 |
 | adidas | 12 | 監査中 | 監査中 | 監査中 | 監査中 | TODO | Samba / Gazelle / Campus / Superstar / Stan Smith を重点確認 |
 | New Balance | 20 | 監査中 | 監査中 | 監査中 | 監査中 | TODO | 530 / 550 / 574 / 9060 / 990 / 2002R / 1906R を重点確認 |
@@ -207,14 +207,25 @@ Japan S
 
 ---
 
+## Completed Work
+
+```text
+2026-06-25
+- MODEL_MASTER/NIKE.md を v2.0 に更新
+- Canonical Name / Alias / searchKeywords / category / source を追加
+- Nike を MVP基準で WARNING まで引き上げ
+```
+
+---
+
 ## Next Work
 
 ```text
-1. MODEL_MASTER/NIKE.md を Canonical / Alias / searchKeywords 観点で育成
-2. MODEL_MASTER/NEW_BALANCE.md を Canonical / Alias / searchKeywords 観点で育成
-3. MODEL_MASTER/ASICS.md を Canonical / Alias / searchKeywords 観点で育成
-4. MODEL_MASTER/ADIDAS.md を Canonical / Alias / searchKeywords 観点で育成
-5. MODEL_MASTER/AIR_JORDAN.md を Canonical / Alias / searchKeywords 観点で育成
+1. MODEL_MASTER/NEW_BALANCE.md を Canonical / Alias / searchKeywords 観点で育成
+2. MODEL_MASTER/ASICS.md を Canonical / Alias / searchKeywords 観点で育成
+3. MODEL_MASTER/ADIDAS.md を Canonical / Alias / searchKeywords 観点で育成
+4. MODEL_MASTER/AIR_JORDAN.md を Canonical / Alias / searchKeywords 観点で育成
+5. Nike Alias追加監査
 ```
 
 ---
