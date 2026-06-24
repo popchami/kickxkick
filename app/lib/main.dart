@@ -5,7 +5,9 @@ import 'providers/theme_provider.dart';
 import 'providers/navigation_provider.dart';
 import 'screens/home_screen.dart';
 import 'screens/collection_screen.dart';
+import 'screens/sticker_screen.dart';
 import 'screens/settings_screen.dart';
+import 'screens/shoe_form_screen.dart';
 import 'widgets/app_fab.dart';
 
 void main() {
@@ -40,16 +42,22 @@ class KickxKickHome extends ConsumerWidget {
     final screens = [
       const HomeScreen(),
       const CollectionScreen(),
+      const SizedBox.shrink(),
+      const StickerScreen(),
       const SettingsScreen(),
     ];
-
-    final showFab = currentIndex == 0 || currentIndex == 1;
 
     return Scaffold(
       body: screens[currentIndex],
       bottomNavigationBar: NavigationBar(
         selectedIndex: currentIndex,
         onDestinationSelected: (index) {
+          if (index == 2) {
+            Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const ShoeFormScreen()),
+            );
+            return;
+          }
           ref.read(bottomNavigationIndexProvider.notifier).state = index;
         },
         destinations: const [
@@ -64,13 +72,24 @@ class KickxKickHome extends ConsumerWidget {
             label: 'Collection',
           ),
           NavigationDestination(
+            icon: Icon(Icons.add_circle_outline),
+            selectedIcon: Icon(Icons.add_circle),
+            label: '＋',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.sticky_note_2_outlined),
+            selectedIcon: Icon(Icons.sticky_note_2),
+            label: 'Sticker',
+          ),
+          NavigationDestination(
             icon: Icon(Icons.settings_outlined),
             selectedIcon: Icon(Icons.settings),
             label: 'Settings',
           ),
         ],
       ),
-      floatingActionButton: showFab ? const AppFab() : null,
+      floatingActionButton: const AppFab(),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
   }
 }
