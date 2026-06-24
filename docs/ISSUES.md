@@ -1,32 +1,21 @@
-SoleMuseum Open Issues
+# Kick×Kick Open Issues
 
 This document tracks known issues, technical debt, future improvements, and unresolved questions.
 
 ---
 
-ISSUE-001
+## ISSUE-001: Runtime Verification
 
-Title
+Priority: High
 
-Runtime Verification (All Sprints)
+Status: Open
 
-Priority
-
-High
-
-Status
-
-Open
-
-Description
-
-Sprint1-6 code is merged. Runtime verification on a physical device
-is required before v1.0 release.
+Sprint1-6 code is merged. Runtime verification on a physical device is required before v1.0 release.
 
 Required:
 
-- flutter pub get (pubspec.lock refresh after dependency changes)
-- flutter analyze (zero warnings target)
+- flutter pub get
+- flutter analyze
 - flutter run on Android device
 - Verify all 5 screens render correctly
 - Verify CRUD operations end-to-end
@@ -37,47 +26,27 @@ Required:
 
 ---
 
-ISSUE-002
+## ISSUE-002: Photo Deletion UX
 
-Title
+Priority: Medium
 
-Photo Deletion UX
+Status: Resolved
 
-Priority
+Decision:
 
-Medium
-
-Status
-
-Resolved
-
-Decision
-
-- Confirmation dialog: Yes (AlertDialog with "キャンセル" / "削除")
+- Confirmation dialog: Yes
 - Main photo: long-press to trigger deletion dialog
 - Gallery/box photos: long-press on thumbnail to trigger deletion dialog
-- Delete metadata and file simultaneously via transaction
-- UI hint chip ("長押しで削除") displayed on main photo
+- Delete metadata and file together
+- UI hint chip displayed on main photo
 
 ---
 
-ISSUE-003
+## ISSUE-003: Collection Performance
 
-Title
+Priority: Medium
 
-Collection Performance
-
-Priority
-
-Medium
-
-Status
-
-Future
-
-Description
-
-Collection screen currently loads photo data per shoe.
+Status: Future
 
 Large collections may require optimization.
 
@@ -89,21 +58,13 @@ Potential solutions:
 
 ---
 
-ISSUE-004
+## ISSUE-004: Wear Log Data Model
 
-Title
+Priority: Medium
 
-Wear Log Data Model
+Status: Resolved
 
-Priority
-
-Medium
-
-Status
-
-Resolved
-
-Decision
+Decision:
 
 - One entry per shoe per day
 - Duplicate records for the same shoe and date are ignored
@@ -112,172 +73,106 @@ Decision
 
 ---
 
-ISSUE-005
+## ISSUE-005: TOP5 Selection Method
 
-Title
+Priority: Low
 
-Top 5 Selection Method
+Status: Resolved
 
-Priority
-
-Low
-
-Status
-
-Resolved
-
-Decision
+Decision:
 
 - Selection is manual from the shoe detail screen
 - A maximum of five shoes can be selected
 - Display order follows selection order
-- Favorites remain a separate feature
 - Drag and drop ordering is deferred
 
 ---
 
-ISSUE-006
+## ISSUE-006: Backup Format
 
-Title
+Priority: Medium
 
-Backup Format
+Status: Resolved
 
-Priority
-
-Medium
-
-Status
-
-Resolved
-
-Decision
+Decision:
 
 - v1 uses JSON files
-- Brands, shoes, wear history, favorites, and MY TOP 5 are included
-- Photo files and photo metadata are not included
+- Brands, shoes, wear history, and TOP5 are included
 - Restore replaces existing collection data after confirmation
 - ZIP backup with photos is deferred
 
 ---
 
-ISSUE-007
+## ISSUE-007: Brand / Model Management
 
-Title
+Priority: High
 
-Brand Management
+Status: In Progress
 
-Priority
+Current direction:
 
-Low
+- Brand candidates are provided by official master data
+- Model candidates will be added by brand
+- Free input fallback is required
+- Alias support is planned for search quality
 
-Status
+Important specs:
 
-Future
-
-Description
-
-Current brands are seeded.
-
-Future consideration:
-
-- Add custom brands
-- Edit brands
-- Hide brands
-
-Not required for v1.0.
+```text
+specs/BRAND_MASTER.md
+specs/KICKXKICK_BRAND_MODEL_CATALOG.md
+specs/KICKXKICK_DATA.md
+specs/KICKXKICK_DB_SPEC.md
+```
 
 ---
 
-ISSUE-008
+## ISSUE-008: Cloud Sync Strategy
 
-Title
+Priority: Low
 
-Cloud Sync Strategy
-
-Priority
-
-Low
-
-Status
-
-Deferred
-
-Description
+Status: Deferred
 
 Deferred until after v1.0.
 
 Potential options:
 
-- Firebase
 - Google Drive
-- Self-hosted sync
+- Local export/import
+- Other sync strategy
 
 ---
 
-ISSUE-009
+## ISSUE-009: App Store Assets
 
-Title
+Priority: Medium
 
-App Store Assets
+Status: In Progress
 
-Priority
+Still required:
 
-Medium
-
-Status
-
-In Progress
-
-Description
-
-Progress:
-
-- App icon: asset created (assets/icon/icon.png 1024x1024, Museum Black + Gallery Gold "S")
-- Adaptive icon foreground: created (assets/icon/icon_foreground.png)
-- Splash logo: created (assets/splash/splash_logo.png)
-- flutter_launcher_icons: configured in pubspec.yaml
-- flutter_native_splash: configured in pubspec.yaml
-
-Still required (needs Flutter SDK):
-
-- Run: flutter pub run flutter_launcher_icons
-- Run: flutter pub run flutter_native_splash:create
-- App Store / Play Store screenshots (5 screens minimum)
-- Play Store feature graphic (1024x500)
+- Run launcher icon generator
+- Run splash generator
+- App Store / Play Store screenshots
+- Play Store feature graphic
 - App description localization
 
 ---
 
-ISSUE-010
+## ISSUE-010: First Public Release
 
-Title
+Priority: High
 
-First Public Release
-
-Priority
-
-High
-
-Status
-
-In Progress
-
-Description
-
-Code status:
-
-- Sprint1-6: merged to main
-- Analyzer: zero warnings (CI green on Flutter 3.24.x, updated to stable)
-- Release assets: icon + splash configured
+Status: In Progress
 
 Remaining before release:
 
-- ISSUE-001: Device runtime verification
-- ISSUE-009: Run launcher_icons + native_splash generators, take screenshots
-- Android release build (flutter build apk --release)
-- Performance check (list load <3s, detail <1s)
-- Play Store / App Store submission
+- Device runtime verification
+- Generate final icon and splash assets
+- Android release build
+- Performance check
+- Store submission
 
 Goal:
 
-SoleMuseum v1.0 release.
+Kick×Kick v1.0 release.
