@@ -26,6 +26,7 @@ SEARCH_SPEC.md
 SEARCH_DATA_SPEC.md
 ALIAS_MASTER_SPEC.md
 REGISTRATION_FLOW_SPEC.md
+SEARCH_MVP_TEST_SPEC.md
 ```
 
 旧SoleMuseum仕様書が残っていても、実装判断には使わない。
@@ -65,6 +66,7 @@ SEARCH_SPEC.md
 SEARCH_DATA_SPEC.md
 ALIAS_MASTER_SPEC.md
 REGISTRATION_FLOW_SPEC.md
+SEARCH_MVP_TEST_SPEC.md
 ```
 
 役割:
@@ -92,6 +94,12 @@ REGISTRATION_FLOW_SPEC.md
 - モデル選択
 - 自由入力fallback
 - 保存データ
+
+SEARCH_MVP_TEST_SPEC.md
+- MVP検索テストケース
+- Alias検索確認
+- 日本語検索確認
+- 自由入力fallback確認
 ```
 
 ### Brand / Model Master
@@ -179,6 +187,7 @@ SEARCH_SPEC.md
 SEARCH_DATA_SPEC.md
 ALIAS_MASTER_SPEC.md
 REGISTRATION_FLOW_SPEC.md
+SEARCH_MVP_TEST_SPEC.md
 ```
 
 Sprint1実装開始時は以下を使う。
