@@ -1,0 +1,33 @@
+name: Data Quality
+
+on:
+  pull_request:
+    paths:
+      - 'data/**'
+      - 'tools/validate_data.py'
+      - '.github/workflows/data-quality.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'data/**'
+      - 'tools/validate_data.py'
+      - '.github/workflows/data-quality.yml'
+  workflow_dispatch:
+
+jobs:
+  validate-data:
+    name: Validate data master
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Validate data JSON
+        run: python tools/validate_data.py
