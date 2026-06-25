@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kickxkick.local/schema/model.schema.json",
+  "title": "KickxKick Model Data Master",
+  "type": "object",
+  "required": ["version", "updatedAt", "items"],
+  "additionalProperties": false,
+  "properties": {
+    "version": {"type": "string"},
+    "updatedAt": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "brandId", "modelName", "category", "source"],
+        "additionalProperties": false,
+        "properties": {
+          "id": {"type": "string", "pattern": "^[a-z0-9_]+$"},
+          "brandId": {"type": "string", "pattern": "^[a-z0-9_]+$"},
+          "modelName": {"type": "string", "minLength": 1},
+          "category": {
+            "type": "string",
+            "enum": ["lifestyle", "running", "basketball", "trail", "skateboarding", "outdoor", "tennis", "training", "boot", "sandal", "other"]
+          },
+          "source": {"type": "string", "enum": ["master", "user_input"]}
+        }
+      }
+    }
+  }
+}
