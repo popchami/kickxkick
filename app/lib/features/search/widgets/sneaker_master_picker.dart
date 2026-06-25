@@ -39,9 +39,15 @@ class SneakerMasterPicker extends StatefulWidget {
 class _SneakerMasterPickerState extends State<SneakerMasterPicker> {
   BrandMaster? _selectedBrand;
   ModelSuggestion? _selectedModel;
+  late String _brandText;
+  late String _modelText;
 
-  String get _brandName => _selectedBrand?.brandName ?? widget.initialBrandName ?? '';
-  String get _modelName => _selectedModel?.canonicalName ?? widget.initialModelName ?? '';
+  @override
+  void initState() {
+    super.initState();
+    _brandText = widget.initialBrandName ?? '';
+    _modelText = widget.initialModelName ?? '';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -50,10 +56,21 @@ class _SneakerMasterPickerState extends State<SneakerMasterPicker> {
       children: [
         BrandSearchField(
           initialText: widget.initialBrandName,
+          onTextChanged: (value) {
+            setState(() {
+              _brandText = value;
+              _selectedBrand = null;
+              _selectedModel = null;
+              _modelText = '';
+            });
+            _emit();
+          },
           onSelected: (brand) {
             setState(() {
               _selectedBrand = brand;
+              _brandText = brand.brandName;
               _selectedModel = null;
+              _modelText = '';
             });
             _emit();
           },
@@ -63,8 +80,18 @@ class _SneakerMasterPickerState extends State<SneakerMasterPicker> {
           key: ValueKey(_selectedBrand?.brandId),
           brandId: _selectedBrand?.brandId,
           initialText: widget.initialModelName,
+          onTextChanged: (value) {
+            setState(() {
+              _modelText = value;
+              _selectedModel = null;
+            });
+            _emit();
+          },
           onSelected: (suggestion) {
-            setState(() => _selectedModel = suggestion);
+            setState(() {
+              _selectedModel = suggestion;
+              _modelText = suggestion.canonicalName;
+            });
             _emit();
           },
         ),
@@ -76,9 +103,9 @@ class _SneakerMasterPickerState extends State<SneakerMasterPicker> {
     widget.onChanged(
       SneakerMasterSelection(
         brandId: _selectedBrand?.brandId,
-        brandName: _brandName,
+        brandName: _brandText.trim(),
         modelId: _selectedModel?.model.id,
-        modelName: _modelName,
+        modelName: _modelText.trim(),
         isMasterModel: _selectedModel != null,
       ),
     );
