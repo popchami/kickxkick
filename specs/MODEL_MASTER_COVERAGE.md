@@ -1,4 +1,4 @@
-# Kick×Kick Model Master Coverage v1.1
+# Kick×Kick Model Master Coverage v1.2
 
 ## Purpose
 
@@ -46,11 +46,11 @@ BLOCKED
 
 | Brand | Priority S Models | Model Coverage | Alias | searchKeywords | Canonical Name | Status | Notes |
 |---|---:|---:|---|---|---|---|---|
-| Nike | 16 | PASS | WARNING | PASS | PASS | WARNING | MVP主要モデルは整備済み。Aliasは追加余地あり。 |
-| Air Jordan | 12 | 監査中 | 監査中 | 監査中 | 監査中 | TODO | AJ1 / AJ3 / AJ4 / AJ11 を重点確認 |
-| adidas | 12 | 監査中 | 監査中 | 監査中 | 監査中 | TODO | Samba / Gazelle / Campus / Superstar / Stan Smith を重点確認 |
-| New Balance | 20 | 監査中 | 監査中 | 監査中 | 監査中 | TODO | 530 / 550 / 574 / 9060 / 990 / 2002R / 1906R を重点確認 |
-| ASICS | 12 | 監査中 | 監査中 | 監査中 | 監査中 | TODO | GT-2160 / GEL-1130 / GEL-Kayano 14 / GEL-NYC を重点確認 |
+| Nike | 16 | PASS | PASS | PASS | PASS | PASS | Air Force 1 / Air Max / Dunk / P-6000 / Vomero 5 などMVP主要検索を補強済み。 |
+| Air Jordan | 12 | PASS | PASS | PASS | PASS | PASS | AJ/J/Jordan連結表記と日本語検索を補強済み。1桁数字単体は追加しない。 |
+| adidas | 12 | PASS | PASS | PASS | PASS | PASS | Samba / Gazelle / Campus / Forum / Adimatic / Ultraboost などを補強済み。 |
+| New Balance | 20 | PASS | PASS | PASS | PASS | PASS | 530 / 550 / 574 / 9060 / 990v1〜v6 / 2002R / 1906R を補強済み。 |
+| ASICS | 12 | PASS | PASS | PASS | PASS | PASS | GT-2160 / GEL-1130 / GEL-Kayano 14 / GEL-NYC / Novablast / Superblast などを補強済み。 |
 
 ---
 
@@ -214,6 +214,13 @@ Japan S
 - MODEL_MASTER/NIKE.md を v2.0 に更新
 - Canonical Name / Alias / searchKeywords / category / source を追加
 - Nike を MVP基準で WARNING まで引き上げ
+
+2026-06-26
+- data/aliases.json を v0.1.1 に更新
+- data/search_keywords.json を v0.1.2 に更新
+- app/assets/data/aliases.json と app/assets/data/search_keywords.json を同期
+- Tier S 5ブランドをMVP基準でPASSに更新
+- 低確度モデル追加は行わず、既存Tier Sモデルの検索補助を補強
 ```
 
 ---
@@ -221,11 +228,10 @@ Japan S
 ## Next Work
 
 ```text
-1. MODEL_MASTER/NEW_BALANCE.md を Canonical / Alias / searchKeywords 観点で育成
-2. MODEL_MASTER/ASICS.md を Canonical / Alias / searchKeywords 観点で育成
-3. MODEL_MASTER/ADIDAS.md を Canonical / Alias / searchKeywords 観点で育成
-4. MODEL_MASTER/AIR_JORDAN.md を Canonical / Alias / searchKeywords 観点で育成
-5. Nike Alias追加監査
+1. Search MVPテストケースを実機またはFlutterテストで実施
+2. data/*.json と app/assets/data/*.json の同期自動化
+3. Tier Aブランド候補を別PR/別作業で追加検討
+4. Tier Sの追加モデルは実ユーザー入力ログが溜まってから判断
 ```
 
 ---
@@ -241,12 +247,18 @@ AF1 -> Air Force 1
 P6000 -> P-6000
 Vomero5 -> Zoom Vomero 5
 AJ1 -> Air Jordan 1
+Jordan11 -> Air Jordan 11
 550 -> 550
 990 -> 990v1〜990v6
+NB990v6 -> 990v6
 9060 -> 9060
 2160 -> GT-2160
 1130 -> GEL-1130
 Kayano14 -> GEL-Kayano 14
+GelKayano14 -> GEL-Kayano 14
 Samba -> Samba
 Campus -> Campus 00s
+ForumLow -> Forum Low
+フォーラムロー -> Forum Low
+ゲルNYC -> GEL-NYC
 ```
