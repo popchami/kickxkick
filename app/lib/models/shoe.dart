@@ -1,7 +1,14 @@
 class Shoe {
+  static const String statusNew = 'new';
+  static const String statusWorn = 'worn';
+  static const String statusParted = 'parted';
+
   final int? id;
   final int brandId;
   final String modelName;
+  final String? displayTitle;
+  final String? stickerText;
+  final String status;
   final String? size;
   final String? color;
   final DateTime? purchaseDate;
@@ -17,6 +24,9 @@ class Shoe {
     this.id,
     required this.brandId,
     required this.modelName,
+    this.displayTitle,
+    this.stickerText,
+    this.status = statusNew,
     this.size,
     this.color,
     this.purchaseDate,
@@ -32,6 +42,9 @@ class Shoe {
   factory Shoe.create({
     required int brandId,
     required String modelName,
+    String? displayTitle,
+    String? stickerText,
+    String status = statusNew,
     String? size,
     String? color,
     DateTime? purchaseDate,
@@ -44,6 +57,9 @@ class Shoe {
     return Shoe(
       brandId: brandId,
       modelName: modelName,
+      displayTitle: displayTitle,
+      stickerText: stickerText,
+      status: normalizeStatus(status),
       size: size,
       color: color,
       purchaseDate: purchaseDate,
@@ -61,6 +77,9 @@ class Shoe {
       id: map['id'] as int?,
       brandId: map['brand_id'] as int,
       modelName: map['model_name'] as String,
+      displayTitle: map['display_title'] as String?,
+      stickerText: map['sticker_text'] as String?,
+      status: normalizeStatus(map['status'] as String?),
       size: map['size'] as String?,
       color: map['color'] as String?,
       purchaseDate: _parseDate(map['purchase_date'] as String?),
@@ -79,6 +98,9 @@ class Shoe {
       'id': id,
       'brand_id': brandId,
       'model_name': modelName,
+      'display_title': displayTitle,
+      'sticker_text': stickerText,
+      'status': normalizeStatus(status),
       'size': size,
       'color': color,
       'purchase_date': purchaseDate?.toIso8601String(),
@@ -96,6 +118,9 @@ class Shoe {
     int? id,
     int? brandId,
     String? modelName,
+    String? displayTitle,
+    String? stickerText,
+    String? status,
     String? size,
     String? color,
     DateTime? purchaseDate,
@@ -111,6 +136,9 @@ class Shoe {
       id: id ?? this.id,
       brandId: brandId ?? this.brandId,
       modelName: modelName ?? this.modelName,
+      displayTitle: displayTitle ?? this.displayTitle,
+      stickerText: stickerText ?? this.stickerText,
+      status: normalizeStatus(status ?? this.status),
       size: size ?? this.size,
       color: color ?? this.color,
       purchaseDate: purchaseDate ?? this.purchaseDate,
@@ -126,8 +154,31 @@ class Shoe {
 
   String get archiveNumber {
     final id = this.id;
-    if (id == null) return 'SM-????';
-    return 'SM-${id.toString().padLeft(4, '0')}';
+    if (id == null) return 'KXK-????';
+    return 'KXK-${id.toString().padLeft(4, '0')}';
+  }
+
+  String get statusLabel {
+    switch (status) {
+      case statusWorn:
+        return '着用済み';
+      case statusParted:
+        return '手放した';
+      case statusNew:
+      default:
+        return '新品';
+    }
+  }
+
+  static String normalizeStatus(String? value) {
+    switch (value) {
+      case statusWorn:
+      case statusParted:
+      case statusNew:
+        return value!;
+      default:
+        return statusNew;
+    }
   }
 
   static DateTime? _parseDate(String? value) {
