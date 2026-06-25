@@ -48,6 +48,8 @@ class _ShoeFormScreenState extends ConsumerState<ShoeFormScreen> {
 
   final _formKey = GlobalKey<FormState>();
   final _modelController = TextEditingController();
+  final _displayTitleController = TextEditingController();
+  final _stickerTextController = TextEditingController();
   final _priceController = TextEditingController();
   final _storeController = TextEditingController();
   final _memoController = TextEditingController();
@@ -55,6 +57,7 @@ class _ShoeFormScreenState extends ConsumerState<ShoeFormScreen> {
   int _currentStep = 0;
   int? _brandId;
   String _brandText = '';
+  String _status = Shoe.statusNew;
   String? _selectedSize;
   String? _selectedColor;
   DateTime? _purchaseDate;
@@ -70,6 +73,9 @@ class _ShoeFormScreenState extends ConsumerState<ShoeFormScreen> {
     if (shoe != null) {
       _brandId = shoe.brandId;
       _modelController.text = shoe.modelName;
+      _displayTitleController.text = shoe.displayTitle ?? '';
+      _stickerTextController.text = shoe.stickerText ?? '';
+      _status = Shoe.normalizeStatus(shoe.status);
       _selectedSize = shoe.size;
       _selectedColor = shoe.color;
       _priceController.text = shoe.purchasePrice?.toString() ?? '';
@@ -83,6 +89,8 @@ class _ShoeFormScreenState extends ConsumerState<ShoeFormScreen> {
   @override
   void dispose() {
     _modelController.dispose();
+    _displayTitleController.dispose();
+    _stickerTextController.dispose();
     _priceController.dispose();
     _storeController.dispose();
     _memoController.dispose();
@@ -127,6 +135,9 @@ class _ShoeFormScreenState extends ConsumerState<ShoeFormScreen> {
             id: current.id,
             brandId: resolvedBrandId,
             modelName: modelName,
+            displayTitle: _emptyToNull(_displayTitleController.text),
+            stickerText: _emptyToNull(_stickerTextController.text),
+            status: _status,
             size: _selectedSize,
             color: _selectedColor,
             purchaseDate: _purchaseDate,
@@ -144,6 +155,9 @@ class _ShoeFormScreenState extends ConsumerState<ShoeFormScreen> {
           Shoe.create(
             brandId: resolvedBrandId,
             modelName: modelName,
+            displayTitle: _emptyToNull(_displayTitleController.text),
+            stickerText: _emptyToNull(_stickerTextController.text),
+            status: _status,
             size: _selectedSize,
             color: _selectedColor,
             purchaseDate: _purchaseDate,
@@ -357,6 +371,24 @@ class _ShoeFormScreenState extends ConsumerState<ShoeFormScreen> {
           validator: (value) =>
               value == null || value.trim().isEmpty ? 'モデル名を入力してください' : null,
         ),
+        const SizedBox(height: 16),
+        TextFormField(
+          controller: _displayTitleController,
+          decoration: const InputDecoration(
+            labelText: 'Display Title',
+            helperText: '棚や一覧で使う愛称。最大10文字',
+          ),
+          maxLength: 10,
+        ),
+        const SizedBox(height: 16),
+        TextFormField(
+          controller: _stickerTextController,
+          decoration: const InputDecoration(
+            labelText: 'ステッカーテキスト',
+            helperText: 'ステッカー生成で使う短い文字。最大15文字',
+          ),
+          maxLength: 15,
+        ),
       ],
     );
   }
@@ -430,6 +462,21 @@ class _ShoeFormScreenState extends ConsumerState<ShoeFormScreen> {
   Widget _buildDetails() {
     return Column(
       children: [
+        DropdownButtonFormField<String>(
+          initialValue: _status,
+          decoration: const InputDecoration(labelText: '状態'),
+          items: const [
+            DropdownMenuItem(value: Shoe.statusNew, child: Text('新品')),
+            DropdownMenuItem(value: Shoe.statusWorn, child: Text('着用済み')),
+            DropdownMenuItem(value: Shoe.statusParted, child: Text('手放した')),
+          ],
+          onChanged: (value) {
+            if (value != null) {
+              setState(() => _status = value);
+            }
+          },
+        ),
+        const SizedBox(height: 16),
         ListTile(
           contentPadding: EdgeInsets.zero,
           title: const Text('購入日'),
@@ -458,7 +505,7 @@ class _ShoeFormScreenState extends ConsumerState<ShoeFormScreen> {
           controller: _memoController,
           decoration: const InputDecoration(labelText: 'メモ'),
           maxLines: 4,
-          maxLength: 500,
+          maxLength: 300,
         ),
       ],
     );
