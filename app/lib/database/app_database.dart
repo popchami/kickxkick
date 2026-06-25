@@ -21,7 +21,7 @@ class AppDatabase {
 
     return openDatabase(
       path,
-      version: 4,
+      version: 5,
       onConfigure: (db) async {
         await db.execute('PRAGMA foreign_keys = ON');
       },
@@ -44,6 +44,9 @@ class AppDatabase {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         brand_id INTEGER NOT NULL,
         model_name TEXT NOT NULL,
+        display_title TEXT,
+        sticker_text TEXT,
+        status TEXT NOT NULL DEFAULT 'new',
         size TEXT,
         color TEXT,
         purchase_date TEXT,
@@ -74,6 +77,11 @@ class AppDatabase {
     if (oldVersion < 4) {
       await db.execute('ALTER TABLE shoes ADD COLUMN top_order INTEGER');
       await _createTopOrderIndex(db);
+    }
+    if (oldVersion < 5) {
+      await db.execute('ALTER TABLE shoes ADD COLUMN display_title TEXT');
+      await db.execute('ALTER TABLE shoes ADD COLUMN sticker_text TEXT');
+      await db.execute("ALTER TABLE shoes ADD COLUMN status TEXT NOT NULL DEFAULT 'new'");
     }
   }
 
