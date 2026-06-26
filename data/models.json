@@ -1,6 +1,6 @@
 {
-  "version": "0.1.0",
-  "updatedAt": "2026-06-25",
+  "version": "0.2.0",
+  "updatedAt": "2026-06-26",
   "items": [
     {"id":"nike_air_force_1","brandId":"nike","modelName":"Air Force 1","category":"lifestyle","source":"master"},
     {"id":"nike_air_max_1","brandId":"nike","modelName":"Air Max 1","category":"lifestyle","source":"master"},
@@ -77,6 +77,34 @@
     {"id":"asics_novablast","brandId":"asics","modelName":"Novablast","category":"running","source":"master"},
     {"id":"asics_superblast","brandId":"asics","modelName":"Superblast","category":"running","source":"master"},
     {"id":"asics_ex89","brandId":"asics","modelName":"EX89","category":"basketball","source":"master"},
-    {"id":"asics_japan_s","brandId":"asics","modelName":"Japan S","category":"lifestyle","source":"master"}
+    {"id":"asics_japan_s","brandId":"asics","modelName":"Japan S","category":"lifestyle","source":"master"},
+
+    {"id":"puma_suede","brandId":"puma","modelName":"Suede","category":"lifestyle","source":"master"},
+    {"id":"puma_palermo","brandId":"puma","modelName":"Palermo","category":"lifestyle","source":"master"},
+    {"id":"puma_speedcat","brandId":"puma","modelName":"Speedcat","category":"lifestyle","source":"master"},
+    {"id":"puma_clyde","brandId":"puma","modelName":"Clyde","category":"basketball","source":"master"},
+    {"id":"puma_rs_x","brandId":"puma","modelName":"RS-X","category":"lifestyle","source":"master"},
+    {"id":"puma_basket","brandId":"puma","modelName":"Basket","category":"basketball","source":"master"},
+
+    {"id":"converse_chuck_taylor_all_star","brandId":"converse","modelName":"Chuck Taylor All Star","category":"lifestyle","source":"master"},
+    {"id":"converse_chuck_70","brandId":"converse","modelName":"Chuck 70","category":"lifestyle","source":"master"},
+    {"id":"converse_one_star","brandId":"converse","modelName":"One Star","category":"skateboarding","source":"master"},
+    {"id":"converse_jack_purcell","brandId":"converse","modelName":"Jack Purcell","category":"lifestyle","source":"master"},
+    {"id":"converse_weapon","brandId":"converse","modelName":"Weapon","category":"basketball","source":"master"},
+    {"id":"converse_run_star_hike","brandId":"converse","modelName":"Run Star Hike","category":"lifestyle","source":"master"},
+
+    {"id":"vans_old_skool","brandId":"vans","modelName":"Old Skool","category":"skateboarding","source":"master"},
+    {"id":"vans_authentic","brandId":"vans","modelName":"Authentic","category":"skateboarding","source":"master"},
+    {"id":"vans_classic_slip_on","brandId":"vans","modelName":"Classic Slip-On","category":"lifestyle","source":"master"},
+    {"id":"vans_sk8_hi","brandId":"vans","modelName":"Sk8-Hi","category":"skateboarding","source":"master"},
+    {"id":"vans_era","brandId":"vans","modelName":"Era","category":"skateboarding","source":"master"},
+    {"id":"vans_knu_skool","brandId":"vans","modelName":"Knu Skool","category":"skateboarding","source":"master"},
+
+    {"id":"reebok_club_c","brandId":"reebok","modelName":"Club C","category":"tennis","source":"master"},
+    {"id":"reebok_classic_leather","brandId":"reebok","modelName":"Classic Leather","category":"lifestyle","source":"master"},
+    {"id":"reebok_instapump_fury","brandId":"reebok","modelName":"Instapump Fury","category":"running","source":"master"},
+    {"id":"reebok_workout_plus","brandId":"reebok","modelName":"Workout Plus","category":"training","source":"master"},
+    {"id":"reebok_freestyle","brandId":"reebok","modelName":"Freestyle","category":"training","source":"master"},
+    {"id":"reebok_question","brandId":"reebok","modelName":"Question","category":"basketball","source":"master"}
   ]
 }
