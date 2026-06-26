@@ -1,6 +1,6 @@
 {
-  "version": "0.1.0",
-  "updatedAt": "2026-06-25",
+  "version": "0.2.0",
+  "updatedAt": "2026-06-26",
   "items": [
     {
       "brandId": "nike",
@@ -30,6 +30,30 @@
       "brandId": "asics",
       "brandName": "ASICS",
       "tier": "S",
+      "isEnabled": true
+    },
+    {
+      "brandId": "puma",
+      "brandName": "PUMA",
+      "tier": "A",
+      "isEnabled": true
+    },
+    {
+      "brandId": "converse",
+      "brandName": "Converse",
+      "tier": "A",
+      "isEnabled": true
+    },
+    {
+      "brandId": "vans",
+      "brandName": "Vans",
+      "tier": "A",
+      "isEnabled": true
+    },
+    {
+      "brandId": "reebok",
+      "brandName": "Reebok",
+      "tier": "A",
       "isEnabled": true
     }
   ]
