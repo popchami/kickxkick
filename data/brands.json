@@ -1,60 +1,16 @@
 {
-  "version": "0.2.0",
-  "updatedAt": "2026-06-26",
+  "version": "0.3.0",
+  "updatedAt": "2026-06-28",
   "items": [
-    {
-      "brandId": "nike",
-      "brandName": "Nike",
-      "tier": "S",
-      "isEnabled": true
-    },
-    {
-      "brandId": "air_jordan",
-      "brandName": "Air Jordan",
-      "tier": "S",
-      "isEnabled": true
-    },
-    {
-      "brandId": "adidas",
-      "brandName": "adidas",
-      "tier": "S",
-      "isEnabled": true
-    },
-    {
-      "brandId": "new_balance",
-      "brandName": "New Balance",
-      "tier": "S",
-      "isEnabled": true
-    },
-    {
-      "brandId": "asics",
-      "brandName": "ASICS",
-      "tier": "S",
-      "isEnabled": true
-    },
-    {
-      "brandId": "puma",
-      "brandName": "PUMA",
-      "tier": "A",
-      "isEnabled": true
-    },
-    {
-      "brandId": "converse",
-      "brandName": "Converse",
-      "tier": "A",
-      "isEnabled": true
-    },
-    {
-      "brandId": "vans",
-      "brandName": "Vans",
-      "tier": "A",
-      "isEnabled": true
-    },
-    {
-      "brandId": "reebok",
-      "brandName": "Reebok",
-      "tier": "A",
-      "isEnabled": true
-    }
+    {"brandId":"nike","brandName":"Nike","tier":"S","isEnabled":true},
+    {"brandId":"air_jordan","brandName":"Air Jordan","tier":"S","isEnabled":true},
+    {"brandId":"adidas","brandName":"adidas","tier":"S","isEnabled":true},
+    {"brandId":"new_balance","brandName":"New Balance","tier":"S","isEnabled":true},
+    {"brandId":"asics","brandName":"ASICS","tier":"S","isEnabled":true},
+    {"brandId":"puma","brandName":"PUMA","tier":"A","isEnabled":true},
+    {"brandId":"converse","brandName":"Converse","tier":"A","isEnabled":true},
+    {"brandId":"vans","brandName":"Vans","tier":"A","isEnabled":true},
+    {"brandId":"reebok","brandName":"Reebok","tier":"A","isEnabled":true},
+    {"brandId":"hoka","brandName":"HOKA","tier":"B","isEnabled":true}
   ]
 }
