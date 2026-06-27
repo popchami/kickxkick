@@ -1,4 +1,4 @@
-# Kick×Kick Task Board v1.7
+# Kick×Kick Task Board v1.8
 
 ## 目的
 
@@ -13,9 +13,10 @@ Kick×Kick開発の現在地を管理する。
 ```text
 ブランド・モデル・検索基盤はいったん終了。
 Tier S data JSON監査・検索補助の追加補強も完了。
+Tier AとしてPUMA / Converse / Vans / Reebokを高確度で追加。
 検索・登録はMVPリリース可能ライン。
 実機で写真保存まで確認済み。
-次はTOP5・着用履歴・詳細確認を進める。
+次はapp/assets/data/aliases.json同期、Search MVPテスト、TOP5・着用履歴・詳細確認を進める。
 ```
 
 引き継ぎ:
@@ -58,7 +59,7 @@ docs/HANDOFF_BRAND_MODEL_SEARCH.md
 状態:
 
 ```text
-PAUSED / MVP READY
+ACTIVE / TIER A PARTIAL
 ```
 
 - [x] BRAND_MASTER.md 作成
@@ -89,13 +90,16 @@ PAUSED / MVP READY
 - [x] searchKeywords監査
 - [x] Alias横断監査
 - [x] data/*.json と app/assets/data/*.json の手動同期
+- [x] Tier Aブランド追加
+- [x] Tier Aモデル追加
+- [x] Tier A searchKeywords追加
+- [ ] app/assets/data/aliases.json 同期更新
 
 保留:
 
 - [ ] Search MVPテストケース実施
-- [ ] Plannedブランド追加
 - [ ] data/*.json と app/assets/data/*.json の同期自動化
-- [ ] Tier A/B/Cブランド追加
+- [ ] Tier B/Cブランド追加
 
 ---
 
@@ -339,12 +343,38 @@ Premium / Backup / Export
 
 ---
 
+# Data Check Log
+
+```text
+2026-06-26: Tier AとしてPUMA / Converse / Vans / Reebokを追加。
+```
+
+確認済み:
+
+```text
+- data/brands.json v0.2.0
+- data/models.json v0.2.0
+- data/aliases.json v0.2.0
+- data/search_keywords.json v0.2.0
+- app/assets/data/brands.json v0.2.0
+- app/assets/data/models.json v0.2.0
+- app/assets/data/search_keywords.json v0.2.0
+```
+
+未完了:
+
+```text
+- app/assets/data/aliases.json v0.2.0同期
+```
+
+---
+
 # Current Focus
 
 現在やること:
 
 ```text
-写真保存後のMVP確認
+app/assets/data/aliases.json同期 / Search MVPテスト / 写真保存後のMVP確認
 ```
 
 次:
@@ -366,7 +396,7 @@ Factory is support.
 Kick×Kick release is the goal.
 ```
 
-ブランド・モデル・検索は一旦終了。
+ブランド・モデル・検索は一旦終了ではなく、MVPを壊さない範囲で段階育成する。
 
 Collect.
 Create.
