@@ -21,7 +21,7 @@ class AppDatabase {
 
     return openDatabase(
       path,
-      version: 5,
+      version: 7,
       onConfigure: (db) async {
         await db.execute('PRAGMA foreign_keys = ON');
       },
@@ -83,6 +83,13 @@ class AppDatabase {
       await db.execute('ALTER TABLE shoes ADD COLUMN sticker_text TEXT');
       await db.execute("ALTER TABLE shoes ADD COLUMN status TEXT NOT NULL DEFAULT 'new'");
     }
+    if (oldVersion < 6) {
+      await _deduplicateWearLogs(db);
+      await _createWearLogDateIndex(db);
+    }
+    if (oldVersion < 7) {
+      await _migratePhotosTable(db);
+    }
   }
 
   Future<void> _createShoeIndexes(Database db) async {
@@ -101,14 +108,54 @@ class AppDatabase {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         shoe_id INTEGER NOT NULL,
         file_path TEXT NOT NULL,
-        type TEXT NOT NULL,
+        photo_type TEXT NOT NULL,
+        display_order INTEGER NOT NULL DEFAULT 0,
         created_at TEXT NOT NULL,
-        updated_at TEXT NOT NULL,
         FOREIGN KEY (shoe_id) REFERENCES shoes(id) ON DELETE CASCADE
       )
     ''');
     await db.execute('CREATE INDEX IF NOT EXISTS idx_photos_shoe_id ON photos(shoe_id)');
-    await db.execute('CREATE UNIQUE INDEX IF NOT EXISTS idx_photos_shoe_type ON photos(shoe_id, type)');
+    await db.execute('CREATE UNIQUE INDEX IF NOT EXISTS idx_photos_shoe_type ON photos(shoe_id, photo_type)');
+  }
+
+  Future<void> _migratePhotosTable(Database db) async {
+    final columns = await db.rawQuery('PRAGMA table_info(photos)');
+    final names = columns.map((column) => column['name'] as String).toSet();
+    if (names.contains('photo_type') && names.contains('display_order')) {
+      return;
+    }
+
+    await db.execute('DROP INDEX IF EXISTS idx_photos_shoe_id');
+    await db.execute('DROP INDEX IF EXISTS idx_photos_shoe_type');
+    await db.execute('''
+      CREATE TABLE photos_new (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        shoe_id INTEGER NOT NULL,
+        file_path TEXT NOT NULL,
+        photo_type TEXT NOT NULL,
+        display_order INTEGER NOT NULL DEFAULT 0,
+        created_at TEXT NOT NULL,
+        FOREIGN KEY (shoe_id) REFERENCES shoes(id) ON DELETE CASCADE
+      )
+    ''');
+
+    if (names.contains('type')) {
+      await db.execute('''
+        INSERT INTO photos_new (id, shoe_id, file_path, photo_type, display_order, created_at)
+        SELECT id, shoe_id, file_path, type, 0, created_at
+        FROM photos
+      ''');
+    } else {
+      await db.execute('''
+        INSERT INTO photos_new (id, shoe_id, file_path, photo_type, display_order, created_at)
+        SELECT id, shoe_id, file_path, 'main', 0, created_at
+        FROM photos
+      ''');
+    }
+
+    await db.execute('DROP TABLE photos');
+    await db.execute('ALTER TABLE photos_new RENAME TO photos');
+    await _createPhotosTable(db);
   }
 
   Future<void> _createWearLogsTable(Database db) async {
@@ -124,6 +171,24 @@ class AppDatabase {
     ''');
     await db.execute('CREATE INDEX IF NOT EXISTS idx_wear_logs_shoe_id ON wear_logs(shoe_id)');
     await db.execute('CREATE INDEX IF NOT EXISTS idx_wear_logs_worn_date ON wear_logs(worn_date)');
+    await _createWearLogDateIndex(db);
+  }
+
+  Future<void> _createWearLogDateIndex(Database db) async {
+    await db.execute(
+      'CREATE UNIQUE INDEX IF NOT EXISTS idx_wear_logs_shoe_date ON wear_logs(shoe_id, worn_date)',
+    );
+  }
+
+  Future<void> _deduplicateWearLogs(Database db) async {
+    await db.execute('''
+      DELETE FROM wear_logs
+      WHERE id NOT IN (
+        SELECT MIN(id)
+        FROM wear_logs
+        GROUP BY shoe_id, worn_date
+      )
+    ''');
   }
 
   Future<void> _insertInitialBrands(Database db) async {

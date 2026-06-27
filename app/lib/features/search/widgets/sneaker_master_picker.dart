@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../search.dart';
-import 'brand_search_field.dart';
-import 'model_search_field.dart';
 
 class SneakerMasterSelection {
   const SneakerMasterSelection({

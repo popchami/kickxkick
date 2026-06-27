@@ -11,6 +11,7 @@ import '../providers/brand_provider.dart';
 import '../providers/photo_provider.dart';
 import '../providers/photo_storage_provider.dart';
 import '../providers/shoe_provider.dart';
+import '../providers/wear_log_provider.dart';
 import '../widgets/wear_history_section.dart';
 import 'shoe_form_screen.dart';
 
@@ -66,19 +67,76 @@ class ShoeDetailScreen extends ConsumerWidget {
             shoeId: shoe.id!,
             photoType: PhotoType.main,
           );
-      await ref.read(photoRepositoryProvider).replaceMainPhoto(
+      final previousPhotos = await ref.read(photoRepositoryProvider).replaceMainPhoto(
             Photo.create(
               shoeId: shoe.id!,
               photoType: PhotoType.main,
               filePath: filePath,
             ),
           );
+      final storage = ref.read(photoStorageServiceProvider);
+      for (final previousPhoto in previousPhotos) {
+        try {
+          await storage.deletePhotoFile(previousPhoto.filePath);
+        } catch (_) {
+          // Database replacement already succeeded; cleanup is best effort.
+        }
+      }
       ref.invalidate(photosByShoeIdProvider(shoe.id!));
       ref.invalidate(mainPhotoProvider(shoe.id!));
     } catch (_) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('写真の更新に失敗しました')),
+        );
+      }
+    }
+  }
+
+  Future<void> _deleteShoe(
+    BuildContext context,
+    WidgetRef ref,
+    Shoe shoe,
+  ) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('スニーカーを削除しますか？'),
+        content: Text(
+          '${shoe.displayTitle?.isNotEmpty == true ? shoe.displayTitle! : shoe.modelName}を削除します。'
+          '写真と着用履歴も削除されます。この操作は取り消せません。',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('キャンセル'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('削除'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) {
+      return;
+    }
+
+    final deletedCount = await ref.read(shoeRepositoryProvider).deleteShoe(shoe.id!);
+    ref.invalidate(shoesProvider);
+    ref.invalidate(shoeByIdProvider(shoe.id!));
+    ref.invalidate(photosByShoeIdProvider(shoe.id!));
+    ref.invalidate(mainPhotoProvider(shoe.id!));
+    ref.invalidate(wearLogsByShoeIdProvider(shoe.id!));
+    ref.invalidate(recentWearLogsProvider);
+
+    if (context.mounted) {
+      if (deletedCount > 0) {
+        Navigator.of(context).pop(true);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('削除できませんでした')),
         );
       }
     }
@@ -124,6 +182,22 @@ class ShoeDetailScreen extends ConsumerWidget {
                   );
                   ref.invalidate(shoeByIdProvider(shoeId));
                 },
+              ),
+              PopupMenuButton<String>(
+                onSelected: (value) {
+                  if (value == 'delete') {
+                    _deleteShoe(context, ref, shoe);
+                  }
+                },
+                itemBuilder: (_) => const [
+                  PopupMenuItem(
+                    value: 'delete',
+                    child: ListTile(
+                      leading: Icon(Icons.delete_outline),
+                      title: Text('削除'),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),

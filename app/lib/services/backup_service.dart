@@ -5,6 +5,7 @@ import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 
 import '../database/app_database.dart';
+import '../models/shoe.dart';
 
 class BackupService {
   static const String formatName = 'kickxkick-backup';
@@ -71,7 +72,7 @@ class BackupService {
 
     final brands = _readRows(data, 'brands');
     final shoes = _readRows(data, 'shoes');
-    final wearLogs = _readRows(data, 'wear_logs');
+    final wearLogs = _deduplicateWearLogs(_readRows(data, 'wear_logs'));
 
     final db = await AppDatabase.instance.database;
     await db.transaction((txn) async {
@@ -121,6 +122,9 @@ class BackupService {
       'id': _requiredInt(row, 'id'),
       'brand_id': _requiredInt(row, 'brand_id'),
       'model_name': _requiredString(row, 'model_name'),
+      'display_title': row['display_title'] as String?,
+      'sticker_text': row['sticker_text'] as String?,
+      'status': _optionalString(row, 'status') ?? Shoe.statusNew,
       'size': row['size'] as String?,
       'color': row['color'] as String?,
       'purchase_date': row['purchase_date'] as String?,
@@ -144,6 +148,20 @@ class BackupService {
     };
   }
 
+  List<Map<String, dynamic>> _deduplicateWearLogs(
+    List<Map<String, dynamic>> rows,
+  ) {
+    final seen = <String>{};
+    final deduplicated = <Map<String, dynamic>>[];
+    for (final row in rows) {
+      final key = '${_requiredInt(row, 'shoe_id')}|${_requiredString(row, 'worn_date')}';
+      if (seen.add(key)) {
+        deduplicated.add(row);
+      }
+    }
+    return deduplicated;
+  }
+
   int _requiredInt(Map<String, dynamic> row, String key) {
     final value = row[key];
     if (value is! int) {
@@ -155,6 +173,17 @@ class BackupService {
   String _requiredString(Map<String, dynamic> row, String key) {
     final value = row[key];
     if (value is! String || value.isEmpty) {
+      throw FormatException('$key が正しくありません');
+    }
+    return value;
+  }
+
+  String? _optionalString(Map<String, dynamic> row, String key) {
+    final value = row[key];
+    if (value == null) {
+      return null;
+    }
+    if (value is! String) {
       throw FormatException('$key が正しくありません');
     }
     return value;

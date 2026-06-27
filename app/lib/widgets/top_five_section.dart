@@ -46,7 +46,7 @@ class TopFiveSection extends StatelessWidget {
               padding: const EdgeInsets.all(20),
               child: Row(
                 children: [
-                  const Icon(Icons.museum_outlined, size: 36),
+                  const Icon(Icons.emoji_events_outlined, size: 36),
                   const SizedBox(width: 16),
                   Expanded(
                     child: Text(
@@ -143,7 +143,9 @@ class _TopFiveCard extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      shoe.modelName,
+                      shoe.displayTitle?.isNotEmpty == true
+                          ? shoe.displayTitle!
+                          : shoe.modelName,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.titleMedium,

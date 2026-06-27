@@ -63,6 +63,8 @@ class _ShoeFormScreenState extends ConsumerState<ShoeFormScreen> {
   DateTime? _purchaseDate;
   XFile? _pendingMainPhoto;
   bool _saving = false;
+  String? _lastAutoDisplayTitle;
+  String? _lastAutoStickerText;
 
   bool get _isEditing => widget.shoe != null;
 
@@ -84,10 +86,12 @@ class _ShoeFormScreenState extends ConsumerState<ShoeFormScreen> {
       _purchaseDate = shoe.purchaseDate;
       _currentStep = 1;
     }
+    _modelController.addListener(_syncModelNameFields);
   }
 
   @override
   void dispose() {
+    _modelController.removeListener(_syncModelNameFields);
     _modelController.dispose();
     _displayTitleController.dispose();
     _stickerTextController.dispose();
@@ -179,7 +183,9 @@ class _ShoeFormScreenState extends ConsumerState<ShoeFormScreen> {
       if (mounted) {
         Navigator.of(context).pop(true);
       }
-    } catch (_) {
+    } catch (error, stackTrace) {
+      debugPrint('Shoe save failed: $error');
+      debugPrintStack(stackTrace: stackTrace);
       if (mounted) {
         setState(() => _saving = false);
         ScaffoldMessenger.of(context).showSnackBar(
@@ -231,6 +237,55 @@ class _ShoeFormScreenState extends ConsumerState<ShoeFormScreen> {
   String? _emptyToNull(String value) {
     final trimmed = value.trim();
     return trimmed.isEmpty ? null : trimmed;
+  }
+
+  void _syncModelNameFields() {
+    final modelName = _modelController.text.trim();
+    if (modelName.isEmpty) {
+      return;
+    }
+
+    _syncTextController(
+      controller: _displayTitleController,
+      value: _limitText(modelName, 10),
+      lastAutoValue: _lastAutoDisplayTitle,
+      setLastAutoValue: (value) => _lastAutoDisplayTitle = value,
+    );
+    _syncTextController(
+      controller: _stickerTextController,
+      value: _limitText(modelName, 15),
+      lastAutoValue: _lastAutoStickerText,
+      setLastAutoValue: (value) => _lastAutoStickerText = value,
+    );
+  }
+
+  void _syncTextController({
+    required TextEditingController controller,
+    required String value,
+    required String? lastAutoValue,
+    required ValueChanged<String> setLastAutoValue,
+  }) {
+    final current = controller.text.trim();
+    if (current.isNotEmpty && current != lastAutoValue) {
+      return;
+    }
+
+    setLastAutoValue(value);
+    if (controller.text == value) {
+      return;
+    }
+    controller.value = TextEditingValue(
+      text: value,
+      selection: TextSelection.collapsed(offset: value.length),
+    );
+  }
+
+  String _limitText(String value, int maxLength) {
+    final trimmed = value.trim();
+    if (trimmed.length <= maxLength) {
+      return trimmed;
+    }
+    return trimmed.characters.take(maxLength).toString();
   }
 
   void _continue() {
@@ -340,6 +395,7 @@ class _ShoeFormScreenState extends ConsumerState<ShoeFormScreen> {
         ),
         const SizedBox(height: 16),
         DropdownButtonFormField<int>(
+          key: ValueKey(_brandId),
           initialValue: _brandId,
           decoration: const InputDecoration(
             labelText: '保存するブランド',

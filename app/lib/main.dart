@@ -8,7 +8,6 @@ import 'screens/collection_screen.dart';
 import 'screens/sticker_screen.dart';
 import 'screens/settings_screen.dart';
 import 'screens/shoe_form_screen.dart';
-import 'widgets/app_fab.dart';
 
 void main() {
   runApp(const ProviderScope(child: KickxKickApp()));
@@ -88,8 +87,6 @@ class KickxKickHome extends ConsumerWidget {
           ),
         ],
       ),
-      floatingActionButton: const AppFab(),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
   }
 }

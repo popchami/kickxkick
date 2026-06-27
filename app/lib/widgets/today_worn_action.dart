@@ -43,10 +43,13 @@ class TodayWornAction extends ConsumerWidget {
     Shoe shoe,
   ) async {
     var memoText = '';
+    final shoeTitle = shoe.displayTitle?.isNotEmpty == true
+        ? shoe.displayTitle!
+        : shoe.modelName;
     final memo = await showDialog<String>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: Text('${shoe.modelName}\n今日の着用記録'),
+        title: Text('$shoeTitle\n今日の着用記録'),
         content: TextField(
           onChanged: (value) => memoText = value,
           decoration: const InputDecoration(
@@ -81,13 +84,18 @@ class TodayWornAction extends ConsumerWidget {
               memo: memo.isEmpty ? null : memo,
             ),
           );
+      if (inserted) {
+        await ref.read(shoeRepositoryProvider).markWornIfNew(shoe.id!);
+      }
+      ref.invalidate(shoesProvider);
+      ref.invalidate(shoeByIdProvider(shoe.id!));
       ref.invalidate(wearLogsByShoeIdProvider(shoe.id!));
       ref.invalidate(recentWearLogsProvider);
       if (messenger.mounted) {
         messenger.showSnackBar(
           SnackBar(
             content: Text(
-              inserted ? '${shoe.modelName}の着用を記録しました' : '今日はすでに記録済みです',
+              inserted ? '$shoeTitleの着用を記録しました' : '今日はすでに記録済みです',
             ),
           ),
         );
@@ -148,8 +156,11 @@ class _TodayWornPicker extends ConsumerWidget {
                     itemCount: shoes.length,
                     itemBuilder: (context, index) {
                       final shoe = shoes[index];
+                      final title = shoe.displayTitle?.isNotEmpty == true
+                          ? shoe.displayTitle!
+                          : shoe.modelName;
                       return ListTile(
-                        title: Text(shoe.modelName),
+                        title: Text(title),
                         subtitle: Text(brandNames[shoe.brandId] ?? ''),
                         trailing: Text(shoe.archiveNumber),
                         onTap: () => Navigator.of(context).pop(shoe),

@@ -39,7 +39,6 @@ class SettingsScreen extends ConsumerWidget {
     final result = await FilePicker.pickFiles(
       type: FileType.custom,
       allowedExtensions: const ['json'],
-      allowMultiple: false,
     );
     final filePath = result?.files.single.path;
     if (filePath == null || !context.mounted) {
@@ -111,7 +110,7 @@ class SettingsScreen extends ConsumerWidget {
       ),
       body: ListView(
         children: [
-          _SectionTitle(title: '表示'),
+          const _SectionTitle(title: '表示'),
           ListTile(
             title: const Text('テーマ'),
             subtitle: Text(

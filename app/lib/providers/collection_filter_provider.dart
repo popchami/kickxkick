@@ -2,14 +2,20 @@ import 'package:riverpod/riverpod.dart';
 
 class CollectionFilter {
   final int? brandId;
-  final bool favoritesOnly;
+  final String? status;
 
-  const CollectionFilter({this.brandId, this.favoritesOnly = false});
+  const CollectionFilter({
+    this.brandId,
+    this.status,
+  });
 
-  CollectionFilter copyWith({int? brandId, bool? favoritesOnly}) {
+  CollectionFilter copyWith({
+    int? brandId,
+    String? status,
+  }) {
     return CollectionFilter(
       brandId: brandId,
-      favoritesOnly: favoritesOnly ?? this.favoritesOnly,
+      status: status,
     );
   }
 }

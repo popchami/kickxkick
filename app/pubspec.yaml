@@ -27,8 +27,20 @@ dependencies:
   share_plus: ^13.1.0
   cross_file: ^0.3.4+2
 
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+  flutter_launcher_icons: ^0.14.4
+  flutter_native_splash: ^2.4.8
+
 flutter:
   uses-material-design: true
+
+  fonts:
+    - family: NotoSansJP
+      fonts:
+        - asset: assets/fonts/NotoSansJP-VF.ttf
 
   assets:
     - assets/data/brands.json

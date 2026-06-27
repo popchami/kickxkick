@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:sqflite/sqflite.dart';
+
 import '../database/app_database.dart';
 import '../models/shoe.dart';
 
@@ -44,20 +46,24 @@ class ShoeRepository {
 
   Future<int> deleteShoe(int id) async {
     final db = await AppDatabase.instance.database;
-    final photoRows = await db.query(
-      'photos',
-      columns: ['file_path'],
-      where: 'shoe_id = ?',
-      whereArgs: [id],
-    );
+    final result = await db.transaction((txn) async {
+      final rows = await txn.query(
+        'photos',
+        columns: ['file_path'],
+        where: 'shoe_id = ?',
+        whereArgs: [id],
+      );
 
-    final deletedCount = await db.delete(
-      'shoes',
-      where: 'id = ?',
-      whereArgs: [id],
-    );
+      final deletedCount = await txn.delete(
+        'shoes',
+        where: 'id = ?',
+        whereArgs: [id],
+      );
+      await _reorderTopFive(txn);
+      return (photoRows: rows, deletedCount: deletedCount);
+    });
 
-    for (final row in photoRows) {
+    for (final row in result.photoRows) {
       final filePath = row['file_path'] as String?;
       if (filePath == null || filePath.isEmpty) {
         continue;
@@ -73,23 +79,26 @@ class ShoeRepository {
       }
     }
 
-    return deletedCount;
+    return result.deletedCount;
   }
 
   Future<bool> setTopFive(int id, bool selected) async {
     final db = await AppDatabase.instance.database;
 
     if (!selected) {
-      final updated = await db.update(
-        'shoes',
-        {
-          'top_order': null,
-          'updated_at': DateTime.now().toIso8601String(),
-        },
-        where: 'id = ?',
-        whereArgs: [id],
-      );
-      return updated > 0;
+      return db.transaction((txn) async {
+        final updated = await txn.update(
+          'shoes',
+          {
+            'top_order': null,
+            'updated_at': DateTime.now().toIso8601String(),
+          },
+          where: 'id = ?',
+          whereArgs: [id],
+        );
+        await _reorderTopFive(txn);
+        return updated > 0;
+      });
     }
 
     final countRows = await db.rawQuery(
@@ -116,6 +125,23 @@ class ShoeRepository {
     return updated > 0;
   }
 
+  Future<void> _reorderTopFive(DatabaseExecutor db) async {
+    final rows = await db.query(
+      'shoes',
+      columns: ['id'],
+      where: 'top_order IS NOT NULL',
+      orderBy: 'top_order ASC, updated_at ASC',
+    );
+    for (var i = 0; i < rows.length; i++) {
+      await db.update(
+        'shoes',
+        {'top_order': i + 1},
+        where: 'id = ?',
+        whereArgs: [rows[i]['id']],
+      );
+    }
+  }
+
   Future<int> toggleFavorite(int id, bool isFavorite) async {
     final db = await AppDatabase.instance.database;
     return db.update(
@@ -126,6 +152,19 @@ class ShoeRepository {
       },
       where: 'id = ?',
       whereArgs: [id],
+    );
+  }
+
+  Future<int> markWornIfNew(int id) async {
+    final db = await AppDatabase.instance.database;
+    return db.update(
+      'shoes',
+      {
+        'status': Shoe.statusWorn,
+        'updated_at': DateTime.now().toIso8601String(),
+      },
+      where: 'id = ? AND status = ?',
+      whereArgs: [id, Shoe.statusNew],
     );
   }
 }

@@ -123,11 +123,13 @@ class _RecentShoeCard extends ConsumerWidget {
 
     return ShoeCard(
       brandName: brandName,
-      modelName: shoe.modelName,
+      modelName: shoe.displayTitle?.isNotEmpty == true
+          ? shoe.displayTitle!
+          : shoe.modelName,
       size: shoe.size ?? '-',
       color: shoe.color ?? '',
+      statusLabel: shoe.statusLabel,
       imagePath: imagePath,
-      isFavorite: shoe.isFavorite,
       archiveNumber: shoe.archiveNumber,
       onTap: () {
         Navigator.of(context).push(

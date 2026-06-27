@@ -7,11 +7,10 @@ class ShoeCard extends StatelessWidget {
   final String modelName;
   final String size;
   final String color;
+  final String? statusLabel;
   final String? imagePath;
-  final bool isFavorite;
   final String? archiveNumber;
   final VoidCallback onTap;
-  final VoidCallback? onFavoriteTap;
 
   const ShoeCard({
     super.key,
@@ -19,11 +18,10 @@ class ShoeCard extends StatelessWidget {
     required this.modelName,
     required this.size,
     required this.color,
+    this.statusLabel,
     this.imagePath,
-    this.isFavorite = false,
     this.archiveNumber,
     required this.onTap,
-    this.onFavoriteTap,
   });
 
   @override
@@ -45,23 +43,6 @@ class ShoeCard extends StatelessWidget {
                 fit: StackFit.expand,
                 children: [
                   _ShoeImage(imagePath: imagePath),
-                  Positioned(
-                    top: 8,
-                    right: 8,
-                    child: IconButton(
-                      icon: Icon(
-                        isFavorite ? Icons.favorite : Icons.favorite_outline,
-                        color: isFavorite ? Theme.of(context).colorScheme.primary : null,
-                      ),
-                      onPressed: onFavoriteTap,
-                      style: IconButton.styleFrom(
-                        backgroundColor: Theme.of(context)
-                            .colorScheme
-                            .surface
-                            .withValues(alpha: 0.8),
-                      ),
-                    ),
-                  ),
                 ],
               ),
             ),
@@ -87,6 +68,16 @@ class ShoeCard extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
+                  if (statusLabel != null && statusLabel!.isNotEmpty) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      statusLabel!,
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                            color: Theme.of(context).colorScheme.primary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                    ),
+                  ],
                   if (archiveNumber != null) ...[
                     const SizedBox(height: 4),
                     Text(

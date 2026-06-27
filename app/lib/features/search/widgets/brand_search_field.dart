@@ -69,7 +69,6 @@ class _BrandSearchFieldState extends ConsumerState<BrandSearchField> {
                 return ListTile(
                   dense: true,
                   title: Text(suggestion.brand.brandName),
-                  subtitle: Text('Tier ${suggestion.brand.tier}'),
                   onTap: () {
                     _controller.text = suggestion.brand.brandName;
                     setState(() => _query = suggestion.brand.brandName);

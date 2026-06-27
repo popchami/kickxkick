@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../models/wear_log.dart';
+import '../providers/shoe_provider.dart';
 import '../providers/wear_log_provider.dart';
 
 class WearHistorySection extends ConsumerWidget {
@@ -49,6 +50,11 @@ class WearHistorySection extends ConsumerWidget {
               memo: memo.isEmpty ? null : memo,
             ),
           );
+      if (inserted) {
+        await ref.read(shoeRepositoryProvider).markWornIfNew(shoeId);
+      }
+      ref.invalidate(shoesProvider);
+      ref.invalidate(shoeByIdProvider(shoeId));
       ref.invalidate(wearLogsByShoeIdProvider(shoeId));
       ref.invalidate(recentWearLogsProvider);
 

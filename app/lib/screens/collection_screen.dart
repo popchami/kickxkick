@@ -61,7 +61,7 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen> {
               shoes: shoes,
               brands: brands,
               selectedBrandId: collectionFilter.brandId,
-              favoritesOnly: collectionFilter.favoritesOnly,
+              selectedStatus: collectionFilter.status,
               searchText: _searchText,
               searchController: _searchController,
               onSearchChanged: (value) {
@@ -73,9 +73,9 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen> {
                 ref.read(collectionFilterProvider.notifier).state =
                     CollectionFilter(brandId: brandId);
               },
-              onFavoritesSelected: (selected) {
+              onStatusSelected: (status) {
                 ref.read(collectionFilterProvider.notifier).state =
-                    CollectionFilter(favoritesOnly: selected);
+                    CollectionFilter(status: status);
               },
             ),
             loading: () => const Center(child: CircularProgressIndicator()),
@@ -83,7 +83,7 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen> {
               shoes: shoes,
               brands: const [],
               selectedBrandId: collectionFilter.brandId,
-              favoritesOnly: collectionFilter.favoritesOnly,
+              selectedStatus: collectionFilter.status,
               searchText: _searchText,
               searchController: _searchController,
               onSearchChanged: (value) {
@@ -95,9 +95,9 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen> {
                 ref.read(collectionFilterProvider.notifier).state =
                     CollectionFilter(brandId: brandId);
               },
-              onFavoritesSelected: (selected) {
+              onStatusSelected: (status) {
                 ref.read(collectionFilterProvider.notifier).state =
-                    CollectionFilter(favoritesOnly: selected);
+                    CollectionFilter(status: status);
               },
             ),
           );
@@ -113,23 +113,23 @@ class _CollectionContent extends StatelessWidget {
   final List<Shoe> shoes;
   final List<Brand> brands;
   final int? selectedBrandId;
-  final bool favoritesOnly;
+  final String? selectedStatus;
   final String searchText;
   final TextEditingController searchController;
   final ValueChanged<String> onSearchChanged;
   final ValueChanged<int?> onBrandSelected;
-  final ValueChanged<bool> onFavoritesSelected;
+  final ValueChanged<String?> onStatusSelected;
 
   const _CollectionContent({
     required this.shoes,
     required this.brands,
     required this.selectedBrandId,
-    required this.favoritesOnly,
+    required this.selectedStatus,
     required this.searchText,
     required this.searchController,
     required this.onSearchChanged,
     required this.onBrandSelected,
-    required this.onFavoritesSelected,
+    required this.onStatusSelected,
   });
 
   @override
@@ -162,43 +162,36 @@ class _CollectionContent extends StatelessWidget {
             onChanged: onSearchChanged,
           ),
         ),
-        if (brands.isNotEmpty)
-          SizedBox(
-            height: 52,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              children: [
-                Padding(
+        SizedBox(
+          height: 52,
+          child: ListView(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: FilterChip(
+                  label: const Text('すべて'),
+                  selected: selectedBrandId == null &&
+                      selectedStatus == null,
+                  onSelected: (_) => onBrandSelected(null),
+                ),
+              ),
+              ..._statusChips(),
+              ...brands.map(
+                (brand) => Padding(
                   padding: const EdgeInsets.only(right: 8),
                   child: FilterChip(
-                    label: const Text('すべて'),
-                    selected: selectedBrandId == null && !favoritesOnly,
-                    onSelected: (_) => onBrandSelected(null),
+                    label: Text(brand.name),
+                    selected: selectedStatus == null &&
+                        selectedBrandId == brand.id,
+                    onSelected: (_) => onBrandSelected(brand.id),
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(right: 8),
-                  child: FilterChip(
-                    avatar: const Icon(Icons.favorite, size: 18),
-                    label: const Text('お気に入り'),
-                    selected: favoritesOnly,
-                    onSelected: onFavoritesSelected,
-                  ),
-                ),
-                ...brands.map(
-                  (brand) => Padding(
-                    padding: const EdgeInsets.only(right: 8),
-                    child: FilterChip(
-                      label: Text(brand.name),
-                      selected: !favoritesOnly && selectedBrandId == brand.id,
-                      onSelected: (_) => onBrandSelected(brand.id),
-                    ),
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
+        ),
         Expanded(
           child: filteredShoes.isEmpty
               ? const EmptyState(
@@ -218,14 +211,39 @@ class _CollectionContent extends StatelessWidget {
     return shoes.where((shoe) {
       final matchesBrand =
           selectedBrandId == null || shoe.brandId == selectedBrandId;
-      final matchesFavorite = !favoritesOnly || shoe.isFavorite;
+      final matchesStatus =
+          selectedStatus == null || shoe.status == selectedStatus;
       final brandName = brandNames[shoe.brandId] ?? '';
       final matchesSearch = query.isEmpty ||
           shoe.modelName.toLowerCase().contains(query) ||
-          brandName.toLowerCase().contains(query);
+          brandName.toLowerCase().contains(query) ||
+          (shoe.displayTitle?.toLowerCase().contains(query) ?? false) ||
+          (shoe.stickerText?.toLowerCase().contains(query) ?? false);
 
-      return matchesBrand && matchesFavorite && matchesSearch;
+      return matchesBrand && matchesStatus && matchesSearch;
     }).toList();
+  }
+
+  List<Widget> _statusChips() {
+    const statuses = [
+      (value: Shoe.statusNew, label: '新品'),
+      (value: Shoe.statusWorn, label: '着用済み'),
+      (value: Shoe.statusParted, label: '手放した'),
+    ];
+
+    return statuses
+        .map(
+          (status) => Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: FilterChip(
+              label: Text(status.label),
+              selected: selectedBrandId == null &&
+                  selectedStatus == status.value,
+              onSelected: (_) => onStatusSelected(status.value),
+            ),
+          ),
+        )
+        .toList();
   }
 }
 
@@ -334,11 +352,13 @@ class _ShoeGridState extends ConsumerState<_ShoeGrid> {
 
               return ShoeCard(
                 brandName: widget.brandNames[shoe.brandId] ?? 'Unknown',
-                modelName: shoe.modelName,
+                modelName: shoe.displayTitle?.isNotEmpty == true
+                    ? shoe.displayTitle!
+                    : shoe.modelName,
                 size: shoe.size ?? '-',
                 color: shoe.color ?? '',
+                statusLabel: shoe.statusLabel,
                 imagePath: imagePath,
-                isFavorite: shoe.isFavorite,
                 archiveNumber: shoe.archiveNumber,
                 onTap: () {
                   Navigator.of(context).push(
@@ -346,13 +366,6 @@ class _ShoeGridState extends ConsumerState<_ShoeGrid> {
                       builder: (_) => ShoeDetailScreen(shoeId: shoe.id!),
                     ),
                   );
-                },
-                onFavoriteTap: () async {
-                  await ref.read(shoeRepositoryProvider).toggleFavorite(
-                        shoe.id!,
-                        !shoe.isFavorite,
-                      );
-                  ref.invalidate(shoesProvider);
                 },
               );
             },
