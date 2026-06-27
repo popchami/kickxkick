@@ -1,6 +1,6 @@
 {
-  "version": "0.2.0",
-  "updatedAt": "2026-06-26",
+  "version": "0.3.0",
+  "updatedAt": "2026-06-28",
   "items": [
     {"id":"nike_air_force_1","brandId":"nike","modelName":"Air Force 1","category":"lifestyle","source":"master"},
     {"id":"nike_air_max_1","brandId":"nike","modelName":"Air Max 1","category":"lifestyle","source":"master"},
@@ -18,7 +18,6 @@
     {"id":"nike_cortez","brandId":"nike","modelName":"Cortez","category":"lifestyle","source":"master"},
     {"id":"nike_shox_r4","brandId":"nike","modelName":"Shox R4","category":"lifestyle","source":"master"},
     {"id":"nike_tc_7900","brandId":"nike","modelName":"TC 7900","category":"lifestyle","source":"master"},
-
     {"id":"air_jordan_1","brandId":"air_jordan","modelName":"Air Jordan 1","category":"basketball","source":"master"},
     {"id":"air_jordan_2","brandId":"air_jordan","modelName":"Air Jordan 2","category":"basketball","source":"master"},
     {"id":"air_jordan_3","brandId":"air_jordan","modelName":"Air Jordan 3","category":"basketball","source":"master"},
@@ -31,7 +30,6 @@
     {"id":"air_jordan_14","brandId":"air_jordan","modelName":"Air Jordan 14","category":"basketball","source":"master"},
     {"id":"air_jordan_spizike","brandId":"air_jordan","modelName":"Jordan Spizike","category":"basketball","source":"master"},
     {"id":"air_jordan_legacy_312","brandId":"air_jordan","modelName":"Jordan Legacy 312","category":"basketball","source":"master"},
-
     {"id":"adidas_samba","brandId":"adidas","modelName":"Samba","category":"lifestyle","source":"master"},
     {"id":"adidas_gazelle","brandId":"adidas","modelName":"Gazelle","category":"lifestyle","source":"master"},
     {"id":"adidas_campus_00s","brandId":"adidas","modelName":"Campus 00s","category":"lifestyle","source":"master"},
@@ -44,7 +42,6 @@
     {"id":"adidas_adimatic","brandId":"adidas","modelName":"Adimatic","category":"skateboarding","source":"master"},
     {"id":"adidas_ultraboost","brandId":"adidas","modelName":"Ultraboost","category":"running","source":"master"},
     {"id":"adidas_yeezy_350","brandId":"adidas","modelName":"Yeezy 350","category":"lifestyle","source":"master"},
-
     {"id":"new_balance_530","brandId":"new_balance","modelName":"530","category":"lifestyle","source":"master"},
     {"id":"new_balance_550","brandId":"new_balance","modelName":"550","category":"lifestyle","source":"master"},
     {"id":"new_balance_574","brandId":"new_balance","modelName":"574","category":"lifestyle","source":"master"},
@@ -65,7 +62,6 @@
     {"id":"new_balance_991","brandId":"new_balance","modelName":"991","category":"lifestyle","source":"master"},
     {"id":"new_balance_992","brandId":"new_balance","modelName":"992","category":"lifestyle","source":"master"},
     {"id":"new_balance_993","brandId":"new_balance","modelName":"993","category":"lifestyle","source":"master"},
-
     {"id":"asics_gt_2160","brandId":"asics","modelName":"GT-2160","category":"lifestyle","source":"master"},
     {"id":"asics_gel_1130","brandId":"asics","modelName":"GEL-1130","category":"lifestyle","source":"master"},
     {"id":"asics_gel_1090","brandId":"asics","modelName":"GEL-1090","category":"lifestyle","source":"master"},
@@ -78,33 +74,35 @@
     {"id":"asics_superblast","brandId":"asics","modelName":"Superblast","category":"running","source":"master"},
     {"id":"asics_ex89","brandId":"asics","modelName":"EX89","category":"basketball","source":"master"},
     {"id":"asics_japan_s","brandId":"asics","modelName":"Japan S","category":"lifestyle","source":"master"},
-
     {"id":"puma_suede","brandId":"puma","modelName":"Suede","category":"lifestyle","source":"master"},
     {"id":"puma_palermo","brandId":"puma","modelName":"Palermo","category":"lifestyle","source":"master"},
     {"id":"puma_speedcat","brandId":"puma","modelName":"Speedcat","category":"lifestyle","source":"master"},
     {"id":"puma_clyde","brandId":"puma","modelName":"Clyde","category":"basketball","source":"master"},
     {"id":"puma_rs_x","brandId":"puma","modelName":"RS-X","category":"lifestyle","source":"master"},
     {"id":"puma_basket","brandId":"puma","modelName":"Basket","category":"basketball","source":"master"},
-
     {"id":"converse_chuck_taylor_all_star","brandId":"converse","modelName":"Chuck Taylor All Star","category":"lifestyle","source":"master"},
     {"id":"converse_chuck_70","brandId":"converse","modelName":"Chuck 70","category":"lifestyle","source":"master"},
     {"id":"converse_one_star","brandId":"converse","modelName":"One Star","category":"skateboarding","source":"master"},
     {"id":"converse_jack_purcell","brandId":"converse","modelName":"Jack Purcell","category":"lifestyle","source":"master"},
     {"id":"converse_weapon","brandId":"converse","modelName":"Weapon","category":"basketball","source":"master"},
     {"id":"converse_run_star_hike","brandId":"converse","modelName":"Run Star Hike","category":"lifestyle","source":"master"},
-
     {"id":"vans_old_skool","brandId":"vans","modelName":"Old Skool","category":"skateboarding","source":"master"},
     {"id":"vans_authentic","brandId":"vans","modelName":"Authentic","category":"skateboarding","source":"master"},
     {"id":"vans_classic_slip_on","brandId":"vans","modelName":"Classic Slip-On","category":"lifestyle","source":"master"},
     {"id":"vans_sk8_hi","brandId":"vans","modelName":"Sk8-Hi","category":"skateboarding","source":"master"},
     {"id":"vans_era","brandId":"vans","modelName":"Era","category":"skateboarding","source":"master"},
     {"id":"vans_knu_skool","brandId":"vans","modelName":"Knu Skool","category":"skateboarding","source":"master"},
-
     {"id":"reebok_club_c","brandId":"reebok","modelName":"Club C","category":"tennis","source":"master"},
     {"id":"reebok_classic_leather","brandId":"reebok","modelName":"Classic Leather","category":"lifestyle","source":"master"},
     {"id":"reebok_instapump_fury","brandId":"reebok","modelName":"Instapump Fury","category":"running","source":"master"},
     {"id":"reebok_workout_plus","brandId":"reebok","modelName":"Workout Plus","category":"training","source":"master"},
     {"id":"reebok_freestyle","brandId":"reebok","modelName":"Freestyle","category":"training","source":"master"},
-    {"id":"reebok_question","brandId":"reebok","modelName":"Question","category":"basketball","source":"master"}
+    {"id":"reebok_question","brandId":"reebok","modelName":"Question","category":"basketball","source":"master"},
+    {"id":"hoka_bondi_9","brandId":"hoka","modelName":"Bondi 9","category":"running","source":"master"},
+    {"id":"hoka_clifton_10","brandId":"hoka","modelName":"Clifton 10","category":"running","source":"master"},
+    {"id":"hoka_speedgoat_7","brandId":"hoka","modelName":"Speedgoat 7","category":"trail_running","source":"master"},
+    {"id":"hoka_arahi_8","brandId":"hoka","modelName":"Arahi 8","category":"running","source":"master"},
+    {"id":"hoka_transport_2","brandId":"hoka","modelName":"Transport 2","category":"lifestyle","source":"master"},
+    {"id":"hoka_challenger_8","brandId":"hoka","modelName":"Challenger 8","category":"trail_running","source":"master"}
   ]
 }
