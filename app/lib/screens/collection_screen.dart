@@ -6,6 +6,7 @@ import '../providers/brand_provider.dart';
 import '../providers/collection_filter_provider.dart';
 import '../providers/photo_provider.dart';
 import '../providers/shoe_provider.dart';
+import '../providers/settings_provider.dart';
 import '../widgets/empty_state.dart';
 import '../widgets/shoe_card.dart';
 import 'shoe_detail_screen.dart';
@@ -247,36 +248,17 @@ class _CollectionContent extends StatelessWidget {
   }
 }
 
-class _ShoeGrid extends ConsumerStatefulWidget {
+class _ShoeGrid extends ConsumerWidget {
   final List<Shoe> shoes;
   final Map<int, String> brandNames;
 
   const _ShoeGrid({required this.shoes, required this.brandNames});
 
-  @override
-  ConsumerState<_ShoeGrid> createState() => _ShoeGridState();
-}
-
-class _ShoeGridState extends ConsumerState<_ShoeGrid> {
   static const int _minColumns = 2;
   static const int _maxColumns = 5;
 
-  int _columns = 2;
-
-  void _zoomIn() {
-    setState(() {
-      _columns = (_columns - 1).clamp(_minColumns, _maxColumns);
-    });
-  }
-
-  void _zoomOut() {
-    setState(() {
-      _columns = (_columns + 1).clamp(_minColumns, _maxColumns);
-    });
-  }
-
-  double get _childAspectRatio {
-    switch (_columns) {
+  double _childAspectRatio(int columns) {
+    switch (columns) {
       case 2:
         return 0.64;
       case 3:
@@ -290,8 +272,8 @@ class _ShoeGridState extends ConsumerState<_ShoeGrid> {
     }
   }
 
-  double get _gridSpacing {
-    switch (_columns) {
+  double _gridSpacing(int columns) {
+    switch (columns) {
       case 2:
         return 12;
       case 3:
@@ -306,7 +288,9 @@ class _ShoeGridState extends ConsumerState<_ShoeGrid> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final columns = ref.watch(collectionColumnsProvider).value ?? 2;
+    final notifier = ref.read(collectionColumnsProvider.notifier);
     return Column(
       children: [
         Padding(
@@ -314,19 +298,23 @@ class _ShoeGridState extends ConsumerState<_ShoeGrid> {
           child: Row(
             children: [
               Text(
-                '${widget.shoes.length}足',
+                '${shoes.length}足',
                 style: Theme.of(context).textTheme.labelLarge,
               ),
               const Spacer(),
               IconButton(
                 tooltip: '大きく表示',
-                onPressed: _columns == _minColumns ? null : _zoomIn,
+                onPressed: columns == _minColumns
+                    ? null
+                    : () => notifier.setColumns(columns - 1),
                 icon: const Icon(Icons.zoom_in),
               ),
-              Text('$_columns列'),
+              Text('$columns列'),
               IconButton(
                 tooltip: '一覧を広く表示',
-                onPressed: _columns == _maxColumns ? null : _zoomOut,
+                onPressed: columns == _maxColumns
+                    ? null
+                    : () => notifier.setColumns(columns + 1),
                 icon: const Icon(Icons.zoom_out),
               ),
             ],
@@ -336,14 +324,14 @@ class _ShoeGridState extends ConsumerState<_ShoeGrid> {
           child: GridView.builder(
             padding: const EdgeInsets.all(12),
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: _columns,
-              childAspectRatio: _childAspectRatio,
-              mainAxisSpacing: _gridSpacing,
-              crossAxisSpacing: _gridSpacing,
+              crossAxisCount: columns,
+              childAspectRatio: _childAspectRatio(columns),
+              mainAxisSpacing: _gridSpacing(columns),
+              crossAxisSpacing: _gridSpacing(columns),
             ),
-            itemCount: widget.shoes.length,
+            itemCount: shoes.length,
             itemBuilder: (context, index) {
-              final shoe = widget.shoes[index];
+              final shoe = shoes[index];
               final mainPhotoAsync = ref.watch(mainPhotoProvider(shoe.id!));
               final imagePath = mainPhotoAsync.maybeWhen(
                 data: (photo) => photo?.filePath,
@@ -351,7 +339,7 @@ class _ShoeGridState extends ConsumerState<_ShoeGrid> {
               );
 
               return ShoeCard(
-                brandName: widget.brandNames[shoe.brandId] ?? 'Unknown',
+                brandName: brandNames[shoe.brandId] ?? 'Unknown',
                 modelName: shoe.displayTitle?.isNotEmpty == true
                     ? shoe.displayTitle!
                     : shoe.modelName,

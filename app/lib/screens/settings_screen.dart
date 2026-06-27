@@ -12,6 +12,7 @@ import '../providers/photo_provider.dart';
 import '../providers/shoe_provider.dart';
 import '../providers/theme_provider.dart';
 import '../providers/wear_log_provider.dart';
+import '../widgets/app_dialogs.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -28,9 +29,7 @@ class SettingsScreen extends ConsumerWidget {
       );
     } catch (_) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('バックアップの作成に失敗しました')),
-        );
+        await showAppMessage(context, title: 'バックアップを作成できませんでした');
       }
     }
   }
@@ -80,22 +79,13 @@ class SettingsScreen extends ConsumerWidget {
       ref.invalidate(wearLogsByShoeIdProvider);
       ref.invalidate(recentWearLogsProvider);
 
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('バックアップを復元しました')),
-        );
-      }
     } on FormatException catch (error) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(error.message)),
-        );
+        await showAppMessage(context, title: '復元できませんでした', message: error.message);
       }
     } catch (_) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('バックアップの復元に失敗しました')),
-        );
+        await showAppMessage(context, title: 'バックアップを復元できませんでした');
       }
     }
   }

@@ -44,6 +44,16 @@ class WearLogRepository {
     );
   }
 
+  Future<int> updateMemo(int id, String? memo) async {
+    final db = await AppDatabase.instance.database;
+    return db.update(
+      'wear_logs',
+      {'memo': memo},
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
   Future<int> deleteWearLogsByShoeId(int shoeId) async {
     final db = await AppDatabase.instance.database;
     return db.delete(

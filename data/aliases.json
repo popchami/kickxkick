@@ -145,7 +145,6 @@
     {"modelId":"reebok_club_c","alias":"ClubC"},
     {"modelId":"reebok_classic_leather","alias":"ClassicLeather"},
     {"modelId":"reebok_instapump_fury","alias":"InstaPumpFury"},
-    {"modelId":"reebok_instapump_fury","alias":"InstapumpFury"},
     {"modelId":"reebok_workout_plus","alias":"WorkoutPlus"},
     {"modelId":"reebok_freestyle","alias":"Freestyle"}
   ]

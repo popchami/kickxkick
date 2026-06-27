@@ -6,9 +6,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/brand.dart';
 import '../models/shoe.dart';
 import '../providers/photo_provider.dart';
-import '../screens/shoe_detail_screen.dart';
+import '../providers/shoe_provider.dart';
 
-class TopFiveSection extends StatelessWidget {
+class TopFiveSection extends ConsumerWidget {
   final List<Shoe> shoes;
   final List<Brand> brands;
 
@@ -19,9 +19,11 @@ class TopFiveSection extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    final topShoes = shoes.where((shoe) => shoe.topOrder != null).toList()
-      ..sort((a, b) => a.topOrder!.compareTo(b.topOrder!));
+  Widget build(BuildContext context, WidgetRef ref) {
+    final byRank = {
+      for (final shoe in shoes)
+        if (shoe.topOrder != null) shoe.topOrder!: shoe,
+    };
     final brandNames = {
       for (final brand in brands)
         if (brand.id != null) brand.id!: brand.name,
@@ -36,46 +38,118 @@ class TopFiveSection extends StatelessWidget {
             const SizedBox(width: 8),
             Text('MY TOP 5', style: Theme.of(context).textTheme.titleLarge),
             const Spacer(),
-            Text('${topShoes.length}/5'),
+            Text('${byRank.length}/5'),
           ],
         ),
         const SizedBox(height: 12),
-        if (topShoes.isEmpty)
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Row(
+        _RankSlot(
+          rank: 1,
+          shoe: byRank[1],
+          brandName: byRank[1] == null ? null : brandNames[byRank[1]!.brandId],
+          height: 260,
+          onTap: () => _selectShoe(context, ref, 1),
+        ),
+        const SizedBox(height: 12),
+        GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            mainAxisSpacing: 12,
+            crossAxisSpacing: 12,
+            childAspectRatio: 0.9,
+          ),
+          itemCount: 4,
+          itemBuilder: (context, index) {
+            final rank = index + 2;
+            final shoe = byRank[rank];
+            return _RankSlot(
+              rank: rank,
+              shoe: shoe,
+              brandName: shoe == null ? null : brandNames[shoe.brandId],
+              onTap: () => _selectShoe(context, ref, rank),
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  Future<void> _selectShoe(BuildContext context, WidgetRef ref, int rank) async {
+    final selected = await showDialog<Shoe>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('$rank位のスニーカー'),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: ListView.builder(
+            shrinkWrap: true,
+            itemCount: shoes.length,
+            itemBuilder: (context, index) {
+              final shoe = shoes[index];
+              return ListTile(
+                leading: CircleAvatar(child: Text('${shoe.topOrder ?? '−'}')),
+                title: Text(shoe.displayTitle?.isNotEmpty == true
+                    ? shoe.displayTitle!
+                    : shoe.modelName),
+                onTap: () => Navigator.pop(context, shoe),
+              );
+            },
+          ),
+        ),
+      ),
+    );
+    if (selected == null) return;
+    await ref.read(shoeRepositoryProvider).setTopOrder(selected.id!, rank);
+    ref.invalidate(shoesProvider);
+  }
+}
+
+class _RankSlot extends StatelessWidget {
+  const _RankSlot({
+    required this.rank,
+    required this.shoe,
+    required this.brandName,
+    required this.onTap,
+    this.height,
+  });
+
+  final int rank;
+  final Shoe? shoe;
+  final String? brandName;
+  final VoidCallback onTap;
+  final double? height;
+
+  @override
+  Widget build(BuildContext context) {
+    final value = shoe;
+    if (value == null) {
+      return SizedBox(
+        height: height,
+        child: Card(
+          child: InkWell(
+            onTap: onTap,
+            child: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.emoji_events_outlined, size: 36),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Text(
-                      '詳細画面のトロフィーから、展示したい5足を選べます。',
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                  ),
+                  Text('$rank', style: Theme.of(context).textTheme.headlineMedium),
+                  const Icon(Icons.add_circle_outline),
                 ],
               ),
             ),
-          )
-        else
-          SizedBox(
-            height: 220,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              itemCount: topShoes.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 12),
-              itemBuilder: (context, index) {
-                final shoe = topShoes[index];
-                return _TopFiveCard(
-                  rank: index + 1,
-                  shoe: shoe,
-                  brandName: brandNames[shoe.brandId] ?? 'Unknown',
-                );
-              },
-            ),
           ),
-      ],
+        ),
+      );
+    }
+    return SizedBox(
+      height: height,
+      child: _TopFiveCard(
+        rank: rank,
+        shoe: value,
+        brandName: brandName ?? 'Unknown',
+        onTap: onTap,
+      ),
     );
   }
 }
@@ -84,11 +158,13 @@ class _TopFiveCard extends ConsumerWidget {
   final int rank;
   final Shoe shoe;
   final String brandName;
+  final VoidCallback onTap;
 
   const _TopFiveCard({
     required this.rank,
     required this.shoe,
     required this.brandName,
+    required this.onTap,
   });
 
   @override
@@ -100,23 +176,15 @@ class _TopFiveCard extends ConsumerWidget {
     );
 
     return SizedBox(
-      width: 180,
+      width: double.infinity,
       child: Card(
         clipBehavior: Clip.antiAlias,
         child: InkWell(
-          onTap: () {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (_) => ShoeDetailScreen(shoeId: shoe.id!),
-              ),
-            );
-          },
+          onTap: onTap,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(
-                height: 140,
-                width: double.infinity,
+              Expanded(
                 child: Stack(
                   fit: StackFit.expand,
                   children: [

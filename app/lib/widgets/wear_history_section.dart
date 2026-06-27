@@ -58,20 +58,44 @@ class WearHistorySection extends ConsumerWidget {
       ref.invalidate(wearLogsByShoeIdProvider(shoeId));
       ref.invalidate(recentWearLogsProvider);
 
+    } catch (_) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(inserted ? '今日の着用を記録しました' : '今日はすでに記録済みです'),
+        await showDialog<void>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('保存できませんでした'),
+            actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('閉じる'))],
           ),
         );
       }
-    } catch (_) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('着用記録の保存に失敗しました')),
-        );
-      }
     }
+  }
+
+  Future<void> _editMemo(
+    BuildContext context,
+    WidgetRef ref,
+    WearLog wearLog,
+  ) async {
+    final controller = TextEditingController(text: wearLog.memo ?? '');
+    final value = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('${_formatDate(wearLog.wornDate)}のメモ'),
+        content: TextField(controller: controller, maxLines: 3, autofocus: true),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('キャンセル')),
+          FilledButton(onPressed: () => Navigator.pop(context, controller.text.trim()), child: const Text('保存')),
+        ],
+      ),
+    );
+    controller.dispose();
+    if (value == null || wearLog.id == null) return;
+    await ref.read(wearLogRepositoryProvider).updateMemo(
+      wearLog.id!,
+      value.isEmpty ? null : value,
+    );
+    ref.invalidate(wearLogsByShoeIdProvider(shoeId));
+    ref.invalidate(recentWearLogsProvider);
   }
 
   Future<void> _deleteWearLog(
@@ -138,7 +162,10 @@ class WearHistorySection extends ConsumerWidget {
             }
 
             return Column(
-              children: wearLogs
+              children: [
+                _WearCalendar(wearLogs: wearLogs),
+                const SizedBox(height: 12),
+                ...wearLogs
                   .map(
                     (wearLog) => Card(
                       child: ListTile(
@@ -146,16 +173,25 @@ class WearHistorySection extends ConsumerWidget {
                         title: Text(_formatDate(wearLog.wornDate)),
                         subtitle:
                             wearLog.memo == null ? null : Text(wearLog.memo!),
-                        trailing: IconButton(
-                          icon: const Icon(Icons.delete_outline),
-                          tooltip: '着用記録を削除',
-                          onPressed: () =>
-                              _deleteWearLog(context, ref, wearLog),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.edit_outlined),
+                              tooltip: 'メモを編集',
+                              onPressed: () => _editMemo(context, ref, wearLog),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.delete_outline),
+                              tooltip: '着用記録を削除',
+                              onPressed: () => _deleteWearLog(context, ref, wearLog),
+                            ),
+                          ],
                         ),
                       ),
                     ),
-                  )
-                  .toList(),
+                  ),
+              ],
             );
           },
           loading: () => const Center(child: CircularProgressIndicator()),
@@ -167,5 +203,62 @@ class WearHistorySection extends ConsumerWidget {
 
   static String _formatDate(DateTime date) {
     return '${date.year}/${date.month}/${date.day}';
+  }
+}
+
+class _WearCalendar extends StatefulWidget {
+  const _WearCalendar({required this.wearLogs});
+  final List<WearLog> wearLogs;
+
+  @override
+  State<_WearCalendar> createState() => _WearCalendarState();
+}
+
+class _WearCalendarState extends State<_WearCalendar> {
+  late DateTime _month = DateTime(DateTime.now().year, DateTime.now().month);
+
+  @override
+  Widget build(BuildContext context) {
+    final first = DateTime(_month.year, _month.month, 1);
+    final days = DateTime(_month.year, _month.month + 1, 0).day;
+    final offset = first.weekday % 7;
+    final wornDays = widget.wearLogs
+        .where((log) => log.wornDate.year == _month.year && log.wornDate.month == _month.month)
+        .map((log) => log.wornDate.day)
+        .toSet();
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          children: [
+            Row(
+              children: [
+                IconButton(onPressed: () => setState(() => _month = DateTime(_month.year, _month.month - 1)), icon: const Icon(Icons.chevron_left)),
+                Expanded(child: Text('${_month.year}年 ${_month.month}月', textAlign: TextAlign.center, style: Theme.of(context).textTheme.titleMedium)),
+                IconButton(onPressed: () => setState(() => _month = DateTime(_month.year, _month.month + 1)), icon: const Icon(Icons.chevron_right)),
+              ],
+            ),
+            GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 7),
+              itemCount: offset + days,
+              itemBuilder: (context, index) {
+                if (index < offset) return const SizedBox.shrink();
+                final day = index - offset + 1;
+                final worn = wornDays.contains(day);
+                return Center(
+                  child: CircleAvatar(
+                    radius: 16,
+                    backgroundColor: worn ? Theme.of(context).colorScheme.primaryContainer : Colors.transparent,
+                    child: Text('$day'),
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

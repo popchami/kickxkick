@@ -1,5 +1,5 @@
 {
-  "version": "0.1.1",
+  "version": "0.2.0",
   "updatedAt": "2026-06-26",
   "items": [
     {"modelId":"nike_air_force_1","alias":"AF1"},
@@ -117,6 +117,35 @@
     {"modelId":"asics_gel_lyte_v","alias":"GelLyte5"},
     {"modelId":"asics_gel_lyte_v","alias":"GelLyteV"},
     {"modelId":"asics_ex89","alias":"EX89"},
-    {"modelId":"asics_japan_s","alias":"JapanS"}
+    {"modelId":"asics_japan_s","alias":"JapanS"},
+
+    {"modelId":"puma_suede","alias":"Suede"},
+    {"modelId":"puma_palermo","alias":"Palermo"},
+    {"modelId":"puma_speedcat","alias":"Speedcat"},
+    {"modelId":"puma_clyde","alias":"Clyde"},
+    {"modelId":"puma_rs_x","alias":"RSX"},
+    {"modelId":"puma_rs_x","alias":"RS-X"},
+    {"modelId":"puma_basket","alias":"Basket"},
+
+    {"modelId":"converse_chuck_taylor_all_star","alias":"ChuckTaylor"},
+    {"modelId":"converse_chuck_taylor_all_star","alias":"ChuckTaylorAllStar"},
+    {"modelId":"converse_chuck_taylor_all_star","alias":"AllStar"},
+    {"modelId":"converse_chuck_70","alias":"Chuck70"},
+    {"modelId":"converse_one_star","alias":"OneStar"},
+    {"modelId":"converse_jack_purcell","alias":"JackPurcell"},
+    {"modelId":"converse_run_star_hike","alias":"RunStarHike"},
+
+    {"modelId":"vans_old_skool","alias":"OldSkool"},
+    {"modelId":"vans_classic_slip_on","alias":"SlipOn"},
+    {"modelId":"vans_classic_slip_on","alias":"ClassicSlipOn"},
+    {"modelId":"vans_sk8_hi","alias":"Sk8Hi"},
+    {"modelId":"vans_sk8_hi","alias":"Sk8-Hi"},
+    {"modelId":"vans_knu_skool","alias":"KnuSkool"},
+
+    {"modelId":"reebok_club_c","alias":"ClubC"},
+    {"modelId":"reebok_classic_leather","alias":"ClassicLeather"},
+    {"modelId":"reebok_instapump_fury","alias":"InstaPumpFury"},
+    {"modelId":"reebok_workout_plus","alias":"WorkoutPlus"},
+    {"modelId":"reebok_freestyle","alias":"Freestyle"}
   ]
 }

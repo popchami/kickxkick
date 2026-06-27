@@ -13,6 +13,7 @@ import '../providers/photo_storage_provider.dart';
 import '../providers/shoe_provider.dart';
 import '../providers/wear_log_provider.dart';
 import '../widgets/wear_history_section.dart';
+import '../widgets/app_dialogs.dart';
 import 'shoe_form_screen.dart';
 
 class ShoeDetailScreen extends ConsumerWidget {
@@ -36,18 +37,8 @@ class ShoeDetailScreen extends ConsumerWidget {
       ref.invalidate(shoeByIdProvider(shoe.id!));
     }
 
-    if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            updated
-                ? shouldSelect
-                    ? 'MY TOP 5に追加しました'
-                    : 'MY TOP 5から外しました'
-                : 'MY TOP 5は5足までです',
-          ),
-        ),
-      );
+    if (!updated && context.mounted) {
+      await showAppMessage(context, title: 'MY TOP 5は5足までです');
     }
   }
 
@@ -86,9 +77,7 @@ class ShoeDetailScreen extends ConsumerWidget {
       ref.invalidate(mainPhotoProvider(shoe.id!));
     } catch (_) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('写真の更新に失敗しました')),
-        );
+        await showAppMessage(context, title: '写真を更新できませんでした');
       }
     }
   }
@@ -135,9 +124,7 @@ class ShoeDetailScreen extends ConsumerWidget {
       if (deletedCount > 0) {
         Navigator.of(context).pop(true);
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('削除できませんでした')),
-        );
+        await showAppMessage(context, title: '削除できませんでした');
       }
     }
   }

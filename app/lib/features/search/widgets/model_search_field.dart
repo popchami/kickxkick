@@ -7,12 +7,14 @@ class ModelSearchField extends ConsumerStatefulWidget {
   const ModelSearchField({
     super.key,
     required this.brandId,
+    required this.brandName,
     required this.onSelected,
     this.onTextChanged,
     this.initialText,
   });
 
   final String? brandId;
+  final String brandName;
   final ValueChanged<ModelSuggestion> onSelected;
   final ValueChanged<String>? onTextChanged;
   final String? initialText;
@@ -58,7 +60,7 @@ class _ModelSearchFieldState extends ConsumerState<ModelSearchField> {
       children: [
         TextField(
           controller: _controller,
-          enabled: brandId != null,
+          enabled: brandId != null || widget.brandName.trim().isNotEmpty,
           decoration: const InputDecoration(
             labelText: 'モデル',
             hintText: 'A / AJ / 95 / 550 など',
@@ -71,13 +73,24 @@ class _ModelSearchFieldState extends ConsumerState<ModelSearchField> {
           },
         ),
         const SizedBox(height: 8),
-        if (brandId == null)
+        if (brandId == null && widget.brandName.trim().isEmpty)
           const _SearchHint(text: '先にブランドを選択してください。')
         else
           serviceAsync.when(
             data: (service) {
+              final effectiveBrandId = brandId ??
+                  service
+                      .suggestBrands(widget.brandName, limit: 20)
+                      .where((value) =>
+                          value.brand.brandName.toLowerCase() ==
+                          widget.brandName.trim().toLowerCase())
+                      .map((value) => value.brand.brandId)
+                      .firstOrNull;
+              if (effectiveBrandId == null) {
+                return const _SearchHint(text: 'ブランドを候補から選択してください。');
+              }
               final suggestions = service.suggestModels(
-                brandId: brandId,
+                brandId: effectiveBrandId,
                 query: _query,
               );
               if (suggestions.isEmpty) {
@@ -88,7 +101,7 @@ class _ModelSearchFieldState extends ConsumerState<ModelSearchField> {
                   return ListTile(
                     dense: true,
                     title: Text(suggestion.canonicalName),
-                    subtitle: Text(_subtitleFor(suggestion)),
+                    subtitle: _subtitleFor(suggestion),
                     onTap: () {
                       _controller.text = suggestion.canonicalName;
                       setState(() => _query = suggestion.canonicalName);
@@ -107,14 +120,14 @@ class _ModelSearchFieldState extends ConsumerState<ModelSearchField> {
     );
   }
 
-  String _subtitleFor(ModelSuggestion suggestion) {
+  Widget? _subtitleFor(ModelSuggestion suggestion) {
     if (suggestion.matchedBy == 'alias') {
-      return 'Alias: ${suggestion.matchedText}';
+      return Text('Alias: ${suggestion.matchedText}');
     }
     if (suggestion.matchedBy == 'searchKeyword') {
-      return 'Keyword: ${suggestion.matchedText}';
+      return Text('Keyword: ${suggestion.matchedText}');
     }
-    return suggestion.model.category;
+    return null;
   }
 }
 
@@ -127,7 +140,14 @@ class _SuggestionList extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       margin: EdgeInsets.zero,
-      child: Column(children: children),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxHeight: 280),
+        child: ListView(
+          shrinkWrap: true,
+          padding: EdgeInsets.zero,
+          children: children,
+        ),
+      ),
     );
   }
 }

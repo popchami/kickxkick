@@ -26,16 +26,20 @@ class ShoeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Card(
-        clipBehavior: Clip.antiAlias,
-        child: Column(
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final compact = constraints.maxWidth < 130;
+        final tiny = constraints.maxWidth < 90;
+        return GestureDetector(
+          onTap: onTap,
+          child: Card(
+            clipBehavior: Clip.antiAlias,
+            child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
+            Expanded(
+              child: Container(
               width: double.infinity,
-              height: 200,
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.surfaceContainerHighest,
               ),
@@ -45,9 +49,9 @@ class ShoeCard extends StatelessWidget {
                   _ShoeImage(imagePath: imagePath),
                 ],
               ),
-            ),
+              )),
             Padding(
-              padding: const EdgeInsets.all(12.0),
+              padding: EdgeInsets.all(compact ? 6 : 12),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -59,16 +63,18 @@ class ShoeCard extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 4),
-                  Text(
+                  if (!tiny) ...[
+                    const SizedBox(height: 4),
+                    Text(
                     brandName,
                     style: Theme.of(context).textTheme.labelSmall?.copyWith(
                           color: Theme.of(context).colorScheme.outline,
                         ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                  ),
-                  if (statusLabel != null && statusLabel!.isNotEmpty) ...[
+                    ),
+                  ],
+                  if (!compact && statusLabel != null && statusLabel!.isNotEmpty) ...[
                     const SizedBox(height: 4),
                     Text(
                       statusLabel!,
@@ -78,7 +84,7 @@ class ShoeCard extends StatelessWidget {
                           ),
                     ),
                   ],
-                  if (archiveNumber != null) ...[
+                  if (!compact && archiveNumber != null) ...[
                     const SizedBox(height: 4),
                     Text(
                       archiveNumber!,
@@ -93,8 +99,10 @@ class ShoeCard extends StatelessWidget {
               ),
             ),
           ],
-        ),
-      ),
+            ),
+          ),
+        );
+      },
     );
   }
 }

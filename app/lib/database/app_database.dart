@@ -21,7 +21,7 @@ class AppDatabase {
 
     return openDatabase(
       path,
-      version: 7,
+      version: 8,
       onConfigure: (db) async {
         await db.execute('PRAGMA foreign_keys = ON');
       },
@@ -64,6 +64,8 @@ class AppDatabase {
     await _createShoeIndexes(db);
     await _createPhotosTable(db);
     await _createWearLogsTable(db);
+    await _createSettingsTable(db);
+    await _createStickerTables(db);
     await _insertInitialBrands(db);
   }
 
@@ -89,6 +91,10 @@ class AppDatabase {
     }
     if (oldVersion < 7) {
       await _migratePhotosTable(db);
+    }
+    if (oldVersion < 8) {
+      await _createSettingsTable(db);
+      await _createStickerTables(db);
     }
   }
 
@@ -189,6 +195,54 @@ class AppDatabase {
         GROUP BY shoe_id, worn_date
       )
     ''');
+  }
+
+  Future<void> _createSettingsTable(Database db) async {
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS app_settings (
+        setting_key TEXT PRIMARY KEY,
+        setting_value TEXT NOT NULL
+      )
+    ''');
+  }
+
+  Future<void> _createStickerTables(Database db) async {
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS stickers (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        shoe_id INTEGER NOT NULL UNIQUE,
+        source_path TEXT NOT NULL,
+        sticker_path TEXT NOT NULL,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
+        FOREIGN KEY (shoe_id) REFERENCES shoes(id) ON DELETE CASCADE
+      )
+    ''');
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS sticker_boards (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        aspect_ratio REAL NOT NULL DEFAULT 0.8,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL
+      )
+    ''');
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS sticker_board_items (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        board_id INTEGER NOT NULL,
+        sticker_id INTEGER NOT NULL,
+        x REAL NOT NULL,
+        y REAL NOT NULL,
+        scale REAL NOT NULL DEFAULT 1.0,
+        rotation REAL NOT NULL DEFAULT 0.0,
+        z_index INTEGER NOT NULL DEFAULT 0,
+        FOREIGN KEY (board_id) REFERENCES sticker_boards(id) ON DELETE CASCADE,
+        FOREIGN KEY (sticker_id) REFERENCES stickers(id) ON DELETE CASCADE
+      )
+    ''');
+    await db.execute('CREATE INDEX IF NOT EXISTS idx_stickers_shoe_id ON stickers(shoe_id)');
+    await db.execute('CREATE INDEX IF NOT EXISTS idx_board_items_board_id ON sticker_board_items(board_id)');
   }
 
   Future<void> _insertInitialBrands(Database db) async {

@@ -40,9 +40,9 @@ class KickxKickHome extends ConsumerWidget {
 
     final screens = [
       const HomeScreen(),
-      const CollectionScreen(),
-      const SizedBox.shrink(),
       const StickerScreen(),
+      const SizedBox.shrink(),
+      const CollectionScreen(),
       const SettingsScreen(),
     ];
 
@@ -66,19 +66,19 @@ class KickxKickHome extends ConsumerWidget {
             label: 'Home',
           ),
           NavigationDestination(
-            icon: Icon(Icons.collections_outlined),
-            selectedIcon: Icon(Icons.collections),
-            label: 'Collection',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.add_circle_outline),
-            selectedIcon: Icon(Icons.add_circle),
-            label: '＋',
-          ),
-          NavigationDestination(
             icon: Icon(Icons.sticky_note_2_outlined),
             selectedIcon: Icon(Icons.sticky_note_2),
             label: 'Sticker',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.add_circle, color: Colors.orange),
+            selectedIcon: Icon(Icons.add_circle, color: Colors.orange),
+            label: '＋',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.collections_outlined),
+            selectedIcon: Icon(Icons.collections),
+            label: 'Collection',
           ),
           NavigationDestination(
             icon: Icon(Icons.settings_outlined),

@@ -66,6 +66,8 @@ class _HomeContent extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
+        TopFiveSection(shoes: shoes, brands: brands),
+        const SizedBox(height: 24),
         Text('MY COLLECTION', style: Theme.of(context).textTheme.labelLarge),
         const SizedBox(height: 12),
         MuseumSummary(shoes: shoes, brands: brands),
@@ -87,19 +89,26 @@ class _HomeContent extends StatelessWidget {
             },
           )
         else
-          ...recentShoes.map(
-            (shoe) => Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: _RecentShoeCard(
-                shoe: shoe,
-                brandName: brandNames[shoe.brandId] ?? 'Unknown',
-              ),
+          SizedBox(
+            height: 190,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: recentShoes.length,
+              separatorBuilder: (_, __) => const SizedBox(width: 10),
+              itemBuilder: (context, index) {
+                final shoe = recentShoes[index];
+                return SizedBox(
+                  width: 140,
+                  child: _RecentShoeCard(
+                    shoe: shoe,
+                    brandName: brandNames[shoe.brandId] ?? 'Unknown',
+                  ),
+                );
+              },
             ),
           ),
         const SizedBox(height: 24),
         RecentWornSection(shoes: shoes, brands: brands),
-        const SizedBox(height: 24),
-        TopFiveSection(shoes: shoes, brands: brands),
         const SizedBox(height: 24),
         BrandSummarySection(shoes: shoes, brands: brands),
       ],

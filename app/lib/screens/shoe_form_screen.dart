@@ -13,6 +13,7 @@ import '../providers/brand_provider.dart';
 import '../providers/photo_provider.dart';
 import '../providers/photo_storage_provider.dart';
 import '../providers/shoe_provider.dart';
+import '../widgets/app_dialogs.dart';
 
 class ShoeFormScreen extends ConsumerStatefulWidget {
   final Shoe? shoe;
@@ -54,7 +55,6 @@ class _ShoeFormScreenState extends ConsumerState<ShoeFormScreen> {
   final _storeController = TextEditingController();
   final _memoController = TextEditingController();
 
-  int _currentStep = 0;
   int? _brandId;
   String _brandText = '';
   String _status = Shoe.statusNew;
@@ -84,7 +84,6 @@ class _ShoeFormScreenState extends ConsumerState<ShoeFormScreen> {
       _storeController.text = shoe.purchaseStore ?? '';
       _memoController.text = shoe.memo ?? '';
       _purchaseDate = shoe.purchaseDate;
-      _currentStep = 1;
     }
     _modelController.addListener(_syncModelNameFields);
   }
@@ -113,10 +112,6 @@ class _ShoeFormScreenState extends ConsumerState<ShoeFormScreen> {
     if (!_formKey.currentState!.validate() ||
         (_brandId == null && _brandText.trim().isEmpty) ||
         modelName.isEmpty) {
-      setState(() => _currentStep = 1);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('ブランドとモデル名を入力してください')),
-      );
       return;
     }
 
@@ -188,9 +183,7 @@ class _ShoeFormScreenState extends ConsumerState<ShoeFormScreen> {
       debugPrintStack(stackTrace: stackTrace);
       if (mounted) {
         setState(() => _saving = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('保存に失敗しました')),
-        );
+        await showAppMessage(context, title: '保存できませんでした');
       }
     }
   }
@@ -288,14 +281,6 @@ class _ShoeFormScreenState extends ConsumerState<ShoeFormScreen> {
     return trimmed.characters.take(maxLength).toString();
   }
 
-  void _continue() {
-    if (_currentStep == 3) {
-      _save();
-    } else {
-      setState(() => _currentStep += 1);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final brandsAsync = ref.watch(brandsProvider);
@@ -306,63 +291,37 @@ class _ShoeFormScreenState extends ConsumerState<ShoeFormScreen> {
       body: brandsAsync.when(
         data: (brands) => Form(
           key: _formKey,
-          child: Stepper(
-            currentStep: _currentStep,
-            onStepTapped: (step) => setState(() => _currentStep = step),
-            onStepContinue: _saving ? null : _continue,
-            onStepCancel: _currentStep == 0
-                ? null
-                : () => setState(() => _currentStep -= 1),
-            controlsBuilder: (context, details) => Padding(
-              padding: const EdgeInsets.only(top: 20),
-              child: Row(
-                children: [
-                  FilledButton(
-                    onPressed: _saving ? null : details.onStepContinue,
-                    child: Text(
-                      _currentStep == 3
-                          ? _saving
-                              ? '保存中…'
-                              : '登録する'
-                          : '次へ',
-                    ),
-                  ),
-                  if (_currentStep > 0) ...[
-                    const SizedBox(width: 8),
-                    TextButton(
-                      onPressed: _saving ? null : details.onStepCancel,
-                      child: const Text('戻る'),
-                    ),
-                  ],
-                ],
+          child: ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
+              Text('メイン写真', style: Theme.of(context).textTheme.titleLarge),
+              const SizedBox(height: 12),
+              _PhotoPickerCard(
+                pickedFile: _pendingMainPhoto,
+                onTap: _pickMainPhoto,
+                onRemove: () => setState(() => _pendingMainPhoto = null),
               ),
-            ),
-            steps: [
-              Step(
-                title: const Text('メイン写真'),
-                subtitle: const Text('あとから追加もできます'),
-                isActive: _currentStep >= 0,
-                content: _PhotoPickerCard(
-                  pickedFile: _pendingMainPhoto,
-                  onTap: _pickMainPhoto,
-                  onRemove: () => setState(() => _pendingMainPhoto = null),
+              const SizedBox(height: 28),
+              Text('基本情報', style: Theme.of(context).textTheme.titleLarge),
+              const SizedBox(height: 12),
+              _buildBasicInfo(brands),
+              const SizedBox(height: 28),
+              Text('サイズ・カラー', style: Theme.of(context).textTheme.titleLarge),
+              const SizedBox(height: 12),
+              _buildAppearance(),
+              const SizedBox(height: 28),
+              Text('購入情報・メモ', style: Theme.of(context).textTheme.titleLarge),
+              const SizedBox(height: 12),
+              _buildDetails(),
+              const SizedBox(height: 28),
+              FilledButton(
+                onPressed: _saving ? null : _save,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  child: Text(_saving ? '保存中…' : _isEditing ? '変更を保存' : '登録する'),
                 ),
               ),
-              Step(
-                title: const Text('基本情報'),
-                isActive: _currentStep >= 1,
-                content: _buildBasicInfo(brands),
-              ),
-              Step(
-                title: const Text('サイズ・カラー'),
-                isActive: _currentStep >= 2,
-                content: _buildAppearance(),
-              ),
-              Step(
-                title: const Text('購入情報・メモ'),
-                isActive: _currentStep >= 3,
-                content: _buildDetails(),
-              ),
+              const SizedBox(height: 24),
             ],
           ),
         ),

@@ -77,6 +77,7 @@ class _SneakerMasterPickerState extends State<SneakerMasterPicker> {
         ModelSearchField(
           key: ValueKey(_selectedBrand?.brandId),
           brandId: _selectedBrand?.brandId,
+          brandName: _brandText,
           initialText: widget.initialModelName,
           onTextChanged: (value) {
             setState(() {

@@ -1,9 +1,12 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../models/shoe.dart';
 import '../models/wear_log.dart';
 import '../providers/brand_provider.dart';
+import '../providers/photo_provider.dart';
 import '../providers/shoe_provider.dart';
 import '../providers/wear_log_provider.dart';
 
@@ -75,7 +78,6 @@ class TodayWornAction extends ConsumerWidget {
       return;
     }
 
-    final messenger = ScaffoldMessenger.of(context);
     try {
       final inserted = await ref.read(wearLogRepositoryProvider).insertWearLog(
             WearLog.create(
@@ -91,19 +93,14 @@ class TodayWornAction extends ConsumerWidget {
       ref.invalidate(shoeByIdProvider(shoe.id!));
       ref.invalidate(wearLogsByShoeIdProvider(shoe.id!));
       ref.invalidate(recentWearLogsProvider);
-      if (messenger.mounted) {
-        messenger.showSnackBar(
-          SnackBar(
-            content: Text(
-              inserted ? '$shoeTitleの着用を記録しました' : '今日はすでに記録済みです',
-            ),
-          ),
-        );
-      }
     } catch (_) {
-      if (messenger.mounted) {
-        messenger.showSnackBar(
-          const SnackBar(content: Text('着用記録の保存に失敗しました')),
+      if (context.mounted) {
+        await showDialog<void>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('保存できませんでした'),
+            actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('閉じる'))],
+          ),
         );
       }
     }
@@ -151,19 +148,50 @@ class _TodayWornPicker extends ConsumerWidget {
                     for (final brand in brands)
                       if (brand.id != null) brand.id!: brand.name,
                   };
-                  return ListView.builder(
-                    shrinkWrap: true,
+                  return GridView.builder(
+                    padding: const EdgeInsets.all(12),
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      mainAxisSpacing: 10,
+                      crossAxisSpacing: 10,
+                      childAspectRatio: 0.9,
+                    ),
                     itemCount: shoes.length,
                     itemBuilder: (context, index) {
                       final shoe = shoes[index];
                       final title = shoe.displayTitle?.isNotEmpty == true
                           ? shoe.displayTitle!
                           : shoe.modelName;
-                      return ListTile(
-                        title: Text(title),
-                        subtitle: Text(brandNames[shoe.brandId] ?? ''),
-                        trailing: Text(shoe.archiveNumber),
-                        onTap: () => Navigator.of(context).pop(shoe),
+                      return Consumer(
+                        builder: (context, ref, _) {
+                          final path = ref.watch(mainPhotoProvider(shoe.id!)).value?.filePath;
+                          return Card(
+                            clipBehavior: Clip.antiAlias,
+                            child: InkWell(
+                              onTap: () => Navigator.of(context).pop(shoe),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  Expanded(
+                                    child: path == null
+                                        ? const Center(child: Icon(Icons.image_outlined))
+                                        : Image.file(File(path), fit: BoxFit.cover),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(8),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(title, maxLines: 1, overflow: TextOverflow.ellipsis),
+                                        Text(brandNames[shoe.brandId] ?? '', style: Theme.of(context).textTheme.labelSmall),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
                       );
                     },
                   );

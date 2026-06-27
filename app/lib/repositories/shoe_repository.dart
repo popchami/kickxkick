@@ -125,6 +125,46 @@ class ShoeRepository {
     return updated > 0;
   }
 
+  Future<void> setTopOrder(int shoeId, int rank) async {
+    final db = await AppDatabase.instance.database;
+    await db.transaction((txn) async {
+      final currentRows = await txn.query(
+        'shoes',
+        columns: ['top_order'],
+        where: 'id = ?',
+        whereArgs: [shoeId],
+        limit: 1,
+      );
+      final previousRank = currentRows.isEmpty
+          ? null
+          : currentRows.first['top_order'] as int?;
+      final occupiedRows = await txn.query(
+        'shoes',
+        columns: ['id'],
+        where: 'top_order = ? AND id != ?',
+        whereArgs: [rank, shoeId],
+        limit: 1,
+      );
+      if (occupiedRows.isNotEmpty) {
+        await txn.update(
+          'shoes',
+          {'top_order': previousRank},
+          where: 'id = ?',
+          whereArgs: [occupiedRows.first['id']],
+        );
+      }
+      await txn.update(
+        'shoes',
+        {
+          'top_order': rank,
+          'updated_at': DateTime.now().toIso8601String(),
+        },
+        where: 'id = ?',
+        whereArgs: [shoeId],
+      );
+    });
+  }
+
   Future<void> _reorderTopFive(DatabaseExecutor db) async {
     final rows = await db.query(
       'shoes',

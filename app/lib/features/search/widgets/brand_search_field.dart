@@ -97,7 +97,14 @@ class _SuggestionList extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       margin: EdgeInsets.zero,
-      child: Column(children: children),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxHeight: 280),
+        child: ListView(
+          shrinkWrap: true,
+          padding: EdgeInsets.zero,
+          children: children,
+        ),
+      ),
     );
   }
 }
