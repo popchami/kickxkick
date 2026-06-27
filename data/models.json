@@ -1,6 +1,6 @@
 {
-  "version": "0.2.0",
-  "updatedAt": "2026-06-26",
+  "version": "0.3.0",
+  "updatedAt": "2026-06-28",
   "items": [
     {"id":"nike_air_force_1","brandId":"nike","modelName":"Air Force 1","category":"lifestyle","source":"master"},
     {"id":"nike_air_max_1","brandId":"nike","modelName":"Air Max 1","category":"lifestyle","source":"master"},
@@ -105,6 +105,13 @@
     {"id":"reebok_instapump_fury","brandId":"reebok","modelName":"Instapump Fury","category":"running","source":"master"},
     {"id":"reebok_workout_plus","brandId":"reebok","modelName":"Workout Plus","category":"training","source":"master"},
     {"id":"reebok_freestyle","brandId":"reebok","modelName":"Freestyle","category":"training","source":"master"},
-    {"id":"reebok_question","brandId":"reebok","modelName":"Question","category":"basketball","source":"master"}
+    {"id":"reebok_question","brandId":"reebok","modelName":"Question","category":"basketball","source":"master"},
+
+    {"id":"hoka_bondi_9","brandId":"hoka","modelName":"Bondi 9","category":"running","source":"master"},
+    {"id":"hoka_clifton_10","brandId":"hoka","modelName":"Clifton 10","category":"running","source":"master"},
+    {"id":"hoka_speedgoat_7","brandId":"hoka","modelName":"Speedgoat 7","category":"trail_running","source":"master"},
+    {"id":"hoka_arahi_8","brandId":"hoka","modelName":"Arahi 8","category":"running","source":"master"},
+    {"id":"hoka_transport_2","brandId":"hoka","modelName":"Transport 2","category":"lifestyle","source":"master"},
+    {"id":"hoka_challenger_8","brandId":"hoka","modelName":"Challenger 8","category":"trail_running","source":"master"}
   ]
 }
