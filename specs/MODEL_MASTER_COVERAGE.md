@@ -1,4 +1,4 @@
-# Kick×Kick Model Master Coverage v1.4
+# Kick×Kick Model Master Coverage v1.5
 
 ## Purpose
 
@@ -67,7 +67,7 @@ BLOCKED
 
 | Brand | Priority B Models | Model Coverage | Alias | searchKeywords | Canonical Name | Status | Notes |
 |---|---:|---:|---|---|---|---|---|
-| HOKA | 6 | PASS | TODO | TODO | PASS | WARNING | Bondi 9 / Clifton 10 / Speedgoat 7 / Arahi 8 / Transport 2 / Challenger 8 を公式確認ベースで追加。Alias/searchKeywordsは未追加。 |
+| HOKA | 6 | PASS | PASS | PASS | PASS | PASS | Bondi 9 / Clifton 10 / Speedgoat 7 / Arahi 8 / Transport 2 / Challenger 8 にAliasと日本語検索を追加済み。 |
 
 ---
 
@@ -77,7 +77,7 @@ BLOCKED
 Nike: Air Force 1 / Air Max 1 / Air Max 90 / Air Max 95 / Air Max 97 / Air Max Plus / Dunk Low / Dunk High / SB Dunk Low / P-6000 / Zoom Vomero 5 / Pegasus / ZoomX Invincible Run / Cortez / Shox R4 / TC 7900
 Air Jordan: Air Jordan 1 / 2 / 3 / 4 / 5 / 6 / 11 / 12 / 13 / 14 / Jordan Spizike / Jordan Legacy 312
 adidas: Samba / Gazelle / Campus 00s / Superstar / Stan Smith / Handball Spezial / SL 72 / Forum Low / Forum Mid / Adimatic / Ultraboost / Yeezy 350
-New Balance: 530 / 550 / 574 / 576 / 580 / 327 / 725 / 740 / 9060 / 2002R / 1906R / 990v1〜990v6 / 991 / 992 / 993
+New Balance: 530 / 550 / 574 / 576 / 580 / 327 / 725 / 740 / 9060 / 2002R / 1906R / 990v1〜v6 / 991 / 992 / 993
 ASICS: GT-2160 / GEL-1130 / GEL-1090 / GEL-Kayano 14 / GEL-NYC / GEL-Nimbus 9 / GEL-Lyte III / GEL-Lyte V / Novablast / Superblast / EX89 / Japan S
 ```
 
@@ -135,8 +135,11 @@ HOKA: Bondi 9 / Clifton 10 / Speedgoat 7 / Arahi 8 / Transport 2 / Challenger 8
 2026-06-28 v0.3.0
 - Tier BとしてHOKAを追加
 - HOKAの高確度代表モデル6件を追加
-- HOKA Alias / searchKeywordsは未追加のためWARNING
-- app/assets/data/aliases.json は実ファイル確認上、data/aliases.json と同期済みだった
+
+2026-06-28 v0.3.1
+- HOKA Alias / searchKeywords を追加
+- HOKAをPASSに更新
+- app/assets/data/aliases.json / search_keywords.json を同期更新
 ```
 
 ---
@@ -144,17 +147,16 @@ HOKA: Bondi 9 / Clifton 10 / Speedgoat 7 / Arahi 8 / Transport 2 / Challenger 8
 ## Next Work
 
 ```text
-1. HOKA Alias / searchKeywords追加
-2. Search MVPテストケースを実機またはFlutterテストで実施
-3. data/*.json と app/assets/data/*.json の同期自動化
-4. Tier B/Cブランド候補を別作業で追加検討
-5. Tier S/Aの追加モデルは実ユーザー入力ログが溜まってから判断
+1. Search MVPテストケースを実機またはFlutterテストで実施
+2. data/*.json と app/assets/data/*.json の同期自動化
+3. Tier B/Cブランド候補を別作業で追加検討
+4. Tier S/A/Bの追加モデルは実ユーザー入力ログが溜まってから判断
 ```
 
 ---
 
 ## Quality Goal
 
-Tier S / Tier A ブランドについて、ユーザーが主要な略称・数字・日本語入力で目的モデルへ到達できること。
+Tier S / Tier A / Tier B ブランドについて、ユーザーが主要な略称・数字・日本語入力で目的モデルへ到達できること。
 
-Tier Bは段階育成とし、モデル追加後にAlias/searchKeywordsを追加してPASSへ引き上げる。
+Tier BはHOKAをPASS化済み。次のTier B/Cは、低確度モデルを避けて段階追加する。
