@@ -1,6 +1,6 @@
 {
-  "version": "0.3.1",
-  "updatedAt": "2026-06-28",
+  "version": "0.4.0",
+  "updatedAt": "2026-06-29",
   "items": [
     {"modelId":"nike_air_force_1","keyword":"エアフォース"},
     {"modelId":"nike_air_force_1","keyword":"エアフォース1"},
@@ -154,6 +154,31 @@
     {"modelId":"hoka_transport_2","keyword":"Transport2"},
     {"modelId":"hoka_transport_2","keyword":"トランスポート2"},
     {"modelId":"hoka_challenger_8","keyword":"Challenger8"},
-    {"modelId":"hoka_challenger_8","keyword":"チャレンジャー8"}
+    {"modelId":"hoka_challenger_8","keyword":"チャレンジャー8"},
+
+    {"modelId":"saucony_ride_19","keyword":"Ride19"},
+    {"modelId":"saucony_ride_19","keyword":"ライド19"},
+    {"modelId":"saucony_triumph_24","keyword":"Triumph24"},
+    {"modelId":"saucony_triumph_24","keyword":"トライアンフ24"},
+    {"modelId":"saucony_guide_19","keyword":"Guide19"},
+    {"modelId":"saucony_guide_19","keyword":"ガイド19"},
+    {"modelId":"saucony_hurricane_25","keyword":"Hurricane25"},
+    {"modelId":"saucony_hurricane_25","keyword":"ハリケーン25"},
+    {"modelId":"saucony_progrid_omni_9","keyword":"ProGridOmni9"},
+    {"modelId":"saucony_progrid_omni_9","keyword":"プロ grid オムニ9"},
+    {"modelId":"saucony_progrid_guide_7","keyword":"ProGridGuide7"},
+    {"modelId":"saucony_progrid_guide_7","keyword":"プロ grid ガイド7"},
+
+    {"modelId":"salomon_xt_6","keyword":"XT6"},
+    {"modelId":"salomon_xt_6","keyword":"エックスティー6"},
+    {"modelId":"salomon_xt_whisper","keyword":"XTWhisper"},
+    {"modelId":"salomon_xt_whisper","keyword":"エックスティーウィスパー"},
+    {"modelId":"salomon_xa_pro","keyword":"XAPro"},
+    {"modelId":"salomon_xa_pro","keyword":"エックスエープロ"},
+    {"modelId":"salomon_speedcross","keyword":"スピードクロス"},
+    {"modelId":"salomon_x_ultra","keyword":"XUltra"},
+    {"modelId":"salomon_x_ultra","keyword":"エックスウルトラ"},
+    {"modelId":"salomon_xt_4","keyword":"XT4"},
+    {"modelId":"salomon_xt_4","keyword":"エックスティー4"}
   ]
 }
