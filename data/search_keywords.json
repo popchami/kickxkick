@@ -1,6 +1,6 @@
 {
-  "version": "0.2.0",
-  "updatedAt": "2026-06-26",
+  "version": "0.3.1",
+  "updatedAt": "2026-06-28",
   "items": [
     {"modelId":"nike_air_force_1","keyword":"エアフォース"},
     {"modelId":"nike_air_force_1","keyword":"エアフォース1"},
@@ -141,6 +141,19 @@
     {"modelId":"reebok_instapump_fury","keyword":"InstapumpFury"},
     {"modelId":"reebok_instapump_fury","keyword":"ポンプフューリー"},
     {"modelId":"reebok_workout_plus","keyword":"WorkoutPlus"},
-    {"modelId":"reebok_freestyle","keyword":"フリースタイル"}
+    {"modelId":"reebok_freestyle","keyword":"フリースタイル"},
+
+    {"modelId":"hoka_bondi_9","keyword":"Bondi9"},
+    {"modelId":"hoka_bondi_9","keyword":"ボンダイ9"},
+    {"modelId":"hoka_clifton_10","keyword":"Clifton10"},
+    {"modelId":"hoka_clifton_10","keyword":"クリフトン10"},
+    {"modelId":"hoka_speedgoat_7","keyword":"Speedgoat7"},
+    {"modelId":"hoka_speedgoat_7","keyword":"スピードゴート7"},
+    {"modelId":"hoka_arahi_8","keyword":"Arahi8"},
+    {"modelId":"hoka_arahi_8","keyword":"アラヒ8"},
+    {"modelId":"hoka_transport_2","keyword":"Transport2"},
+    {"modelId":"hoka_transport_2","keyword":"トランスポート2"},
+    {"modelId":"hoka_challenger_8","keyword":"Challenger8"},
+    {"modelId":"hoka_challenger_8","keyword":"チャレンジャー8"}
   ]
 }
