@@ -1,6 +1,6 @@
 {
-  "version": "0.3.1",
-  "updatedAt": "2026-06-28",
+  "version": "0.4.0",
+  "updatedAt": "2026-06-29",
   "items": [
     {"modelId":"nike_air_force_1","alias":"AF1"},
     {"modelId":"nike_air_force_1","alias":"AF-1"},
@@ -153,6 +153,20 @@
     {"modelId":"hoka_speedgoat_7","alias":"Speedgoat7"},
     {"modelId":"hoka_arahi_8","alias":"Arahi8"},
     {"modelId":"hoka_transport_2","alias":"Transport2"},
-    {"modelId":"hoka_challenger_8","alias":"Challenger8"}
+    {"modelId":"hoka_challenger_8","alias":"Challenger8"},
+
+    {"modelId":"saucony_ride_19","alias":"Ride19"},
+    {"modelId":"saucony_triumph_24","alias":"Triumph24"},
+    {"modelId":"saucony_guide_19","alias":"Guide19"},
+    {"modelId":"saucony_hurricane_25","alias":"Hurricane25"},
+    {"modelId":"saucony_progrid_omni_9","alias":"ProGridOmni9"},
+    {"modelId":"saucony_progrid_guide_7","alias":"ProGridGuide7"},
+
+    {"modelId":"salomon_xt_6","alias":"XT6"},
+    {"modelId":"salomon_xt_whisper","alias":"XTWhisper"},
+    {"modelId":"salomon_xa_pro","alias":"XAPro"},
+    {"modelId":"salomon_speedcross","alias":"Speedcross"},
+    {"modelId":"salomon_x_ultra","alias":"XUltra"},
+    {"modelId":"salomon_xt_4","alias":"XT4"}
   ]
 }
