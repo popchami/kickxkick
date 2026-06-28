@@ -1,6 +1,6 @@
 {
-  "version": "0.3.0",
-  "updatedAt": "2026-06-28",
+  "version": "0.4.0",
+  "updatedAt": "2026-06-29",
   "items": [
     {"brandId":"nike","brandName":"Nike","tier":"S","isEnabled":true},
     {"brandId":"air_jordan","brandName":"Air Jordan","tier":"S","isEnabled":true},
@@ -11,6 +11,8 @@
     {"brandId":"converse","brandName":"Converse","tier":"A","isEnabled":true},
     {"brandId":"vans","brandName":"Vans","tier":"A","isEnabled":true},
     {"brandId":"reebok","brandName":"Reebok","tier":"A","isEnabled":true},
-    {"brandId":"hoka","brandName":"HOKA","tier":"B","isEnabled":true}
+    {"brandId":"hoka","brandName":"HOKA","tier":"B","isEnabled":true},
+    {"brandId":"saucony","brandName":"Saucony","tier":"B","isEnabled":true},
+    {"brandId":"salomon","brandName":"SALOMON","tier":"B","isEnabled":true}
   ]
 }
