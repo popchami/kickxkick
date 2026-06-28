@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../models/brand.dart';
 import '../models/shoe.dart';
-import '../providers/collection_filter_provider.dart';
 import '../providers/navigation_provider.dart';
 
 class MuseumSummary extends ConsumerWidget {
@@ -18,71 +17,16 @@ class MuseumSummary extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final brandCount = shoes.map((shoe) => shoe.brandId).toSet().length;
-
-    return Row(
-      children: [
-        Expanded(
-          child: _SummaryCard(
-            label: 'PAIRS',
-            value: shoes.length.toString(),
-            icon: Icons.inventory_2_outlined,
-            onTap: () => _openCollection(ref),
-          ),
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: _SummaryCard(
-            label: 'BRANDS',
-            value: brandCount.toString(),
-            icon: Icons.sell_outlined,
-            onTap: () => _selectBrand(context, ref),
-          ),
-        ),
-      ],
+    return _SummaryCard(
+      label: 'PAIRS',
+      value: shoes.length.toString(),
+      icon: Icons.inventory_2_outlined,
+      onTap: () => _openCollection(ref),
     );
   }
 
   void _openCollection(WidgetRef ref) {
-    ref.read(collectionFilterProvider.notifier).state = const CollectionFilter();
-    ref.read(bottomNavigationIndexProvider.notifier).state = 1;
-  }
-
-  Future<void> _selectBrand(BuildContext context, WidgetRef ref) async {
-    final availableBrands = brands
-        .where((brand) => shoes.any((shoe) => shoe.brandId == brand.id))
-        .toList();
-    final brandId = await showModalBottomSheet<int>(
-      context: context,
-      showDragHandle: true,
-      builder: (context) => SafeArea(
-        child: ListView(
-          shrinkWrap: true,
-          children: [
-            const ListTile(title: Text('ブランドを選択')),
-            ...availableBrands.map(
-              (brand) => ListTile(
-                leading: const Icon(Icons.sell_outlined),
-                title: Text(brand.name),
-                trailing: Text(
-                  shoes
-                      .where((shoe) => shoe.brandId == brand.id)
-                      .length
-                      .toString(),
-                ),
-                onTap: () => Navigator.of(context).pop(brand.id),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-    if (brandId == null) {
-      return;
-    }
-    ref.read(collectionFilterProvider.notifier).state =
-        CollectionFilter(brandId: brandId);
-    ref.read(bottomNavigationIndexProvider.notifier).state = 1;
+    ref.read(bottomNavigationIndexProvider.notifier).state = 3;
   }
 }
 

@@ -73,7 +73,7 @@ class KickxKickHome extends ConsumerWidget {
           NavigationDestination(
             icon: Icon(Icons.add_circle, color: Colors.orange),
             selectedIcon: Icon(Icons.add_circle, color: Colors.orange),
-            label: '＋',
+            label: '追加',
           ),
           NavigationDestination(
             icon: Icon(Icons.collections_outlined),

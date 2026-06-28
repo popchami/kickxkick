@@ -10,12 +10,16 @@ class WearHistorySection extends ConsumerWidget {
 
   const WearHistorySection({super.key, required this.shoeId});
 
-  Future<void> _recordToday(BuildContext context, WidgetRef ref) async {
+  Future<void> _recordDate(
+    BuildContext context,
+    WidgetRef ref,
+    DateTime date,
+  ) async {
     var memoText = '';
     final memo = await showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('今日履いた'),
+        title: Text('${_formatDate(date)}に履いた'),
         content: TextField(
           onChanged: (value) => memoText = value,
           decoration: const InputDecoration(
@@ -46,7 +50,7 @@ class WearHistorySection extends ConsumerWidget {
       final inserted = await ref.read(wearLogRepositoryProvider).insertWearLog(
             WearLog.create(
               shoeId: shoeId,
-              wornDate: DateTime.now(),
+              wornDate: date,
               memo: memo.isEmpty ? null : memo,
             ),
           );
@@ -88,14 +92,24 @@ class WearHistorySection extends ConsumerWidget {
         ],
       ),
     );
-    controller.dispose();
+    WidgetsBinding.instance.addPostFrameCallback((_) => controller.dispose());
     if (value == null || wearLog.id == null) return;
-    await ref.read(wearLogRepositoryProvider).updateMemo(
-      wearLog.id!,
-      value.isEmpty ? null : value,
-    );
-    ref.invalidate(wearLogsByShoeIdProvider(shoeId));
-    ref.invalidate(recentWearLogsProvider);
+    try {
+      await ref.read(wearLogRepositoryProvider).updateMemo(
+        wearLog.id!,
+        value.isEmpty ? null : value,
+      );
+      ref.invalidate(wearLogsByShoeIdProvider(shoeId));
+      ref.invalidate(recentWearLogsProvider);
+    } catch (error, stackTrace) {
+      debugPrint('Wear memo update failed: $error');
+      debugPrintStack(stackTrace: stackTrace);
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('メモを保存できませんでした')),
+        );
+      }
+    }
   }
 
   Future<void> _deleteWearLog(
@@ -135,6 +149,46 @@ class WearHistorySection extends ConsumerWidget {
     ref.invalidate(recentWearLogsProvider);
   }
 
+  Future<void> _manageWearLog(
+    BuildContext context,
+    WidgetRef ref,
+    WearLog wearLog,
+  ) async {
+    final action = await showModalBottomSheet<String>(
+      context: context,
+      showDragHandle: true,
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              title: Text(_formatDate(wearLog.wornDate)),
+              subtitle: Text(wearLog.memo?.isNotEmpty == true
+                  ? wearLog.memo!
+                  : 'メモはありません'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.notes),
+              title: const Text('メモを編集'),
+              onTap: () => Navigator.pop(context, 'edit'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.delete_outline),
+              title: const Text('着用記録を削除'),
+              onTap: () => Navigator.pop(context, 'delete'),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (!context.mounted) return;
+    if (action == 'edit') {
+      await _editMemo(context, ref, wearLog);
+    } else if (action == 'delete') {
+      await _deleteWearLog(context, ref, wearLog);
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final wearLogsAsync = ref.watch(wearLogsByShoeIdProvider(shoeId));
@@ -142,58 +196,14 @@ class WearHistorySection extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        FilledButton.icon(
-          onPressed: () => _recordToday(context, ref),
-          icon: const Icon(Icons.directions_walk),
-          label: const Text('今日履いた'),
-        ),
-        const SizedBox(height: 20),
         Text('着用履歴', style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: 8),
         wearLogsAsync.when(
-          data: (wearLogs) {
-            if (wearLogs.isEmpty) {
-              return Text(
-                'まだ着用記録がありません',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.outline,
-                    ),
-              );
-            }
-
-            return Column(
-              children: [
-                _WearCalendar(wearLogs: wearLogs),
-                const SizedBox(height: 12),
-                ...wearLogs
-                  .map(
-                    (wearLog) => Card(
-                      child: ListTile(
-                        leading: const Icon(Icons.calendar_today_outlined),
-                        title: Text(_formatDate(wearLog.wornDate)),
-                        subtitle:
-                            wearLog.memo == null ? null : Text(wearLog.memo!),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.edit_outlined),
-                              tooltip: 'メモを編集',
-                              onPressed: () => _editMemo(context, ref, wearLog),
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.delete_outline),
-                              tooltip: '着用記録を削除',
-                              onPressed: () => _deleteWearLog(context, ref, wearLog),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-              ],
-            );
-          },
+          data: (wearLogs) => _WearCalendar(
+            wearLogs: wearLogs,
+            onRecordDate: (date) => _recordDate(context, ref, date),
+            onTapWearLog: (wearLog) => _manageWearLog(context, ref, wearLog),
+          ),
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (_, __) => const Text('着用履歴を読み込めませんでした'),
         ),
@@ -207,8 +217,14 @@ class WearHistorySection extends ConsumerWidget {
 }
 
 class _WearCalendar extends StatefulWidget {
-  const _WearCalendar({required this.wearLogs});
+  const _WearCalendar({
+    required this.wearLogs,
+    required this.onRecordDate,
+    required this.onTapWearLog,
+  });
   final List<WearLog> wearLogs;
+  final ValueChanged<DateTime> onRecordDate;
+  final ValueChanged<WearLog> onTapWearLog;
 
   @override
   State<_WearCalendar> createState() => _WearCalendarState();
@@ -222,10 +238,14 @@ class _WearCalendarState extends State<_WearCalendar> {
     final first = DateTime(_month.year, _month.month, 1);
     final days = DateTime(_month.year, _month.month + 1, 0).day;
     final offset = first.weekday % 7;
-    final wornDays = widget.wearLogs
+    final logsByDay = <int, WearLog>{
+      for (final log in widget.wearLogs
         .where((log) => log.wornDate.year == _month.year && log.wornDate.month == _month.month)
-        .map((log) => log.wornDate.day)
-        .toSet();
+      ) log.wornDate.day: log,
+    };
+    final today = DateTime.now();
+    final currentMonth = DateTime(today.year, today.month);
+    final canGoNext = _month.isBefore(currentMonth);
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(12),
@@ -233,9 +253,24 @@ class _WearCalendarState extends State<_WearCalendar> {
           children: [
             Row(
               children: [
-                IconButton(onPressed: () => setState(() => _month = DateTime(_month.year, _month.month - 1)), icon: const Icon(Icons.chevron_left)),
-                Expanded(child: Text('${_month.year}年 ${_month.month}月', textAlign: TextAlign.center, style: Theme.of(context).textTheme.titleMedium)),
-                IconButton(onPressed: () => setState(() => _month = DateTime(_month.year, _month.month + 1)), icon: const Icon(Icons.chevron_right)),
+                IconButton(
+                  onPressed: () => setState(() =>
+                      _month = DateTime(_month.year, _month.month - 1)),
+                  icon: const Icon(Icons.chevron_left),
+                ),
+                Expanded(
+                  child: Text(
+                    '${_month.year}年 ${_month.month}月',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                ),
+                IconButton(
+                  onPressed: canGoNext
+                      ? () => setState(() => _month = DateTime(_month.year, _month.month + 1))
+                      : null,
+                  icon: const Icon(Icons.chevron_right),
+                ),
               ],
             ),
             GridView.builder(
@@ -246,12 +281,22 @@ class _WearCalendarState extends State<_WearCalendar> {
               itemBuilder: (context, index) {
                 if (index < offset) return const SizedBox.shrink();
                 final day = index - offset + 1;
-                final worn = wornDays.contains(day);
+                final date = DateTime(_month.year, _month.month, day);
+                final isFuture = date.isAfter(DateTime(today.year, today.month, today.day));
+                if (isFuture) return const SizedBox.shrink();
+                final wearLog = logsByDay[day];
+                final worn = wearLog != null;
                 return Center(
-                  child: CircleAvatar(
-                    radius: 16,
-                    backgroundColor: worn ? Theme.of(context).colorScheme.primaryContainer : Colors.transparent,
-                    child: Text('$day'),
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(20),
+                    onTap: wearLog == null
+                        ? () => widget.onRecordDate(date)
+                        : () => widget.onTapWearLog(wearLog),
+                    child: CircleAvatar(
+                      radius: 18,
+                      backgroundColor: worn ? Theme.of(context).colorScheme.primaryContainer : Colors.transparent,
+                      child: Text('$day'),
+                    ),
                   ),
                 );
               },

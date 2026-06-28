@@ -7,7 +7,6 @@ import '../providers/photo_provider.dart';
 import '../providers/shoe_provider.dart';
 import '../widgets/brand_summary_section.dart';
 import '../widgets/empty_state.dart';
-import '../widgets/museum_summary.dart';
 import '../widgets/recent_worn_section.dart';
 import '../widgets/shoe_card.dart';
 import '../widgets/top_five_section.dart';
@@ -68,10 +67,6 @@ class _HomeContent extends StatelessWidget {
       children: [
         TopFiveSection(shoes: shoes, brands: brands),
         const SizedBox(height: 24),
-        Text('MY COLLECTION', style: Theme.of(context).textTheme.labelLarge),
-        const SizedBox(height: 12),
-        MuseumSummary(shoes: shoes, brands: brands),
-        const SizedBox(height: 16),
         const TodayWornAction(),
         const SizedBox(height: 24),
         Text('最近追加', style: Theme.of(context).textTheme.titleLarge),
@@ -126,7 +121,7 @@ class _RecentShoeCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final mainPhotoAsync = ref.watch(mainPhotoProvider(shoe.id!));
     final imagePath = mainPhotoAsync.maybeWhen(
-      data: (photo) => photo?.filePath,
+      data: (photo) => photo?.cutoutPath ?? photo?.filePath,
       orElse: () => null,
     );
 

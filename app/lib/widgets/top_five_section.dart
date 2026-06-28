@@ -37,8 +37,6 @@ class TopFiveSection extends ConsumerWidget {
             const Icon(Icons.emoji_events_outlined),
             const SizedBox(width: 8),
             Text('MY TOP 5', style: Theme.of(context).textTheme.titleLarge),
-            const Spacer(),
-            Text('${byRank.length}/5'),
           ],
         ),
         const SizedBox(height: 12),
@@ -76,32 +74,88 @@ class TopFiveSection extends ConsumerWidget {
   }
 
   Future<void> _selectShoe(BuildContext context, WidgetRef ref, int rank) async {
-    final selected = await showDialog<Shoe>(
+    final selected = await showModalBottomSheet<Shoe>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text('$rank位のスニーカー'),
-        content: SizedBox(
-          width: double.maxFinite,
-          child: ListView.builder(
-            shrinkWrap: true,
-            itemCount: shoes.length,
-            itemBuilder: (context, index) {
-              final shoe = shoes[index];
-              return ListTile(
-                leading: CircleAvatar(child: Text('${shoe.topOrder ?? '−'}')),
-                title: Text(shoe.displayTitle?.isNotEmpty == true
-                    ? shoe.displayTitle!
-                    : shoe.modelName),
-                onTap: () => Navigator.pop(context, shoe),
-              );
-            },
-          ),
-        ),
-      ),
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (_) => _TopFivePicker(rank: rank, shoes: shoes, brands: brands),
     );
     if (selected == null) return;
     await ref.read(shoeRepositoryProvider).setTopOrder(selected.id!, rank);
     ref.invalidate(shoesProvider);
+  }
+}
+
+class _TopFivePicker extends ConsumerWidget {
+  const _TopFivePicker({required this.rank, required this.shoes, required this.brands});
+  final int rank;
+  final List<Shoe> shoes;
+  final List<Brand> brands;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final brandNames = {for (final brand in brands) if (brand.id != null) brand.id!: brand.name};
+    return SafeArea(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+            child: Text('$rank位のスニーカーを選択', style: Theme.of(context).textTheme.titleMedium),
+          ),
+          const Divider(height: 1),
+          ConstrainedBox(
+            constraints: BoxConstraints(maxHeight: MediaQuery.sizeOf(context).height * 0.6),
+            child: GridView.builder(
+              padding: const EdgeInsets.all(12),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                mainAxisSpacing: 10,
+                crossAxisSpacing: 10,
+                childAspectRatio: 0.9,
+              ),
+              itemCount: shoes.length,
+              itemBuilder: (context, index) {
+                final shoe = shoes[index];
+                final photo = ref.watch(mainPhotoProvider(shoe.id!)).value;
+                final path = photo?.cutoutPath ?? photo?.filePath;
+                return Card(
+                  clipBehavior: Clip.antiAlias,
+                  child: InkWell(
+                    onTap: () => Navigator.pop(context, shoe),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Expanded(
+                          child: path == null
+                              ? const Center(child: Icon(Icons.image_outlined))
+                              : Image.file(File(path), fit: BoxFit.cover),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                shoe.displayTitle?.isNotEmpty == true ? shoe.displayTitle! : shoe.modelName,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              Text(brandNames[shoe.brandId] ?? '', style: Theme.of(context).textTheme.labelSmall),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 
@@ -171,7 +225,7 @@ class _TopFiveCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final mainPhotoAsync = ref.watch(mainPhotoProvider(shoe.id!));
     final imagePath = mainPhotoAsync.maybeWhen(
-      data: (photo) => photo?.filePath,
+      data: (photo) => photo?.cutoutPath ?? photo?.filePath,
       orElse: () => null,
     );
 
@@ -206,7 +260,7 @@ class _TopFiveCard extends ConsumerWidget {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.fromLTRB(8, 6, 8, 8),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -214,16 +268,22 @@ class _TopFiveCard extends ConsumerWidget {
                       shoe.displayTitle?.isNotEmpty == true
                           ? shoe.displayTitle!
                           : shoe.modelName,
-                      maxLines: 1,
+                      maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.titleMedium,
+                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                            fontWeight: FontWeight.w700,
+                            height: 1.1,
+                          ),
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 2),
                     Text(
                       brandName,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.labelSmall,
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                            fontSize: 10,
+                            height: 1.1,
+                          ),
                     ),
                   ],
                 ),
