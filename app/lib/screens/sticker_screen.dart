@@ -1169,7 +1169,7 @@ class _StickerBoardState extends State<_StickerBoard> {
           child: Text(
             item.textContent,
             style: TextStyle(
-              fontSize: constraints.maxWidth * item.textSize,
+              fontSize: 120 * 0.72 * item.scale * item.textSize,
               color: _hexToColor(item.textColor),
               fontFamily: item.textFont.isEmpty ? null : item.textFont,
               decoration: TextDecoration.none,
@@ -1222,10 +1222,10 @@ class _StickerBoardState extends State<_StickerBoard> {
               const Text('A', style: TextStyle(fontSize: 10)),
               Expanded(
                 child: Slider(
-                  value: item.textSize.clamp(0.003, 0.02),
-                  min: 0.003,
-                  max: 0.02,
-                  divisions: 17,
+                  value: item.textSize.clamp(0.02, 0.06),
+                  min: 0.02,
+                  max: 0.06,
+                  divisions: 20,
                   onChanged: (v) {
                     final index = _items.indexWhere((i) => i.id == item.id);
                     if (index != -1) {
@@ -1372,7 +1372,7 @@ class _StickerArtwork extends StatelessWidget {
     final height = size * .72;
     final imageHeight = height;
     final width = size * 1.25;
-    final fontSize = size * .2 * asset.textScale;
+    final fontSize = size * 0.0288 * asset.textScale;
     final estimatedTextWidth =
         (text.runes.length * fontSize * .72).clamp(fontSize, width * .92);
     final textHeight = fontSize * 1.35;
@@ -1502,7 +1502,7 @@ class _StickerArtwork extends StatelessWidget {
       maxLines: 1,
       style: TextStyle(
         fontFamily: 'NotoSansJP',
-        fontSize: size * .2 * asset.textScale,
+        fontSize: size * 0.0288 * asset.textScale,
         fontWeight: FontWeight.w900,
         height: 1,
         foreground: Paint()

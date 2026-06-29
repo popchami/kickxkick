@@ -184,7 +184,7 @@ class StickerRepository {
       'board_id': boardId, 'sticker_id': stickerId,
       'x': sx, 'y': sy, 'scale': 1.0, 'rotation': 0.0, 'z_index': count,
       'text_enabled': 0, 'text_content': '', 'text_color': '#FFFFFF',
-      'text_size': 0.005, 'text_font': '',
+      'text_size': 0.025, 'text_font': '',
       'text_x': (sx + 0.18).clamp(0.0, 0.9), 'text_y': (sy + 0.24).clamp(0.0, 0.9),
     });
   }
