@@ -621,13 +621,13 @@ class _StickerScreenState extends ConsumerState<StickerScreen> {
         });
         repository.deleteBoardItem(item.id);
       case _StickerToolAction.zoomIn:
-        final zoomedIn = item.copyWith(scale: (item.scale + .1).clamp(.75, 1.5));
+        final zoomedIn = item.copyWith(scale: (item.scale + .1).clamp(.4, 2.0));
         setState(() {
           _boardItems = [for (final i in _boardItems) i.id == zoomedIn.id ? zoomedIn : i];
         });
         repository.updateBoardItem(zoomedIn);
       case _StickerToolAction.zoomOut:
-        final zoomedOut = item.copyWith(scale: (item.scale - .1).clamp(.75, 1.5));
+        final zoomedOut = item.copyWith(scale: (item.scale - .1).clamp(.4, 2.0));
         setState(() {
           _boardItems = [for (final i in _boardItems) i.id == zoomedOut.id ? zoomedOut : i];
         });
@@ -846,7 +846,7 @@ class _StickerBoardState extends State<_StickerBoard> {
                                             .clamp(0, .82),
                                         scale: widget.editMode
                                             ? (_startScale * details.scale)
-                                                .clamp(.75, 1.5)
+                                                .clamp(.4, 2.0)
                                             : item.scale,
                                         rotation: _startRotation,
                                       );
