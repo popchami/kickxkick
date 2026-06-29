@@ -1,10 +1,8 @@
-# Kick×Kick Model Master Coverage v1.6
+# Kick×Kick Model Master Coverage v1.7
 
 ## Purpose
 
-このファイルは、Kick×Kick のモデルマスター資産の育成状況を管理する。
-
-目的は、モデル候補・Alias・searchKeywords・正式表記の整備状況をブランドごとに見える化することである。
+Kick×Kick のブランド・モデルマスター資産の育成状況を管理する。
 
 ---
 
@@ -12,12 +10,10 @@
 
 ```text
 1. 国内流通リファレンスを確認する
-2. 主要モデル・流通モデルが候補に出る
-3. Aliasで見つかる
-4. 数字検索で見つかる
-5. 日本語検索で見つかる
-6. 保存名が正式表記に統一される
-7. ブランドとモデルの整合性が保たれる
+2. まずブランド名を国内流通リファレンスに近づける
+3. モデルはブランドごとに段階追加する
+4. Alias / searchKeywords はモデル追加時に追加する
+5. 低確度モデルや広すぎる検索語は追加しない
 ```
 
 ---
@@ -29,14 +25,15 @@ PASS
 - MVPで十分な品質
 - 主要モデル / Alias / searchKeywords / Canonical Name が揃っている
 
+BRAND_ONLY
+- ブランド名は登録済み
+- モデル / Alias / searchKeywords は未追加または未監査
+
 WARNING
 - MVPでは使えるが、AliasやsearchKeywordsに追加余地がある
 
 TODO
 - モデル不足、Alias不足、searchKeywords不足が目立つ
-
-BLOCKED
-- 外部要因や仕様未確定で進められない
 ```
 
 ---
@@ -45,11 +42,11 @@ BLOCKED
 
 | Brand | Priority S Models | Model Coverage | Alias | searchKeywords | Canonical Name | Status | Notes |
 |---|---:|---:|---|---|---|---|---|
-| Nike | 16 | PASS | PASS | PASS | PASS | PASS | Air Force 1 / Air Max / Dunk / P-6000 / Vomero 5 などMVP主要検索を補強済み。ABC-MART差分監査は継続。 |
-| Air Jordan | 12 | PASS | PASS | PASS | PASS | PASS | AJ/J/Jordan連結表記と日本語検索を補強済み。1桁数字単体は追加しない。 |
-| adidas | 12 | PASS | PASS | PASS | PASS | PASS | Samba / Gazelle / Campus / Forum / Adimatic / Ultraboost などを補強済み。ABC-MART差分監査は継続。 |
-| New Balance | 20 | PASS | PASS | PASS | PASS | PASS | 530 / 550 / 574 / 9060 / 990v1〜v6 / 2002R / 1906R を補強済み。ABC-MART差分監査は継続。 |
-| ASICS | 12 | PASS | PASS | PASS | PASS | PASS | GT-2160 / GEL-1130 / GEL-Kayano 14 / GEL-NYC / Novablast / Superblast などを補強済み。ABC-MART差分監査は継続。 |
+| Nike | 16 | PASS | PASS | PASS | PASS | PASS | ABC-MART差分監査は継続。 |
+| Air Jordan | 12 | PASS | PASS | PASS | PASS | PASS | AJ/J/Jordan連結表記と日本語検索を補強済み。 |
+| adidas | 12 | PASS | PASS | PASS | PASS | PASS | ABC-MART差分監査は継続。 |
+| New Balance | 20 | PASS | PASS | PASS | PASS | PASS | ABC-MART差分監査は継続。 |
+| ASICS | 12 | PASS | PASS | PASS | PASS | PASS | ABC-MART差分監査は継続。 |
 
 ---
 
@@ -57,67 +54,40 @@ BLOCKED
 
 | Brand | Priority A Models | Model Coverage | Alias | searchKeywords | Canonical Name | Status | Notes |
 |---|---:|---:|---|---|---|---|---|
-| PUMA | 6 | PASS | PASS | PASS | PASS | PASS | Suede / Palermo / Speedcat / Clyde / RS-X / Basket を高確度で追加。ABC-MART差分監査は継続。 |
-| Converse | 6 | PASS | PASS | PASS | PASS | PASS | Chuck Taylor All Star / Chuck 70 / One Star / Jack Purcell / Weapon / Run Star Hike を追加。ABC-MART差分監査は継続。 |
-| Vans | 6 | PASS | PASS | PASS | PASS | PASS | Old Skool / Authentic / Classic Slip-On / Sk8-Hi / Era / Knu Skool を追加。ABC-MART差分監査は継続。 |
-| Reebok | 6 | PASS | PASS | PASS | PASS | PASS | Club C / Classic Leather / Instapump Fury / Workout Plus / Freestyle / Question を追加。ABC-MART差分監査は継続。 |
+| PUMA | 6 | PASS | PASS | PASS | PASS | PASS | ABC-MART差分監査は継続。 |
+| Converse | 6 | PASS | PASS | PASS | PASS | PASS | ABC-MART差分監査は継続。 |
+| Vans | 6 | PASS | PASS | PASS | PASS | PASS | ABC-MART差分監査は継続。 |
+| Reebok | 6 | PASS | PASS | PASS | PASS | PASS | ABC-MART差分監査は継続。 |
 
 ---
 
 ## Tier B Coverage
 
-| Brand | Priority B Models | Model Coverage | Alias | searchKeywords | Canonical Name | Status | Notes |
-|---|---:|---:|---|---|---|---|---|
-| HOKA | 6 | PASS | PASS | PASS | PASS | PASS | Bondi 9 / Clifton 10 / Speedgoat 7 / Arahi 8 / Transport 2 / Challenger 8 にAliasと日本語検索を追加済み。 |
-| Saucony | 6 | PASS | PASS | PASS | PASS | PASS | Ride 19 / Triumph 24 / Guide 19 / Hurricane 25 / ProGrid Omni 9 / ProGrid Guide 7 を公式確認し、Aliasと日本語検索を追加済み。 |
-| SALOMON | 6 | PASS | PASS | PASS | PASS | PASS | XT-6 / XT-WHISPER / XA PRO / SPEEDCROSS / X ULTRA / XT-4 を公式定番モデルから追加し、Aliasと日本語検索を追加済み。 |
+| Brand | Model Coverage | Alias | searchKeywords | Canonical Name | Status | Notes |
+|---|---|---|---|---|---|---|
+| HOKA | PASS | PASS | PASS | PASS | PASS | 代表6モデル追加済み。 |
+| Saucony | PASS | PASS | PASS | PASS | PASS | 代表6モデル追加済み。 |
+| SALOMON | PASS | PASS | PASS | PASS | PASS | 代表6モデル追加済み。 |
+| MERRELL | TODO | TODO | TODO | TODO | BRAND_ONLY | ABC-MART掲載確認済み。モデルは次回以降に段階追加。 |
+| BROOKS | TODO | TODO | TODO | TODO | BRAND_ONLY | ABC-MART掲載確認済み。モデルは次回以降に段階追加。 |
 
 ---
 
-## Tier S Priority Model Targets
+## Tier C Brand Registry
+
+Tier Cは、国内流通リファレンスに掲載されるブランド名を先行登録した状態。
 
 ```text
-Nike: Air Force 1 / Air Max 1 / Air Max 90 / Air Max 95 / Air Max 97 / Air Max Plus / Dunk Low / Dunk High / SB Dunk Low / P-6000 / Zoom Vomero 5 / Pegasus / ZoomX Invincible Run / Cortez / Shox R4 / TC 7900
-Air Jordan: Air Jordan 1 / 2 / 3 / 4 / 5 / 6 / 11 / 12 / 13 / 14 / Jordan Spizike / Jordan Legacy 312
-adidas: Samba / Gazelle / Campus 00s / Superstar / Stan Smith / Handball Spezial / SL 72 / Forum Low / Forum Mid / Adimatic / Ultraboost / Yeezy 350
-New Balance: 530 / 550 / 574 / 576 / 580 / 327 / 725 / 740 / 9060 / 2002R / 1906R / 990v1〜v6 / 991 / 992 / 993
-ASICS: GT-2160 / GEL-1130 / GEL-1090 / GEL-Kayano 14 / GEL-NYC / GEL-Nimbus 9 / GEL-Lyte III / GEL-Lyte V / Novablast / Superblast / EX89 / Japan S
+HAWKINS / FILA / byA / ABC SELECT / NUOVO / SKECHERS / Danner / STEFANO ROSSI / Timberland / SPERRY TOPSIDER / le coq sportif / DESCENTE / COLE HAAN / ROCKPORT / SYUNSOKU / Dr.Martens / PATRICK / TEVA / crocs / UNDER ARMOUR / HUNTER / JOLI ENCORE / IFME / G.C.MORELLI / HARUTA / SUPERGA / JEWEL / RED WING / A+ / AIGLE / AKTR / AMBITIOUS / BENTER / BIRKENSTOCK / BLUNDSTONE / BUNKER / BUTTERFLYTWISTS / CHAMPION / CLARKS / COLUMBUS / CORSO NAPOLEONE / COXX BORBA / EVE / FLUCHOS / FRED PERRY / FOOTJOY / GAVIC / GENTILE / GIANNI SIMONE / HARRIS / HI-TEC / HOME COLLECT / HOME EXE / HYPER JUMPER / Ipanema / K-SWISS / LACOSTE / LIBERTY HOUSE / MINNETONKA / molten / MONTRRE / MOONSTAR / NEW ERA / PANSY / PEACEPARK / PEDAG / POLO R.LAUREN / POLSA / REGETA / SKA / SHAKA / STANCE SOCKS / STILMODA / TEXCY / UMBRO / zamst
 ```
 
----
-
-## Tier A Priority Model Targets
+状態:
 
 ```text
-PUMA: Suede / Palermo / Speedcat / Clyde / RS-X / Basket
-Converse: Chuck Taylor All Star / Chuck 70 / One Star / Jack Purcell / Weapon / Run Star Hike
-Vans: Old Skool / Authentic / Classic Slip-On / Sk8-Hi / Era / Knu Skool
-Reebok: Club C / Classic Leather / Instapump Fury / Workout Plus / Freestyle / Question
-```
-
----
-
-## Tier B Priority Model Targets
-
-```text
-HOKA: Bondi 9 / Clifton 10 / Speedgoat 7 / Arahi 8 / Transport 2 / Challenger 8
-Saucony: Ride 19 / Triumph 24 / Guide 19 / Hurricane 25 / ProGrid Omni 9 / ProGrid Guide 7
-SALOMON: XT-6 / XT-WHISPER / XA PRO / SPEEDCROSS / X ULTRA / XT-4
-```
-
----
-
-## Review Checklist
-
-各モデルは以下を満たすこと。
-
-```text
-- modelName が正式表記である
-- Alias が検索用に入っている
-- searchKeywords に数字・連結表記・日本語表記が必要分だけ入っている
-- searchKeywords に広すぎる語を入れていない
-- brandId が正しい
-- 同一モデルが重複登録されていない
+Brand Registry: PASS
+Model Coverage: TODO
+Alias: TODO
+searchKeywords: TODO
 ```
 
 ---
@@ -130,27 +100,20 @@ SALOMON: XT-6 / XT-WHISPER / XA PRO / SPEEDCROSS / X ULTRA / XT-4
 
 2026-06-26
 - Tier S Alias / searchKeywords 補強
-- Tier S 5ブランドをMVP基準でPASSに更新
+- Tier A 4ブランドと代表モデルを追加
 
-2026-06-26 v0.2.0
-- Tier A 4ブランドを追加
-- PUMA / Converse / Vans / Reebok の代表モデルを各6件追加
-- Tier A Alias / searchKeywords を追加
-
-2026-06-28 v0.3.0
-- Tier BとしてHOKAを追加
-- HOKAの高確度代表モデル6件を追加
-
-2026-06-28 v0.3.1
-- HOKA Alias / searchKeywords を追加
-- HOKAをPASSに更新
-- app/assets/data/aliases.json / search_keywords.json を同期更新
+2026-06-28
+- HOKAをTier B追加
+- HOKA Alias / searchKeywordsを追加
 
 2026-06-29 v0.4.0
-- Tier BとしてSaucony / SALOMONを追加
-- Saucony / SALOMON の高確度モデルを各6件追加
-- Saucony / SALOMON Alias / searchKeywords を追加
-- ABC-MARTなど国内流通リファレンスを見る運用をdata/README.mdとvalidation_rules.mdへ反映
+- Saucony / SALOMONをTier B追加
+- Saucony / SALOMON の代表モデル、Alias、searchKeywordsを追加
+
+2026-06-29 v0.5.0
+- ABC-MART掲載ブランドを基準にbrands.jsonを90ブランドへ拡張
+- MERRELL / BROOKSをTier B brand-onlyとして追加
+- Tier Cブランドをbrand-onlyとして先行登録
 ```
 
 ---
@@ -158,16 +121,17 @@ SALOMON: XT-6 / XT-WHISPER / XA PRO / SPEEDCROSS / X ULTRA / XT-4
 ## Next Work
 
 ```text
-1. Search MVPテストケースを実機またはFlutterテストで実施
-2. data/*.json と app/assets/data/*.json の同期自動化
+1. MERRELL / BROOKS のモデル追加
+2. Tier Cブランドのモデル追加を優先度順に進める
 3. Tier S / A / B のABC-MART差分監査を継続
-4. Tier B/Cブランド候補を国内流通・公式確認ベースで追加検討
+4. Search MVPテストケースを実機またはFlutterテストで実施
+5. data/*.json と app/assets/data/*.json の同期自動化
 ```
 
 ---
 
 ## Quality Goal
 
-Tier S / Tier A / Tier B ブランドについて、ユーザーが主要な略称・数字・日本語入力で目的モデルへ到達できること。
+代表モデルだけで止めず、国内流通リファレンスのブランド・モデル量に近づける。
 
-ABC-MARTなど国内流通リファレンスに追従しながら、低確度モデルや広すぎるAlias/searchKeywordsを避けて段階育成する。
+ただし、低確度モデルや広すぎるAlias/searchKeywordsは追加しない。
