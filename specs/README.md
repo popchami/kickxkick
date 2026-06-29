@@ -1,5 +1,10 @@
 # Kick×Kick Specs
 
+> 最新仕様の確認は `KICKXKICK_CURRENT_SPEC_INDEX.md` から開始してください。
+>
+> Sticker / Collection仕様は `KICKXKICK_MVP_STICKER_COLLECTION_SPEC.md` を正本とします。
+> 実装状況は `CURRENT_STATUS.md`、変更履歴は `CHANGELOG.md` を参照してください。
+
 ## 概要
 
 このディレクトリは、Kick×Kick の仕様書を管理する。

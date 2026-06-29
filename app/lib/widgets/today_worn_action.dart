@@ -164,7 +164,8 @@ class _TodayWornPicker extends ConsumerWidget {
                           : shoe.modelName;
                       return Consumer(
                         builder: (context, ref, _) {
-                          final path = ref.watch(mainPhotoProvider(shoe.id!)).value?.filePath;
+                          final photo = ref.watch(mainPhotoProvider(shoe.id!)).value;
+                          final path = photo?.cutoutPath ?? photo?.filePath;
                           return Card(
                             clipBehavior: Clip.antiAlias,
                             child: InkWell(

@@ -1,5 +1,9 @@
 # Kick×Kick Sticker Board Update Specification
 
+本書は変更履歴であり現行仕様の正本ではない。内容は `KICKXKICK_MVP_STICKER_COLLECTION_SPEC.md` の「確定済み現行仕様」へ反映済み。
+
+更新日: 2026-06-29
+
 この仕様書は、Sticker Boardまわりの最新仕様変更をまとめた差分仕様書です。
 
 既存仕様書と矛盾する場合は、このファイルを優先します。

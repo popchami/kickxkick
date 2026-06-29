@@ -21,7 +21,7 @@ class AppDatabase {
 
     return openDatabase(
       path,
-      version: 8,
+      version: 12,
       onConfigure: (db) async {
         await db.execute('PRAGMA foreign_keys = ON');
       },
@@ -96,6 +96,52 @@ class AppDatabase {
       await _createSettingsTable(db);
       await _createStickerTables(db);
     }
+    if (oldVersion < 9) {
+      await db.execute('ALTER TABLE photos ADD COLUMN cutout_path TEXT');
+    }
+    if (oldVersion < 10) {
+      await db.execute('ALTER TABLE stickers ADD COLUMN sticker_text TEXT');
+      await db.execute(
+        'ALTER TABLE stickers ADD COLUMN text_color INTEGER NOT NULL DEFAULT 4294928896',
+      );
+      await db.execute(
+        'ALTER TABLE stickers ADD COLUMN inner_border_color INTEGER NOT NULL DEFAULT 4294967295',
+      );
+      await db.execute(
+        'ALTER TABLE stickers ADD COLUMN outer_border_color INTEGER NOT NULL DEFAULT 4294928896',
+      );
+      await db.execute(
+        'ALTER TABLE stickers ADD COLUMN shadow_enabled INTEGER NOT NULL DEFAULT 1',
+      );
+      await db.execute('''
+        UPDATE stickers
+        SET sticker_text = (
+          SELECT shoes.sticker_text
+          FROM shoes
+          WHERE shoes.id = stickers.shoe_id
+        )
+      ''');
+    }
+    if (oldVersion < 11) {
+      await db.execute('ALTER TABLE stickers ADD COLUMN preview_path TEXT');
+      await db.execute(
+        'ALTER TABLE stickers ADD COLUMN text_scale REAL NOT NULL DEFAULT 1.0',
+      );
+      await db.execute(
+        'ALTER TABLE stickers ADD COLUMN text_x REAL NOT NULL DEFAULT 0.5',
+      );
+      await db.execute(
+        'ALTER TABLE stickers ADD COLUMN text_y REAL NOT NULL DEFAULT 0.72',
+      );
+    }
+    if (oldVersion < 12) {
+      await db.execute(
+        'UPDATE stickers SET text_scale = 0.75 WHERE text_scale = 1.0',
+      );
+      await db.execute(
+        'UPDATE stickers SET text_y = 0.55 WHERE text_y = 0.72',
+      );
+    }
   }
 
   Future<void> _createShoeIndexes(Database db) async {
@@ -114,6 +160,7 @@ class AppDatabase {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         shoe_id INTEGER NOT NULL,
         file_path TEXT NOT NULL,
+        cutout_path TEXT,
         photo_type TEXT NOT NULL,
         display_order INTEGER NOT NULL DEFAULT 0,
         created_at TEXT NOT NULL,
@@ -138,6 +185,7 @@ class AppDatabase {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         shoe_id INTEGER NOT NULL,
         file_path TEXT NOT NULL,
+        cutout_path TEXT,
         photo_type TEXT NOT NULL,
         display_order INTEGER NOT NULL DEFAULT 0,
         created_at TEXT NOT NULL,
@@ -147,14 +195,14 @@ class AppDatabase {
 
     if (names.contains('type')) {
       await db.execute('''
-        INSERT INTO photos_new (id, shoe_id, file_path, photo_type, display_order, created_at)
-        SELECT id, shoe_id, file_path, type, 0, created_at
+        INSERT INTO photos_new (id, shoe_id, file_path, cutout_path, photo_type, display_order, created_at)
+        SELECT id, shoe_id, file_path, NULL, type, 0, created_at
         FROM photos
       ''');
     } else {
       await db.execute('''
-        INSERT INTO photos_new (id, shoe_id, file_path, photo_type, display_order, created_at)
-        SELECT id, shoe_id, file_path, 'main', 0, created_at
+        INSERT INTO photos_new (id, shoe_id, file_path, cutout_path, photo_type, display_order, created_at)
+        SELECT id, shoe_id, file_path, NULL, 'main', 0, created_at
         FROM photos
       ''');
     }
@@ -213,6 +261,15 @@ class AppDatabase {
         shoe_id INTEGER NOT NULL UNIQUE,
         source_path TEXT NOT NULL,
         sticker_path TEXT NOT NULL,
+        sticker_text TEXT,
+        text_color INTEGER NOT NULL DEFAULT 4294928896,
+        inner_border_color INTEGER NOT NULL DEFAULT 4294967295,
+        outer_border_color INTEGER NOT NULL DEFAULT 4294928896,
+        shadow_enabled INTEGER NOT NULL DEFAULT 1,
+        preview_path TEXT,
+        text_scale REAL NOT NULL DEFAULT 0.75,
+        text_x REAL NOT NULL DEFAULT 0.5,
+        text_y REAL NOT NULL DEFAULT 0.55,
         created_at TEXT NOT NULL,
         updated_at TEXT NOT NULL,
         FOREIGN KEY (shoe_id) REFERENCES shoes(id) ON DELETE CASCADE

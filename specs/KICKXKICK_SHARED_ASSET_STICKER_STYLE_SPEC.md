@@ -1,5 +1,18 @@
 # Kick×Kick Shared Asset / Sticker Style Specification
 
+更新日: 2026-06-29
+
+画面操作と上限は `KICKXKICK_MVP_STICKER_COLLECTION_SPEC.md` を正本とする。
+
+## 現行の共有資産・標準Style
+
+- 元写真は変更せず、高画質透過PNGをCollection、Detail、TOP5、今日履いた靴、Stickerで共有する。
+- Sticker Boardは透明余白を切り詰めた最大640pxの透過プレビューをキャッシュ利用し、再編集と高画質出力には原本透過PNGを使う。
+- 標準Styleは靴切り抜き、白い内フチ、太いオレンジ外フチ、任意の柔らかいShadowの順とする。
+- テキストはオレンジ文字、白フチ、オレンジ外フチとし、靴ステッカーのオレンジフチ内へ配置する。
+- テキストのサイズ、位置、色、フチ色、Shadowはステッカー単位で保持する。
+- 文字を靴画像の外側へ置く旧仕様は廃止する。Puffyは将来拡張であり現行標準Styleではない。
+
 この仕様書は、Kick×Kickにおける「靴写真の切り抜き共有資産」と「ぷにぷにシール（Puffy Sticker）」の扱いを定義する。
 
 ---

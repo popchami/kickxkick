@@ -13,6 +13,8 @@ import '../providers/brand_provider.dart';
 import '../providers/photo_provider.dart';
 import '../providers/photo_storage_provider.dart';
 import '../providers/shoe_provider.dart';
+import '../services/background_removal_service.dart';
+import 'cutout_adjustment_screen.dart';
 import '../widgets/app_dialogs.dart';
 
 class ShoeFormScreen extends ConsumerStatefulWidget {
@@ -43,6 +45,14 @@ class _ShoeFormScreenState extends ConsumerState<ShoeFormScreen> {
     _ColorOption('ピンク', Colors.pink),
     _ColorOption('パープル', Colors.purple),
     _ColorOption('オレンジ', Colors.orange),
+    _ColorOption('ネイビー', Color(0xFF1D3557)),
+    _ColorOption('サックス', Color(0xFF87CEEB)),
+    _ColorOption('カーキ', Color(0xFF6B6B3F)),
+    _ColorOption('オリーブ', Color(0xFF808000)),
+    _ColorOption('シルバー', Color(0xFFC0C0C0)),
+    _ColorOption('ゴールド', Color(0xFFD4AF37)),
+    _ColorOption('ワイン', Color(0xFF722F37)),
+    _ColorOption('クリーム', Color(0xFFFFFDD0)),
     _ColorOption('マルチカラー', null),
     _ColorOption('その他', null),
   ];
@@ -58,10 +68,12 @@ class _ShoeFormScreenState extends ConsumerState<ShoeFormScreen> {
   int? _brandId;
   String _brandText = '';
   String _status = Shoe.statusNew;
-  String? _selectedSize;
-  String? _selectedColor;
+  String? _selectedSize = '26.0';
+  final Set<String> _selectedColors = {};
+  bool _colorPaletteExpanded = true;
   DateTime? _purchaseDate;
   XFile? _pendingMainPhoto;
+  String? _pendingCutoutPath;
   bool _saving = false;
   String? _lastAutoDisplayTitle;
   String? _lastAutoStickerText;
@@ -79,7 +91,13 @@ class _ShoeFormScreenState extends ConsumerState<ShoeFormScreen> {
       _stickerTextController.text = shoe.stickerText ?? '';
       _status = Shoe.normalizeStatus(shoe.status);
       _selectedSize = shoe.size;
-      _selectedColor = shoe.color;
+      _selectedColors.addAll(
+        (shoe.color ?? '')
+            .split(',')
+            .map((color) => color.trim())
+            .where((color) => color.isNotEmpty),
+      );
+      _colorPaletteExpanded = _selectedColors.isEmpty;
       _priceController.text = shoe.purchasePrice?.toString() ?? '';
       _storeController.text = shoe.purchaseStore ?? '';
       _memoController.text = shoe.memo ?? '';
@@ -102,8 +120,20 @@ class _ShoeFormScreenState extends ConsumerState<ShoeFormScreen> {
 
   Future<void> _pickMainPhoto() async {
     final picked = await ImagePicker().pickImage(source: ImageSource.gallery);
-    if (picked != null && mounted) {
-      setState(() => _pendingMainPhoto = picked);
+    if (picked == null || !mounted) return;
+    final cutoutPath = await Navigator.of(context).push<String>(
+      MaterialPageRoute(
+        builder: (_) => CutoutAdjustmentScreen(
+          sourcePath: picked.path,
+          shoeId: widget.shoe?.id ?? 0,
+        ),
+      ),
+    );
+    if (cutoutPath != null && mounted) {
+      setState(() {
+        _pendingMainPhoto = picked;
+        _pendingCutoutPath = cutoutPath;
+      });
     }
   }
 
@@ -138,7 +168,7 @@ class _ShoeFormScreenState extends ConsumerState<ShoeFormScreen> {
             stickerText: _emptyToNull(_stickerTextController.text),
             status: _status,
             size: _selectedSize,
-            color: _selectedColor,
+            color: _selectedColors.isEmpty ? null : _selectedColors.join(', '),
             purchaseDate: _purchaseDate,
             purchasePrice: price,
             purchaseStore: _emptyToNull(_storeController.text),
@@ -158,7 +188,7 @@ class _ShoeFormScreenState extends ConsumerState<ShoeFormScreen> {
             stickerText: _emptyToNull(_stickerTextController.text),
             status: _status,
             size: _selectedSize,
-            color: _selectedColor,
+            color: _selectedColors.isEmpty ? null : _selectedColors.join(', '),
             purchaseDate: _purchaseDate,
             purchasePrice: price,
             purchaseStore: _emptyToNull(_storeController.text),
@@ -195,12 +225,15 @@ class _ShoeFormScreenState extends ConsumerState<ShoeFormScreen> {
       shoeId: shoeId,
       photoType: PhotoType.main,
     );
+    final cutoutPath = _pendingCutoutPath ??
+        await BackgroundRemovalService().removeEdgeBackground(filePath, shoeId);
     final repository = ref.read(photoRepositoryProvider);
     final previousPhotos = await repository.replaceMainPhoto(
       Photo.create(
         shoeId: shoeId,
         photoType: PhotoType.main,
         filePath: filePath,
+        cutoutPath: cutoutPath,
       ),
     );
     for (final previousPhoto in previousPhotos) {
@@ -284,6 +317,9 @@ class _ShoeFormScreenState extends ConsumerState<ShoeFormScreen> {
   @override
   Widget build(BuildContext context) {
     final brandsAsync = ref.watch(brandsProvider);
+    final existingMainPhotoPath = _isEditing
+        ? ref.watch(mainPhotoProvider(widget.shoe!.id!)).value?.filePath
+        : null;
     return Scaffold(
       appBar: AppBar(
         title: Text(_isEditing ? 'スニーカー編集' : 'スニーカーを登録'),
@@ -292,14 +328,23 @@ class _ShoeFormScreenState extends ConsumerState<ShoeFormScreen> {
         data: (brands) => Form(
           key: _formKey,
           child: ListView(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.fromLTRB(
+              16,
+              16,
+              16,
+              32 + MediaQuery.paddingOf(context).bottom,
+            ),
             children: [
               Text('メイン写真', style: Theme.of(context).textTheme.titleLarge),
               const SizedBox(height: 12),
               _PhotoPickerCard(
                 pickedFile: _pendingMainPhoto,
+                existingPath: existingMainPhotoPath,
                 onTap: _pickMainPhoto,
-                onRemove: () => setState(() => _pendingMainPhoto = null),
+                onRemove: () => setState(() {
+                  _pendingMainPhoto = null;
+                  _pendingCutoutPath = null;
+                }),
               ),
               const SizedBox(height: 28),
               Text('基本情報', style: Theme.of(context).textTheme.titleLarge),
@@ -351,40 +396,6 @@ class _ShoeFormScreenState extends ConsumerState<ShoeFormScreen> {
               _modelController.text = selection.modelName;
             });
           },
-        ),
-        const SizedBox(height: 16),
-        DropdownButtonFormField<int>(
-          key: ValueKey(_brandId),
-          initialValue: _brandId,
-          decoration: const InputDecoration(
-            labelText: '保存するブランド',
-            helperText: '自由入力の場合は未選択のままで保存できます',
-          ),
-          items: brands
-              .map(
-                (brand) => DropdownMenuItem<int>(
-                  value: brand.id,
-                  child: Text(brand.name),
-                ),
-              )
-              .toList(),
-          onChanged: (value) {
-            final brandName = _brandNameForId(brands, value) ?? _brandText;
-            setState(() {
-              _brandId = value;
-              _brandText = brandName;
-            });
-          },
-        ),
-        const SizedBox(height: 16),
-        TextFormField(
-          controller: _modelController,
-          decoration: const InputDecoration(
-            labelText: '保存するモデル名',
-            helperText: '候補がない場合は自由入力できます',
-          ),
-          validator: (value) =>
-              value == null || value.trim().isEmpty ? 'モデル名を入力してください' : null,
         ),
         const SizedBox(height: 16),
         TextFormField(
@@ -450,26 +461,66 @@ class _ShoeFormScreenState extends ConsumerState<ShoeFormScreen> {
         ),
         const SizedBox(height: 24),
         Text('カラー', style: Theme.of(context).textTheme.titleMedium),
-        const SizedBox(height: 12),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: _colorOptions.map((option) {
-            return ChoiceChip(
-              avatar: option.color == null
-                  ? const Icon(Icons.palette_outlined, size: 18)
-                  : CircleAvatar(
-                      backgroundColor: option.color,
-                      child: option.color == Colors.white
-                          ? const Icon(Icons.circle_outlined, size: 16)
-                          : null,
-                    ),
-              label: Text(option.label),
-              selected: _selectedColor == option.label,
-              onSelected: (_) => setState(() => _selectedColor = option.label),
-            );
-          }).toList(),
+        const SizedBox(height: 8),
+        InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: () => setState(() => _colorPaletteExpanded = true),
+          child: InputDecorator(
+            decoration: InputDecoration(
+              hintText: '最大3色まで選択',
+              suffixIcon: Icon(
+                _colorPaletteExpanded ? Icons.expand_less : Icons.edit_outlined,
+              ),
+            ),
+            child: Text(
+              _selectedColors.isEmpty ? 'カラーを選択' : _selectedColors.join(' / '),
+            ),
+          ),
         ),
+        if (_colorPaletteExpanded) ...[
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: _colorOptions.map((option) {
+              final selected = _selectedColors.contains(option.label);
+              return FilterChip(
+                avatar: option.color == null
+                    ? const Icon(Icons.palette_outlined, size: 18)
+                    : CircleAvatar(
+                        backgroundColor: option.color,
+                        child: option.color == Colors.white
+                            ? const Icon(Icons.circle_outlined, size: 16)
+                            : null,
+                      ),
+                label: Text(option.label),
+                selected: selected,
+                onSelected: (value) {
+                  if (value && _selectedColors.length >= 3) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('カラーは3色まで選択できます')),
+                    );
+                    return;
+                  }
+                  setState(() {
+                    value
+                        ? _selectedColors.add(option.label)
+                        : _selectedColors.remove(option.label);
+                  });
+                },
+              );
+            }).toList(),
+          ),
+          const SizedBox(height: 8),
+          Align(
+            alignment: Alignment.centerRight,
+            child: TextButton.icon(
+              onPressed: () => setState(() => _colorPaletteExpanded = false),
+              icon: const Icon(Icons.check),
+              label: const Text('選択を完了'),
+            ),
+          ),
+        ],
       ],
     );
   }
@@ -529,19 +580,21 @@ class _ShoeFormScreenState extends ConsumerState<ShoeFormScreen> {
 
 class _PhotoPickerCard extends StatelessWidget {
   final XFile? pickedFile;
+  final String? existingPath;
   final VoidCallback onTap;
   final VoidCallback onRemove;
 
   const _PhotoPickerCard({
     required this.pickedFile,
+    this.existingPath,
     required this.onTap,
     required this.onRemove,
   });
 
   @override
   Widget build(BuildContext context) {
-    final file = pickedFile;
-    if (file == null) {
+    final imagePath = pickedFile?.path ?? existingPath;
+    if (imagePath == null || imagePath.isEmpty) {
       return InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(20),
@@ -570,20 +623,21 @@ class _PhotoPickerCard extends StatelessWidget {
         ClipRRect(
           borderRadius: BorderRadius.circular(20),
           child: Image.file(
-            File(file.path),
+            File(imagePath),
             height: 220,
             width: double.infinity,
             fit: BoxFit.cover,
           ),
         ),
-        Positioned(
-          right: 8,
-          top: 8,
-          child: IconButton.filled(
-            onPressed: onRemove,
-            icon: const Icon(Icons.close),
+        if (pickedFile != null)
+          Positioned(
+            right: 8,
+            top: 8,
+            child: IconButton.filled(
+              onPressed: onRemove,
+              icon: const Icon(Icons.close),
+            ),
           ),
-        ),
         Positioned(
           right: 8,
           bottom: 8,
