@@ -1,6 +1,6 @@
 {
-  "version": "0.4.0",
-  "updatedAt": "2026-06-29",
+  "version": "0.5.1",
+  "updatedAt": "2026-07-01",
   "items": [
     {"modelId":"nike_air_force_1","keyword":"エアフォース"},
     {"modelId":"nike_air_force_1","keyword":"エアフォース1"},
@@ -165,9 +165,9 @@
     {"modelId":"saucony_hurricane_25","keyword":"Hurricane25"},
     {"modelId":"saucony_hurricane_25","keyword":"ハリケーン25"},
     {"modelId":"saucony_progrid_omni_9","keyword":"ProGridOmni9"},
-    {"modelId":"saucony_progrid_omni_9","keyword":"プロ grid オムニ9"},
+    {"modelId":"saucony_progrid_omni_9","keyword":"プログリッドオムニ9"},
     {"modelId":"saucony_progrid_guide_7","keyword":"ProGridGuide7"},
-    {"modelId":"saucony_progrid_guide_7","keyword":"プロ grid ガイド7"},
+    {"modelId":"saucony_progrid_guide_7","keyword":"プログリッドガイド7"},
 
     {"modelId":"salomon_xt_6","keyword":"XT6"},
     {"modelId":"salomon_xt_6","keyword":"エックスティー6"},
@@ -179,6 +179,32 @@
     {"modelId":"salomon_x_ultra","keyword":"XUltra"},
     {"modelId":"salomon_x_ultra","keyword":"エックスウルトラ"},
     {"modelId":"salomon_xt_4","keyword":"XT4"},
-    {"modelId":"salomon_xt_4","keyword":"エックスティー4"}
+    {"modelId":"salomon_xt_4","keyword":"エックスティー4"},
+
+    {"modelId":"merrell_agility_peak_6","keyword":"AgilityPeak6"},
+    {"modelId":"merrell_agility_peak_6","keyword":"アジリティピーク6"},
+    {"modelId":"merrell_agility_peak_6_gore_tex","keyword":"AgilityPeak6GTX"},
+    {"modelId":"merrell_agility_peak_6_gore_tex","keyword":"AgilityPeak6GORETEX"},
+    {"modelId":"merrell_agility_peak_6_gore_tex","keyword":"アジリティピーク6ゴアテックス"},
+    {"modelId":"merrell_vapor_glove_7","keyword":"VaporGlove7"},
+    {"modelId":"merrell_vapor_glove_7","keyword":"ベイパーグローブ7"},
+    {"modelId":"merrell_trail_glove_8","keyword":"TrailGlove8"},
+    {"modelId":"merrell_trail_glove_8","keyword":"トレイルグローブ8"},
+    {"modelId":"merrell_jungle_trek_moc","keyword":"JungleTrekMoc"},
+    {"modelId":"merrell_jungle_trek_moc","keyword":"ジャングルトレックモック"},
+
+    {"modelId":"brooks_ghost_18","keyword":"Ghost18"},
+    {"modelId":"brooks_ghost_18","keyword":"ゴースト18"},
+    {"modelId":"brooks_ghost_trail","keyword":"GhostTrail"},
+    {"modelId":"brooks_ghost_trail","keyword":"ゴーストトレイル"},
+    {"modelId":"brooks_glycerin","keyword":"グリセリン"},
+    {"modelId":"brooks_adrenaline","keyword":"アドレナリン"},
+    {"modelId":"brooks_adrenaline","keyword":"AdrenalineGTS"},
+    {"modelId":"brooks_hyperion","keyword":"ハイペリオン"},
+    {"modelId":"brooks_cascadia_elite","keyword":"CascadiaElite"},
+    {"modelId":"brooks_cascadia_elite","keyword":"カスケディアエリート"},
+    {"modelId":"brooks_revel_max","keyword":"RevelMax"},
+    {"modelId":"brooks_revel_max","keyword":"レベルマックス"},
+    {"modelId":"brooks_vanguard","keyword":"ヴァンガード"}
   ]
 }
