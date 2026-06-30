@@ -1,4 +1,4 @@
-# Kick×Kick Task Board v2.1
+# Kick×Kick Task Board v2.2
 
 ## 目的
 
@@ -13,9 +13,10 @@ Kick×Kick開発の現在地を管理する。
 ```text
 ブランド・モデル・検索基盤はMVPリリース可能ライン。
 Tier S / Tier A はPASS。
-Tier BはHOKA / Saucony / SALOMONを追加し、Alias / searchKeywords までPASS化済み。
+Tier BはHOKA / Saucony / SALOMON / MERRELL / BROOKSを追加し、Alias / searchKeywords までPASS化済み。
+Tier Cはブランド名のみ先行登録済み。
 ABC-MARTなど国内流通リファレンスを基準に、今後もデータ資産を継続育成する。
-実機で写真保存まで確認済み。
+data/*.json と app/assets/data/*.json は v0.5.1 として同期済み。
 次はSearch MVPテスト、TOP5・着用履歴・詳細確認を進める。
 ```
 
@@ -59,7 +60,7 @@ docs/HANDOFF_BRAND_MODEL_SEARCH.md
 状態:
 
 ```text
-ACTIVE / MVP DATA PASS / MARKET REFERENCE GROWTH
+ACTIVE / MVP DATA PASS / MARKET REFERENCE GROWTH / DATA v0.5.1 SYNCED
 ```
 
 - [x] BRAND_MASTER.md 作成
@@ -107,13 +108,24 @@ ACTIVE / MVP DATA PASS / MARKET REFERENCE GROWTH
 - [x] data/README.md Market Reference Policy 更新
 - [x] data/validation_rules.md v1.2 更新
 - [x] MODEL_MASTER_COVERAGE v1.6 更新
+- [x] ABC-MART掲載ブランドを基準に brands.json を90ブランドへ拡張
+- [x] MERRELL / BROOKS を Tier B brand-only 追加
+- [x] Tier C ブランドを brand-only 先行登録
+- [x] MERRELL / BROOKS モデル追加
+- [x] MERRELL / BROOKS Alias追加
+- [x] MERRELL / BROOKS searchKeywords追加
+- [x] app/assets/data/aliases.json v0.5.1 同期
+- [x] app/assets/data/search_keywords.json v0.5.1 同期
+- [x] data/README.md v0.5.1反映
+- [x] data/validation_rules.md v1.3反映
+- [x] MODEL_MASTER_COVERAGE v1.8反映
 
 保留:
 
 - [ ] Search MVPテストケース実施
 - [ ] data/*.json と app/assets/data/*.json の同期自動化
 - [ ] Tier S / A / B のABC-MART差分監査
-- [ ] Tier B/Cブランド追加
+- [ ] Tier Cブランドのモデル追加
 
 ---
 
@@ -153,7 +165,7 @@ IN PROGRESS / RUNTIME CHECK STARTED
 状態:
 
 ```text
-IMPLEMENTED / PHOTO SAVE CHECKED / DATA v0.4.0 SYNCED
+IMPLEMENTED / PHOTO SAVE CHECKED / DATA v0.5.1 SYNCED
 ```
 
 - [x] Load app/assets/data/brands.json
@@ -263,22 +275,17 @@ WAITING
 
 目的:
 
-Sticker
+Sticker / Board
 
 ## Sprint3 Tasks
 
 - [ ] Sticker Model
 - [ ] Sticker Repository
-- [ ] Sticker Provider
 - [ ] Sticker Board
-- [ ] Sticker Generate
-- [ ] Background Remove
-- [ ] Move
-- [ ] Rotate
-- [ ] Scale
-- [ ] Duplicate
-- [ ] Undo
-- [ ] Redo
+- [ ] Sticker Search
+- [ ] Sticker Edit Mode
+- [ ] Cutout Flow
+- [ ] Board Export
 
 ---
 
@@ -292,137 +299,12 @@ WAITING
 
 目的:
 
-Premium / Backup / Export
+Settings / Premium / Backup
 
 ## Sprint4 Tasks
 
-- [ ] Free制限
-- [ ] Premium判定
-- [ ] PNG出力
-- [ ] ゴミ箱
-- [ ] 復元
-- [ ] Backup
-- [ ] Restore
-- [ ] .kkb対応
-
----
-
-# Release Checklist
-
-## Before Release
-
-- [ ] flutter analyze
-- [x] 実機確認
-- [ ] クラッシュ確認
-- [ ] アイコン完成
-- [ ] スクリーンショット完成
-- [ ] 利用規約
-- [ ] プライバシーポリシー
-- [ ] ストア文言
-- [ ] Search MVPテスト通過
-- [ ] 自由入力fallback確認
-- [ ] ブランド変更時モデルリセット確認
-- [ ] 正式modelName保存確認
-- [x] app/assets/data JSON読み込み確認
-
----
-
-# Runtime Check Log
-
-```text
-2026-06-27: 実機確認で写真保存まで確認済み。
-```
-
-確認済み:
-
-```text
-- アプリ起動
-- 登録画面
-- 登録保存
-- 写真保存
-```
-
-未確認:
-
-```text
-- flutter analyze
-- 編集画面で誤入力修正
-- Shoe Detail全体確認
-- TOP5登録/解除
-- 着用履歴
-- 写真削除
-- Collection
-- Sticker
-```
-
----
-
-# Data Check Log
-
-```text
-2026-06-26: Tier AとしてPUMA / Converse / Vans / Reebokを追加。
-2026-06-28: Tier BとしてHOKAを追加開始。ブランド・モデル6件を追加。
-2026-06-28: HOKA Alias / searchKeywordsを追加し、Tier B HOKAをPASS化。
-2026-06-29: ABC-MART掲載ブランドからSaucony / SALOMONをTier B追加。各6モデル、Alias、searchKeywordsを追加。
-```
-
-確認済み:
-
-```text
-- data/brands.json v0.4.0
-- data/models.json v0.4.0
-- data/aliases.json v0.4.0
-- data/search_keywords.json v0.4.0
-- app/assets/data/brands.json v0.4.0
-- app/assets/data/models.json v0.4.0
-- app/assets/data/aliases.json v0.4.0
-- app/assets/data/search_keywords.json v0.4.0
-- data/README.md Market Reference Policy
-- data/validation_rules.md v1.2
-- specs/MODEL_MASTER_COVERAGE.md v1.6
-```
-
-未完了:
-
-```text
-- Search MVPテストケース実施
-- data/*.json と app/assets/data/*.json の同期自動化
-- Tier S / A / B のABC-MART差分監査
-```
-
----
-
-# Current Focus
-
-現在やること:
-
-```text
-Search MVPテスト / ABC-MART差分監査 / 写真保存後のMVP確認 / 詳細画面確認
-```
-
-次:
-
-```text
-TOP5 / 着用履歴
-```
-
-その次:
-
-```text
-Collection / Sticker
-```
-
-最重要ルール:
-
-```text
-Factory is support.
-Kick×Kick release is the goal.
-```
-
-ブランド・モデル・検索は一旦終了ではなく、MVPを壊さない範囲で段階育成する。
-
-Collect.
-Create.
-Exhibit.
-
-この体験を完成させる。
+- [ ] Theme unlock
+- [ ] Premium gate
+- [ ] Backup export
+- [ ] Backup import
+- [ ] App information
