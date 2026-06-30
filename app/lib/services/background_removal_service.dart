@@ -2,23 +2,130 @@ import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
 
+import 'package:google_mlkit_subject_segmentation/google_mlkit_subject_segmentation.dart';
 import 'package:image/image.dart' as img;
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
 class BackgroundRemovalService {
+  static const _mlkitMarkerFile = '.mlkit_ready';
+
+  /// Android + ML Kit の初回実行でモデルDLが必要かどうかを返す
+  Future<bool> needsModelDownload() async {
+    if (!Platform.isAndroid) return false;
+    final root = await getApplicationDocumentsDirectory();
+    final marker = File(p.join(root.path, 'kickxkick', _mlkitMarkerFile));
+    return !await marker.exists();
+  }
+
+  /// 背景除去のエントリポイント
+  /// Android: ML Kit Subject Segmentation → 失敗時はフラッドフィルにフォールバック
+  /// iOS: フラッドフィルのみ
   Future<String> removeEdgeBackground(
     String sourcePath,
     int shoeId, {
     double threshold = 90,
+  }) async {
+    if (Platform.isAndroid) {
+      try {
+        return await _removeWithMlKit(sourcePath, shoeId, threshold: threshold);
+      } catch (_) {
+        return await _removeWithFloodFill(
+          sourcePath,
+          shoeId,
+          threshold: threshold,
+        );
+      }
+    }
+    return _removeWithFloodFill(sourcePath, shoeId, threshold: threshold);
+  }
+
+  // ---------------------------------------------------------------------------
+  // ML Kit Subject Segmentation (Android)
+  // ---------------------------------------------------------------------------
+
+  Future<String> _removeWithMlKit(
+    String sourcePath,
+    int shoeId, {
+    required double threshold,
+  }) async {
+    final segmenter = SubjectSegmenter(
+      options: SubjectSegmenterOptions(
+        enableForegroundConfidenceMask: true,
+      ),
+    );
+    try {
+      final result = await segmenter.processImage(
+        InputImage.fromFilePath(sourcePath),
+      );
+      final mask = result.foregroundMask;
+      if (mask == null) throw StateError('セグメンテーションマスクを取得できませんでした');
+
+      // 出力画像を 1400px 以内にリサイズ
+      final bytes = await File(sourcePath).readAsBytes();
+      final decoded = img.decodeImage(bytes);
+      if (decoded == null) throw StateError('画像を読み込めませんでした');
+      final resized =
+          decoded.width > 1400 ? img.copyResize(decoded, width: 1400) : decoded;
+      final image = resized.convert(numChannels: 4);
+
+      final maskW = mask.width;
+      final maskH = mask.height;
+      final outW = image.width;
+      final outH = image.height;
+      final confidences = mask.confidences;
+
+      // 既存のスライダー値 (20-220) を確信度カットオフ (0.05-0.95) に変換
+      // 低い値 → 前景を多く残す / 高い値 → より積極的に除去
+      final cutoff = (threshold / 220.0).clamp(0.05, 0.95);
+      final visited = Uint8List(outW * outH);
+
+      for (var y = 0; y < outH; y++) {
+        for (var x = 0; x < outW; x++) {
+          // マスク座標を出力画像座標にスケール
+          final maskX = (x * maskW / outW).round().clamp(0, maskW - 1);
+          final maskY = (y * maskH / outH).round().clamp(0, maskH - 1);
+          final c = confidences[maskY * maskW + maskX];
+          if (c < cutoff) {
+            final pixel = image.getPixel(x, y);
+            image.setPixelRgba(x, y, pixel.r, pixel.g, pixel.b, 0);
+            visited[y * outW + x] = 1;
+          }
+        }
+      }
+
+      _smoothCutoutEdge(image, visited);
+      final output = await _savePng(image, shoeId);
+      await _markMlKitReady();
+      return output;
+    } finally {
+      await segmenter.close();
+    }
+  }
+
+  Future<void> _markMlKitReady() async {
+    final root = await getApplicationDocumentsDirectory();
+    final marker = File(p.join(root.path, 'kickxkick', _mlkitMarkerFile));
+    if (!await marker.exists()) {
+      await marker.parent.create(recursive: true);
+      await marker.create();
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // フラッドフィル（iOS フォールバック・既存ロジック）
+  // ---------------------------------------------------------------------------
+
+  Future<String> _removeWithFloodFill(
+    String sourcePath,
+    int shoeId, {
+    required double threshold,
   }) async {
     final bytes = await File(sourcePath).readAsBytes();
     final decoded = img.decodeImage(bytes);
     if (decoded == null) throw StateError('画像を読み込めませんでした');
     final resized =
         decoded.width > 1400 ? img.copyResize(decoded, width: 1400) : decoded;
-    // JPEG and many camera images decode as RGB. Alpha writes are ignored
-    // unless the working image explicitly has an alpha channel.
     final image = resized.convert(numChannels: 4);
     final borderPixels = <img.Pixel>[];
     final xStep = (image.width ~/ 60).clamp(1, 24);
@@ -47,9 +154,7 @@ class BackgroundRemovalService {
     bool isBackground(int x, int y) {
       final pixel = image.getPixel(x, y);
       final distance = sqrt(
-        pow(pixel.r - r, 2) +
-            pow(pixel.g - g, 2) +
-            pow(pixel.b - b, 2),
+        pow(pixel.r - r, 2) + pow(pixel.g - g, 2) + pow(pixel.b - b, 2),
       );
       return distance < threshold;
     }
@@ -83,10 +188,21 @@ class BackgroundRemovalService {
       enqueue(x, y + 1);
     }
     _smoothCutoutEdge(image, visited);
+    return await _savePng(image, shoeId);
+  }
+
+  // ---------------------------------------------------------------------------
+  // 共通ヘルパー
+  // ---------------------------------------------------------------------------
+
+  Future<String> _savePng(img.Image image, int shoeId) async {
     final root = await getApplicationDocumentsDirectory();
     final directory = Directory(p.join(root.path, 'kickxkick', 'stickers'));
     await directory.create(recursive: true);
-    final output = p.join(directory.path, 'shoe_${shoeId}_${DateTime.now().millisecondsSinceEpoch}.png');
+    final output = p.join(
+      directory.path,
+      'shoe_${shoeId}_${DateTime.now().millisecondsSinceEpoch}.png',
+    );
     await File(output).writeAsBytes(Uint8List.fromList(img.encodePng(image)));
     return output;
   }
@@ -134,6 +250,10 @@ class BackgroundRemovalService {
     }
   }
 
+  // ---------------------------------------------------------------------------
+  // ブラシ編集（変更なし）
+  // ---------------------------------------------------------------------------
+
   Future<void> applyBrushEdits({
     required String originalPath,
     required String cutoutPath,
@@ -144,9 +264,10 @@ class BackgroundRemovalService {
     if (cutout == null || source == null) {
       throw StateError('画像を読み込めませんでした');
     }
-    final original = source.width == cutout.width && source.height == cutout.height
-        ? source
-        : img.copyResize(source, width: cutout.width, height: cutout.height);
+    final original =
+        source.width == cutout.width && source.height == cutout.height
+            ? source
+            : img.copyResize(source, width: cutout.width, height: cutout.height);
     for (final stroke in strokes) {
       final radius = (stroke.size * cutout.width).round().clamp(1, 200);
       if (stroke.fill && stroke.points.length >= 3) {
@@ -206,10 +327,14 @@ class BackgroundRemovalService {
   ) {
     final xs = stroke.points.map((point) => point.x);
     final ys = stroke.points.map((point) => point.y);
-    final minX = (xs.reduce(min) * cutout.width).floor().clamp(0, cutout.width - 1);
-    final maxX = (xs.reduce(max) * cutout.width).ceil().clamp(0, cutout.width - 1);
-    final minY = (ys.reduce(min) * cutout.height).floor().clamp(0, cutout.height - 1);
-    final maxY = (ys.reduce(max) * cutout.height).ceil().clamp(0, cutout.height - 1);
+    final minX =
+        (xs.reduce(min) * cutout.width).floor().clamp(0, cutout.width - 1);
+    final maxX =
+        (xs.reduce(max) * cutout.width).ceil().clamp(0, cutout.width - 1);
+    final minY =
+        (ys.reduce(min) * cutout.height).floor().clamp(0, cutout.height - 1);
+    final maxY =
+        (ys.reduce(max) * cutout.height).ceil().clamp(0, cutout.height - 1);
     for (var y = minY; y <= maxY; y++) {
       for (var x = minX; x <= maxX; x++) {
         final px = (x + .5) / cutout.width;

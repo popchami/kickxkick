@@ -28,6 +28,9 @@ dependencies:
   cross_file: ^0.3.4+2
   image: ^4.9.0
 
+  # AI Segmentation (Android only – Beta)
+  google_mlkit_subject_segmentation: ^0.6.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

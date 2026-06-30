@@ -98,6 +98,15 @@ class _CutoutAdjustmentScreenState extends State<CutoutAdjustmentScreen> {
     if (_processing) return;
     setState(() => _processing = true);
     try {
+      if (mounted &&
+          await BackgroundRemovalService().needsModelDownload()) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('初回のみAIモデルの準備が必要なため、少し時間がかかります'),
+            duration: Duration(seconds: 8),
+          ),
+        );
+      }
       final path = await BackgroundRemovalService().removeEdgeBackground(
         widget.sourcePath,
         widget.shoeId,
