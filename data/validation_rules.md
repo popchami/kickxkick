@@ -1,4 +1,4 @@
-# Kick×Kick Data Validation Rules v1.2
+# Kick×Kick Data Validation Rules v1.3
 
 ## Purpose
 
@@ -59,6 +59,10 @@ Old Skool
 Club C
 Ride 19
 XT-6
+AGILITY PEAK 6
+VAPOR GLOVE 7
+Ghost 18
+Cascadia Elite
 ```
 
 ### NG
@@ -74,6 +78,10 @@ OldSkool
 ClubC
 Ride19
 XT6
+AgilityPeak6
+VaporGlove7
+Ghost18
+CascadiaElite
 ```
 
 ---
@@ -101,6 +109,8 @@ vans_old_skool
 reebok_club_c
 saucony_ride_19
 salomon_xt_6
+merrell_agility_peak_6
+brooks_ghost_18
 ```
 
 ### NG
@@ -112,6 +122,8 @@ asics_gt2160
 AJ1
 OldSkool
 XT6
+AgilityPeak6
+Ghost18
 ```
 
 ---
@@ -132,6 +144,8 @@ brandId: vans
 brandId: reebok
 brandId: saucony
 brandId: salomon
+brandId: merrell
+brandId: brooks
 ```
 
 ### NG
@@ -142,6 +156,7 @@ brandId: jordan
 brandId: nike_sportswear
 brandId: converse_all_star
 brandId: salomon_sportstyle
+brandId: brooks_running
 ```
 
 ---
@@ -170,6 +185,16 @@ ClubC
 Ride19
 XT6
 XAPro
+AgilityPeak6
+AgilityPeak6GTX
+VaporGlove7
+TrailGlove8
+JungleTrekMoc
+Ghost18
+GhostTrail
+AdrenalineGTS
+CascadiaElite
+RevelMax
 ```
 
 ### Aliasに入れないもの
@@ -189,6 +214,11 @@ Ride
 Guide
 XT
 Pro
+Peak
+Glove
+Ghost
+Trail
+Max
 ```
 
 理由:
@@ -219,6 +249,10 @@ AirMax95
 ポンプフューリー
 ライド19
 エックスティー6
+アジリティピーク6
+ベイパーグローブ7
+ゴースト18
+カスケディアエリート
 ```
 
 ### searchKeywordsに入れないもの
@@ -239,6 +273,10 @@ Star
 Club
 Ride
 Guide
+Peak
+Glove
+Ghost
+Trail
 ```
 
 理由:
@@ -270,9 +308,12 @@ Guide
 9 -> ProGrid Omni 9
 6 -> XT-6
 1 -> Air Jordan 1
+7 -> VAPOR GLOVE 7
+8 -> TRAIL GLOVE 8
+18 -> Ghost 18
 ```
 
-ただし、`AJ1` や `XT6` のようにブランド内で明確なAliasとして成立する場合は `aliases.json` に入れてよい。
+ただし、`AJ1` や `XT6`、`Ghost18` のようにブランド内で明確なAliasとして成立する場合は `aliases.json` に入れてよい。
 
 ---
 
@@ -287,6 +328,8 @@ asics_gt2160
 asics_gt_2160
 salomon_xt6
 salomon_xt_6
+brooks_ghost18
+brooks_ghost_18
 ```
 
 ### OK
@@ -337,38 +380,3 @@ data/search_keywords.json -> app/assets/data/search_keywords.json
 アプリでは候補にないモデルでも自由入力で登録できる。
 
 ただし、自由入力値をマスターデータに追加する場合は、このValidation Rulesを通す。
-
----
-
-## 11. Review Rule
-
-`data/` を更新したら、必要に応じて以下も更新する。
-
-```text
-specs/MODEL_MASTER_COVERAGE.md
-data/CHANGELOG.md
-specs/KICKXKICK_TASK_BOARD.md
-```
-
----
-
-## 12. Quality Gate
-
-Tier Sブランドは以下を満たすこと。
-
-```text
-Model Coverage: PASS
-Alias: PASS
-searchKeywords: PASS
-Canonical Name: PASS
-```
-
-Tier A以降も、同じ基準で順次育成する。
-
----
-
-## 13. Final Principle
-
-候補の完全網羅より、ユーザーが登録を完了できることを優先する。
-
-ただし、マスターデータに入れるものは、検索品質を壊さないことを必須条件とする。
