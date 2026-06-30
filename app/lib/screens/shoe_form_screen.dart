@@ -238,6 +238,8 @@ class _ShoeFormScreenState extends ConsumerState<ShoeFormScreen> {
         cutoutMaskPath: result.maskPath,
         cutoutThreshold: result.threshold,
         cutoutEngine: result.engine,
+        cutoutSmoothing: result.smoothing,
+        cutoutAntialiasing: result.antialiasing,
       ),
     );
     for (final previousPhoto in previousPhotos) {

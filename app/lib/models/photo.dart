@@ -21,6 +21,8 @@ class Photo {
   final String? cutoutMaskPath;
   final double cutoutThreshold;
   final String? cutoutEngine;
+  final double cutoutSmoothing;
+  final double cutoutAntialiasing;
   final int displayOrder;
   final DateTime createdAt;
 
@@ -33,6 +35,8 @@ class Photo {
     this.cutoutMaskPath,
     this.cutoutThreshold = 90,
     this.cutoutEngine,
+    this.cutoutSmoothing = 50,
+    this.cutoutAntialiasing = 50,
     required this.displayOrder,
     required this.createdAt,
   });
@@ -45,6 +49,8 @@ class Photo {
     String? cutoutMaskPath,
     double cutoutThreshold = 90,
     String? cutoutEngine,
+    double cutoutSmoothing = 50,
+    double cutoutAntialiasing = 50,
     int displayOrder = 0,
   }) {
     return Photo(
@@ -55,6 +61,8 @@ class Photo {
       cutoutMaskPath: cutoutMaskPath,
       cutoutThreshold: cutoutThreshold,
       cutoutEngine: cutoutEngine,
+      cutoutSmoothing: cutoutSmoothing,
+      cutoutAntialiasing: cutoutAntialiasing,
       displayOrder: displayOrder,
       createdAt: DateTime.now(),
     );
@@ -70,6 +78,8 @@ class Photo {
       cutoutMaskPath: map['cutout_mask_path'] as String?,
       cutoutThreshold: (map['cutout_threshold'] as num?)?.toDouble() ?? 90,
       cutoutEngine: map['cutout_engine'] as String?,
+      cutoutSmoothing: (map['cutout_smoothing'] as num?)?.toDouble() ?? 50,
+      cutoutAntialiasing: (map['cutout_antialiasing'] as num?)?.toDouble() ?? 50,
       displayOrder: map['display_order'] as int,
       createdAt: DateTime.parse(map['created_at'] as String),
     );
@@ -85,6 +95,8 @@ class Photo {
       'cutout_mask_path': cutoutMaskPath,
       'cutout_threshold': cutoutThreshold,
       'cutout_engine': cutoutEngine,
+      'cutout_smoothing': cutoutSmoothing,
+      'cutout_antialiasing': cutoutAntialiasing,
       'display_order': displayOrder,
       'created_at': createdAt.toIso8601String(),
     };
@@ -99,6 +111,8 @@ class Photo {
     String? cutoutMaskPath,
     double? cutoutThreshold,
     String? cutoutEngine,
+    double? cutoutSmoothing,
+    double? cutoutAntialiasing,
     int? displayOrder,
     DateTime? createdAt,
   }) {
@@ -111,6 +125,8 @@ class Photo {
       cutoutMaskPath: cutoutMaskPath ?? this.cutoutMaskPath,
       cutoutThreshold: cutoutThreshold ?? this.cutoutThreshold,
       cutoutEngine: cutoutEngine ?? this.cutoutEngine,
+      cutoutSmoothing: cutoutSmoothing ?? this.cutoutSmoothing,
+      cutoutAntialiasing: cutoutAntialiasing ?? this.cutoutAntialiasing,
       displayOrder: displayOrder ?? this.displayOrder,
       createdAt: createdAt ?? this.createdAt,
     );

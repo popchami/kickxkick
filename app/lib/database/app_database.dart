@@ -21,7 +21,7 @@ class AppDatabase {
 
     return openDatabase(
       path,
-      version: 16,
+      version: 17,
       onConfigure: (db) async {
         await db.execute('PRAGMA foreign_keys = ON');
       },
@@ -164,6 +164,14 @@ class AppDatabase {
       );
       await db.execute('ALTER TABLE photos ADD COLUMN cutout_engine TEXT');
     }
+    if (oldVersion < 17) {
+      await db.execute(
+        'ALTER TABLE photos ADD COLUMN cutout_smoothing REAL NOT NULL DEFAULT 50',
+      );
+      await db.execute(
+        'ALTER TABLE photos ADD COLUMN cutout_antialiasing REAL NOT NULL DEFAULT 50',
+      );
+    }
   }
 
   Future<void> _createShoeIndexes(Database db) async {
@@ -186,6 +194,8 @@ class AppDatabase {
         cutout_mask_path TEXT,
         cutout_threshold REAL NOT NULL DEFAULT 90,
         cutout_engine TEXT,
+        cutout_smoothing REAL NOT NULL DEFAULT 50,
+        cutout_antialiasing REAL NOT NULL DEFAULT 50,
         photo_type TEXT NOT NULL,
         display_order INTEGER NOT NULL DEFAULT 0,
         created_at TEXT NOT NULL,

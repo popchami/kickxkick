@@ -438,6 +438,8 @@ class _StickerScreenState extends ConsumerState<StickerScreen> {
                 cutoutMaskPath: result.maskPath,
                 cutoutThreshold: result.threshold,
                 cutoutEngine: result.engine,
+                cutoutSmoothing: result.smoothing,
+                cutoutAntialiasing: result.antialiasing,
               ),
             );
         ref.invalidate(mainPhotoProvider(shoe.id!));
@@ -584,6 +586,8 @@ class _StickerScreenState extends ConsumerState<StickerScreen> {
                 cutoutMaskPath: editResult.maskPath,
                 cutoutThreshold: editResult.threshold,
                 cutoutEngine: editResult.engine,
+                cutoutSmoothing: editResult.smoothing,
+                cutoutAntialiasing: editResult.antialiasing,
               ),
             );
         ref.invalidate(mainPhotoProvider(asset.shoeId));

@@ -81,6 +81,8 @@ class ShoeDetailScreen extends ConsumerWidget {
               cutoutMaskPath: result.maskPath,
               cutoutThreshold: result.threshold,
               cutoutEngine: result.engine,
+              cutoutSmoothing: result.smoothing,
+              cutoutAntialiasing: result.antialiasing,
             ),
           );
       final storage = ref.read(photoStorageServiceProvider);

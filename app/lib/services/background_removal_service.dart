@@ -14,12 +14,16 @@ class CutoutResult {
     this.maskPath,
     required this.threshold,
     required this.engine,
+    this.smoothing = 50,
+    this.antialiasing = 50,
   });
 
   final String cutoutPath;
-  final String? maskPath;  // グレースケールマスクPNG（ML Kitのみ）
+  final String? maskPath;
   final double threshold;
-  final String engine;     // 'mlkit' または 'floodfill'
+  final String engine;
+  final double smoothing;
+  final double antialiasing;
 }
 
 class BackgroundRemovalService {
@@ -40,19 +44,32 @@ class BackgroundRemovalService {
     String sourcePath,
     int shoeId, {
     double threshold = 90,
+    double smoothing = 50,
+    double antialiasing = 50,
   }) async {
     if (Platform.isAndroid) {
       try {
-        return await _removeWithMlKit(sourcePath, shoeId, threshold: threshold);
+        return await _removeWithMlKit(
+          sourcePath, shoeId,
+          threshold: threshold,
+          smoothing: smoothing,
+          antialiasing: antialiasing,
+        );
       } catch (_) {
         return await _removeWithFloodFill(
-          sourcePath,
-          shoeId,
+          sourcePath, shoeId,
           threshold: threshold,
+          smoothing: smoothing,
+          antialiasing: antialiasing,
         );
       }
     }
-    return _removeWithFloodFill(sourcePath, shoeId, threshold: threshold);
+    return _removeWithFloodFill(
+      sourcePath, shoeId,
+      threshold: threshold,
+      smoothing: smoothing,
+      antialiasing: antialiasing,
+    );
   }
 
   // ---------------------------------------------------------------------------
@@ -63,6 +80,8 @@ class BackgroundRemovalService {
     String sourcePath,
     int shoeId, {
     required double threshold,
+    double smoothing = 50,
+    double antialiasing = 50,
   }) async {
     final segmenter = SubjectSegmenter(
       options: SubjectSegmenterOptions(
@@ -109,7 +128,8 @@ class BackgroundRemovalService {
         }
       }
 
-      _smoothCutoutEdge(image, visited);
+      _applyAntialiasing(image, visited, antialiasing);
+      _smoothCutoutEdge(image, visited, smoothing);
       final cutoutPath = await _savePng(image, shoeId);
       final maskPath = await _saveMaskPng(confidences, maskW, maskH, shoeId);
       await _markMlKitReady();
@@ -118,6 +138,8 @@ class BackgroundRemovalService {
         maskPath: maskPath,
         threshold: threshold,
         engine: 'mlkit',
+        smoothing: smoothing,
+        antialiasing: antialiasing,
       );
     } finally {
       await segmenter.close();
@@ -165,6 +187,8 @@ class BackgroundRemovalService {
     String sourcePath,
     int shoeId, {
     required double threshold,
+    double smoothing = 50,
+    double antialiasing = 50,
   }) async {
     final bytes = await File(sourcePath).readAsBytes();
     final decoded = img.decodeImage(bytes);
@@ -232,12 +256,15 @@ class BackgroundRemovalService {
       enqueue(x, y - 1);
       enqueue(x, y + 1);
     }
-    _smoothCutoutEdge(image, visited);
+    _applyAntialiasing(image, visited, antialiasing);
+    _smoothCutoutEdge(image, visited, smoothing);
     return CutoutResult(
       cutoutPath: await _savePng(image, shoeId),
       maskPath: null,
       threshold: threshold,
       engine: 'floodfill',
+      smoothing: smoothing,
+      antialiasing: antialiasing,
     );
   }
 
@@ -257,10 +284,53 @@ class BackgroundRemovalService {
     return output;
   }
 
-  void _smoothCutoutEdge(img.Image image, Uint8List backgroundMask) {
-    // A binary 0/255 alpha edge creates visible stair steps after scaling.
-    // Feather only inward so pixels from the removed background cannot form a
-    // colored halo around the sneaker.
+  /// アンチエイリアス（3×3カーネル）- エッジの1ピクセル単位のギザギザを滑らかにする
+  void _applyAntialiasing(img.Image image, Uint8List backgroundMask, double strength) {
+    if (strength <= 0) return;
+    final t = (strength / 100.0).clamp(0.0, 1.0);
+    const kernel = <int>[1, 2, 1];
+    const fullWeight = 16;
+    final width = image.width;
+    final height = image.height;
+    final edgeAlpha = Uint8List(width * height);
+
+    for (var y = 0; y < height; y++) {
+      for (var x = 0; x < width; x++) {
+        final index = y * width + x;
+        if (backgroundMask[index] != 0) continue;
+        var foregroundWeight = 0;
+        for (var ky = -1; ky <= 1; ky++) {
+          final sampleY = y + ky;
+          if (sampleY < 0 || sampleY >= height) continue;
+          for (var kx = -1; kx <= 1; kx++) {
+            final sampleX = x + kx;
+            if (sampleX < 0 || sampleX >= width) continue;
+            if (backgroundMask[sampleY * width + sampleX] == 0) {
+              foregroundWeight += kernel[ky + 1] * kernel[kx + 1];
+            }
+          }
+        }
+        final smoothed = (foregroundWeight * 255 / fullWeight).round().clamp(0, 255);
+        edgeAlpha[index] = ((255 * (1 - t) + smoothed * t)).round().clamp(0, 255);
+      }
+    }
+
+    for (var y = 0; y < height; y++) {
+      for (var x = 0; x < width; x++) {
+        final index = y * width + x;
+        if (backgroundMask[index] != 0) continue;
+        final alpha = edgeAlpha[index];
+        if (alpha >= 255) continue;
+        final pixel = image.getPixel(x, y);
+        image.setPixelRgba(x, y, pixel.r.toInt(), pixel.g.toInt(), pixel.b.toInt(), alpha);
+      }
+    }
+  }
+
+  /// エッジスムージング（5×5 Binomial kernel）- 数ピクセル範囲のガタつきを整える
+  void _smoothCutoutEdge(img.Image image, Uint8List backgroundMask, double strength) {
+    if (strength <= 0) return;
+    final t = (strength / 100.0).clamp(0.0, 1.0);
     const kernel = <int>[1, 4, 6, 4, 1];
     const fullWeight = 256;
     final width = image.width;
@@ -283,8 +353,9 @@ class BackgroundRemovalService {
             }
           }
         }
-        edgeAlpha[index] =
-            ((foregroundWeight * 255) / fullWeight).round().clamp(0, 255);
+        final smoothed = ((foregroundWeight * 255) / fullWeight).round().clamp(0, 255);
+        final current = image.getPixel(x, y).a.toInt();
+        edgeAlpha[index] = ((current * (1 - t) + smoothed * t)).round().clamp(0, 255);
       }
     }
 
@@ -293,9 +364,9 @@ class BackgroundRemovalService {
         final index = y * width + x;
         if (backgroundMask[index] != 0) continue;
         final alpha = edgeAlpha[index];
-        if (alpha == 255) continue;
+        if (alpha >= 255) continue;
         final pixel = image.getPixel(x, y);
-        image.setPixelRgba(x, y, pixel.r, pixel.g, pixel.b, alpha);
+        image.setPixelRgba(x, y, pixel.r.toInt(), pixel.g.toInt(), pixel.b.toInt(), alpha);
       }
     }
   }

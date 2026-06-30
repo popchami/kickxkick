@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:math' as math;
 import 'dart:typed_data';
@@ -26,6 +27,8 @@ class CutoutAdjustmentScreen extends StatefulWidget {
 
 class _CutoutAdjustmentScreenState extends State<CutoutAdjustmentScreen> {
   double _threshold = 90;
+  double _smoothing = 50;
+  double _antialiasing = 50;
   String? _previewPath;
   String? _maskPath;
   String _cutoutEngine = 'floodfill';
@@ -46,8 +49,12 @@ class _CutoutAdjustmentScreenState extends State<CutoutAdjustmentScreen> {
   final TransformationController _transformationController =
       TransformationController();
 
+  // −/+ボタンの長押し連続増減用タイマー
+  Timer? _stepTimer;
+
   @override
   void dispose() {
+    _stepTimer?.cancel();
     _transformationController.dispose();
     super.dispose();
   }
@@ -101,8 +108,7 @@ class _CutoutAdjustmentScreenState extends State<CutoutAdjustmentScreen> {
     if (_processing) return;
     setState(() => _processing = true);
     try {
-      if (mounted &&
-          await BackgroundRemovalService().needsModelDownload()) {
+      if (mounted && await BackgroundRemovalService().needsModelDownload()) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('初回のみAIモデルの準備が必要なため、少し時間がかかります'),
@@ -114,6 +120,8 @@ class _CutoutAdjustmentScreenState extends State<CutoutAdjustmentScreen> {
         widget.sourcePath,
         widget.shoeId,
         threshold: _threshold,
+        smoothing: _smoothing,
+        antialiasing: _antialiasing,
       );
       final outline = await _detectOutline(result.cutoutPath);
       final baseBytes = await File(result.cutoutPath).readAsBytes();
@@ -135,6 +143,119 @@ class _CutoutAdjustmentScreenState extends State<CutoutAdjustmentScreen> {
     } finally {
       if (mounted) setState(() => _processing = false);
     }
+  }
+
+  void _startStep(double Function(double) update, VoidCallback? onStop) {
+    _stepTimer?.cancel();
+    _stepTimer = Timer.periodic(const Duration(milliseconds: 80), (_) {
+      setState(() {});
+    });
+  }
+
+  void _stopStep() {
+    _stepTimer?.cancel();
+    _stepTimer = null;
+  }
+
+  Widget _buildStepButton({
+    required IconData icon,
+    required double value,
+    required double min,
+    required double max,
+    required double step,
+    required ValueChanged<double> onChanged,
+    VoidCallback? onChangeEnd,
+  }) {
+    void press() {
+      final next = (value + step).clamp(min, max);
+      onChanged(next);
+    }
+
+    return GestureDetector(
+      onTapDown: (_) => setState(() => onChanged((value + step).clamp(min, max))),
+      onTapUp: (_) {
+        _stopStep();
+        onChangeEnd?.call();
+      },
+      onTapCancel: _stopStep,
+      onLongPressStart: (_) {
+        _stepTimer?.cancel();
+        _stepTimer = Timer.periodic(const Duration(milliseconds: 80), (_) {
+          final next = (value + step).clamp(min, max);
+          if (mounted) setState(() => onChanged(next));
+        });
+      },
+      onLongPressEnd: (_) {
+        _stopStep();
+        onChangeEnd?.call();
+      },
+      onLongPressCancel: _stopStep,
+      child: Container(
+        width: 36,
+        height: 36,
+        decoration: BoxDecoration(
+          border: Border.all(color: Theme.of(context).colorScheme.outline),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Icon(icon, size: 18),
+      ),
+    );
+  }
+
+  Widget _buildSliderRow({
+    required String label,
+    required double value,
+    required double min,
+    required double max,
+    required ValueChanged<double> onChanged,
+    VoidCallback? onChangeEnd,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 88,
+            child: Text(label, style: const TextStyle(fontSize: 13)),
+          ),
+          _buildStepButton(
+            icon: Icons.remove,
+            value: value,
+            min: min,
+            max: max,
+            step: -(max - min) / 100,
+            onChanged: onChanged,
+            onChangeEnd: onChangeEnd,
+          ),
+          Expanded(
+            child: Slider(
+              value: value,
+              min: min,
+              max: max,
+              onChanged: _processing ? null : onChanged,
+              onChangeEnd: onChangeEnd == null ? null : (_) => onChangeEnd(),
+            ),
+          ),
+          _buildStepButton(
+            icon: Icons.add,
+            value: value,
+            min: min,
+            max: max,
+            step: (max - min) / 100,
+            onChanged: onChanged,
+            onChangeEnd: onChangeEnd,
+          ),
+          SizedBox(
+            width: 36,
+            child: Text(
+              '${value.round()}',
+              textAlign: TextAlign.right,
+              style: const TextStyle(fontSize: 12),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -178,120 +299,117 @@ class _CutoutAdjustmentScreenState extends State<CutoutAdjustmentScreen> {
                         ),
                         Center(
                           child: _processing
-                        ? const CircularProgressIndicator()
-                        : _previewPath == null
-                            ? const Text('切り抜きを生成できませんでした')
-                            : LayoutBuilder(
-                                builder: (context, constraints) {
-                                  final editor = GestureDetector(
-                                    onTapUp: _adjusting
-                                        ? null
-                                        : (details) => _restoreOutlineAt(
-                                              details.localPosition,
-                                              constraints,
-                                            ),
-                                    onPanStart: !_adjusting ||
-                                            _mode == _EditMode.move
-                                        ? null
-                                        : (details) {
-                                      _redo.clear();
-                                      _activePoints = [
-                                        _normalize(details.localPosition, constraints),
-                                      ];
-                                      _brushPosition = details.localPosition;
-                                    },
-                                    onPanUpdate: !_adjusting ||
-                                            _mode == _EditMode.move
-                                        ? null
-                                        : (details) {
-                                      setState(() => _activePoints!.add(
-                                            _normalize(details.localPosition, constraints),
-                                          ));
-                                      _brushPosition = details.localPosition;
-                                    },
-                                    onPanEnd: !_adjusting ||
-                                            _mode == _EditMode.move
-                                        ? null
-                                        : (_) async {
-                                      final points = List.of(_activePoints!);
-                                      final closesShape = points.length >= 4 &&
-                                          _pointDistance(
-                                                points.first,
-                                                points.last,
-                                              ) <
-                                              _brushSize * 2.5;
-                                      final stroke = CutoutBrushStroke(
-                                          erase: _mode == _EditMode.erase,
-                                          size: _brushSize,
-                                          points: points,
-                                          fill: closesShape &&
-                                              _mode == _EditMode.erase,
-                                        );
-                                      setState(() {
-                                        _strokes.add(stroke);
-                                        _activePoints = null;
-                                        _brushPosition = null;
-                                      });
-                                      await _renderBrushEdits();
-                                    },
-                                    child: Stack(
-                                      fit: StackFit.expand,
-                                      children: [
-                                        Image.file(
-                                          File(_previewPath!),
-                                          key: ValueKey(_previewRevision),
-                                          fit: BoxFit.contain,
-                                        ),
-                                        IgnorePointer(
-                                          child: CustomPaint(
-                                            painter: _OutlinePainter(
-                                              points: _adjusting
-                                                  ? const []
-                                                  : _outlinePoints,
-                                              imageAspect: _previewAspect,
-                                            ),
-                                          ),
-                                        ),
-                                        CustomPaint(
-                                          painter: _StrokePainter(
-                                            strokes: const [],
-                                            activePoints: _activePoints,
-                                            erase: _mode == _EditMode.erase,
-                                            brushSize: _brushSize,
-                                            imageAspect: _previewAspect,
-                                          ),
-                                        ),
-                                        if (_brushPosition != null &&
-                                            _mode != _EditMode.move)
-                                          _buildMagnifier(constraints),
-                                        if (_rendering)
-                                          Container(
-                                            color: Colors.black54,
-                                            child: const Center(
-                                              child: Column(
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: [
-                                                  CircularProgressIndicator(color: Colors.white),
-                                                  SizedBox(height: 12),
-                                                  Text('画像を更新中…', style: TextStyle(color: Colors.white)),
-                                                ],
+                              ? const CircularProgressIndicator()
+                              : _previewPath == null
+                                  ? const Text('切り抜きを生成できませんでした')
+                                  : LayoutBuilder(
+                                      builder: (context, constraints) {
+                                        final editor = GestureDetector(
+                                          onTapUp: _adjusting
+                                              ? null
+                                              : (details) => _restoreOutlineAt(
+                                                    details.localPosition,
+                                                    constraints,
+                                                  ),
+                                          onPanStart: !_adjusting ||
+                                                  _mode == _EditMode.move
+                                              ? null
+                                              : (details) {
+                                                  _redo.clear();
+                                                  _activePoints = [
+                                                    _normalize(details.localPosition, constraints),
+                                                  ];
+                                                  _brushPosition = details.localPosition;
+                                                },
+                                          onPanUpdate: !_adjusting ||
+                                                  _mode == _EditMode.move
+                                              ? null
+                                              : (details) {
+                                                  setState(() => _activePoints!.add(
+                                                        _normalize(details.localPosition, constraints),
+                                                      ));
+                                                  _brushPosition = details.localPosition;
+                                                },
+                                          onPanEnd: !_adjusting ||
+                                                  _mode == _EditMode.move
+                                              ? null
+                                              : (_) async {
+                                                  final points = List.of(_activePoints!);
+                                                  final closesShape = points.length >= 4 &&
+                                                      _pointDistance(
+                                                            points.first,
+                                                            points.last,
+                                                          ) <
+                                                          _brushSize * 2.5;
+                                                  final stroke = CutoutBrushStroke(
+                                                    erase: _mode == _EditMode.erase,
+                                                    size: _brushSize,
+                                                    points: points,
+                                                    fill: closesShape && _mode == _EditMode.erase,
+                                                  );
+                                                  setState(() {
+                                                    _strokes.add(stroke);
+                                                    _activePoints = null;
+                                                    _brushPosition = null;
+                                                  });
+                                                  await _renderBrushEdits();
+                                                },
+                                          child: Stack(
+                                            fit: StackFit.expand,
+                                            children: [
+                                              Image.file(
+                                                File(_previewPath!),
+                                                key: ValueKey(_previewRevision),
+                                                fit: BoxFit.contain,
                                               ),
-                                            ),
+                                              IgnorePointer(
+                                                child: CustomPaint(
+                                                  painter: _OutlinePainter(
+                                                    points: _adjusting
+                                                        ? const []
+                                                        : _outlinePoints,
+                                                    imageAspect: _previewAspect,
+                                                  ),
+                                                ),
+                                              ),
+                                              CustomPaint(
+                                                painter: _StrokePainter(
+                                                  strokes: const [],
+                                                  activePoints: _activePoints,
+                                                  erase: _mode == _EditMode.erase,
+                                                  brushSize: _brushSize,
+                                                  imageAspect: _previewAspect,
+                                                ),
+                                              ),
+                                              if (_brushPosition != null &&
+                                                  _mode != _EditMode.move)
+                                                _buildMagnifier(constraints),
+                                              if (_rendering)
+                                                Container(
+                                                  color: Colors.black54,
+                                                  child: const Center(
+                                                    child: Column(
+                                                      mainAxisSize: MainAxisSize.min,
+                                                      children: [
+                                                        CircularProgressIndicator(color: Colors.white),
+                                                        SizedBox(height: 12),
+                                                        Text('画像を更新中…', style: TextStyle(color: Colors.white)),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                            ],
                                           ),
-                                      ],
+                                        );
+                                        return InteractiveViewer(
+                                          transformationController: _transformationController,
+                                          minScale: 1,
+                                          maxScale: 6,
+                                          panEnabled: !_adjusting || _mode == _EditMode.move,
+                                          child: editor,
+                                        );
+                                      },
                                     ),
-                                  );
-                                  return InteractiveViewer(
-                                    transformationController:
-                                        _transformationController,
-                                    minScale: 1,
-                                    maxScale: 6,
-                                    panEnabled: !_adjusting ||
-                                        _mode == _EditMode.move,
-                                    child: editor,
-                                  );
-                                },
-                              ),
                         ),
                       ],
                     ),
@@ -301,42 +419,42 @@ class _CutoutAdjustmentScreenState extends State<CutoutAdjustmentScreen> {
             ),
             if (_adjusting)
               Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SegmentedButton<_EditMode>(
-                    segments: const [
-                      ButtonSegment(value: _EditMode.move, icon: Icon(Icons.pan_tool_outlined), label: Text('移動')),
-                      ButtonSegment(value: _EditMode.erase, icon: Icon(Icons.auto_fix_off), label: Text('背景を消す')),
-                      ButtonSegment(value: _EditMode.restore, icon: Icon(Icons.restore), label: Text('靴を戻す')),
-                    ],
-                    selected: {_mode},
-                    onSelectionChanged: (value) => setState(() => _mode = value.first),
-                  ),
-                  IconButton(
-                    tooltip: 'Undo',
-                    onPressed: _strokes.isEmpty
-                        ? null
-                        : () async {
-                            setState(() => _redo.add(_strokes.removeLast()));
-                            await _renderBrushEdits();
-                          },
-                    icon: const Icon(Icons.undo),
-                  ),
-                  IconButton(
-                    tooltip: 'Redo',
-                    onPressed: _redo.isEmpty
-                        ? null
-                        : () async {
-                            setState(() => _strokes.add(_redo.removeLast()));
-                            await _renderBrushEdits();
-                          },
-                    icon: const Icon(Icons.redo),
-                  ),
-                ],
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SegmentedButton<_EditMode>(
+                      segments: const [
+                        ButtonSegment(value: _EditMode.move, icon: Icon(Icons.pan_tool_outlined), label: Text('移動')),
+                        ButtonSegment(value: _EditMode.erase, icon: Icon(Icons.auto_fix_off), label: Text('背景を消す')),
+                        ButtonSegment(value: _EditMode.restore, icon: Icon(Icons.restore), label: Text('靴を戻す')),
+                      ],
+                      selected: {_mode},
+                      onSelectionChanged: (value) => setState(() => _mode = value.first),
+                    ),
+                    IconButton(
+                      tooltip: 'Undo',
+                      onPressed: _strokes.isEmpty
+                          ? null
+                          : () async {
+                              setState(() => _redo.add(_strokes.removeLast()));
+                              await _renderBrushEdits();
+                            },
+                      icon: const Icon(Icons.undo),
+                    ),
+                    IconButton(
+                      tooltip: 'Redo',
+                      onPressed: _redo.isEmpty
+                          ? null
+                          : () async {
+                              setState(() => _strokes.add(_redo.removeLast()));
+                              await _renderBrushEdits();
+                            },
+                      icon: const Icon(Icons.redo),
+                    ),
+                  ],
+                ),
               ),
-            ),
             if (_adjusting && _mode != _EditMode.move)
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -354,28 +472,8 @@ class _CutoutAdjustmentScreenState extends State<CutoutAdjustmentScreen> {
                   ],
                 ),
               ),
-            if (!_adjusting)
-              Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
-                children: [
-                  const Text('背景残す'),
-                  Expanded(
-                    child: Slider(
-                      value: _threshold,
-                      min: 20,
-                      max: 220,
-                      divisions: 20,
-                      onChanged: _processing
-                          ? null
-                          : (value) => setState(() => _threshold = value),
-                      onChangeEnd: (_) => _generate(),
-                    ),
-                  ),
-                  const Text('背景消す'),
-                ],
-              ),
-            ),
+            // 自動生成モード時の調整パネル開閉バー
+            if (!_adjusting) _buildAdjustmentPanelHandle(),
             Padding(
               padding: const EdgeInsets.all(16),
               child: Row(
@@ -388,8 +486,7 @@ class _CutoutAdjustmentScreenState extends State<CutoutAdjustmentScreen> {
                               ? () => setState(() {
                                     _adjusting = false;
                                     _mode = _EditMode.move;
-                                    _transformationController.value =
-                                        Matrix4.identity();
+                                    _transformationController.value = Matrix4.identity();
                                   })
                               : _generate,
                       icon: const Icon(Icons.refresh),
@@ -405,23 +502,24 @@ class _CutoutAdjustmentScreenState extends State<CutoutAdjustmentScreen> {
                               ? () => setState(() {
                                     _adjusting = true;
                                     _mode = _EditMode.move;
-                                    _transformationController.value =
-                                        Matrix4.identity();
+                                    _transformationController.value = Matrix4.identity();
                                   })
                               : () async {
-                              setState(() => _processing = true);
-                              if (context.mounted) {
-                                Navigator.pop(
-                                  context,
-                                  CutoutResult(
-                                    cutoutPath: _previewPath!,
-                                    maskPath: _maskPath,
-                                    threshold: _threshold,
-                                    engine: _cutoutEngine,
-                                  ),
-                                );
-                              }
-                            },
+                                  setState(() => _processing = true);
+                                  if (context.mounted) {
+                                    Navigator.pop(
+                                      context,
+                                      CutoutResult(
+                                        cutoutPath: _previewPath!,
+                                        maskPath: _maskPath,
+                                        threshold: _threshold,
+                                        engine: _cutoutEngine,
+                                        smoothing: _smoothing,
+                                        antialiasing: _antialiasing,
+                                      ),
+                                    );
+                                  }
+                                },
                       icon: Icon(_adjusting ? Icons.check : Icons.tune),
                       label: Text(_adjusting ? '保存' : '微調整へ'),
                     ),
@@ -435,11 +533,60 @@ class _CutoutAdjustmentScreenState extends State<CutoutAdjustmentScreen> {
     );
   }
 
+  Widget _buildAdjustmentPanelHandle() {
+    return GestureDetector(
+      onTap: _showAdjustmentPanel,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surfaceContainerLow,
+          border: Border(
+            top: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.tune, size: 16, color: Theme.of(context).colorScheme.onSurfaceVariant),
+            const SizedBox(width: 6),
+            Text(
+              '切り抜き設定を調整',
+              style: TextStyle(
+                fontSize: 13,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(width: 4),
+            Icon(Icons.keyboard_arrow_up, size: 16, color: Theme.of(context).colorScheme.onSurfaceVariant),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showAdjustmentPanel() {
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      builder: (ctx) => _AdjustmentPanel(
+        threshold: _threshold,
+        smoothing: _smoothing,
+        antialiasing: _antialiasing,
+        processing: _processing,
+        onThresholdChanged: (v) => setState(() => _threshold = v),
+        onSmoothingChanged: (v) => setState(() => _smoothing = v),
+        onAntialiasingChanged: (v) => setState(() => _antialiasing = v),
+        onGenerate: () {
+          Navigator.pop(ctx);
+          _generate();
+        },
+      ),
+    );
+  }
+
   CutoutBrushPoint _normalize(Offset position, BoxConstraints constraints) {
-    final rect = _imageRect(Size(
-      constraints.maxWidth,
-      constraints.maxHeight,
-    ));
+    final rect = _imageRect(Size(constraints.maxWidth, constraints.maxHeight));
     return CutoutBrushPoint(
       ((position.dx - rect.left) / rect.width).clamp(0, 1),
       ((position.dy - rect.top) / rect.height).clamp(0, 1),
@@ -452,10 +599,7 @@ class _CutoutAdjustmentScreenState extends State<CutoutAdjustmentScreen> {
     return math.sqrt(dx * dx + dy * dy);
   }
 
-  Future<void> _restoreOutlineAt(
-    Offset position,
-    BoxConstraints constraints,
-  ) async {
+  Future<void> _restoreOutlineAt(Offset position, BoxConstraints constraints) async {
     if (_previewPath == null || _outlinePoints.isEmpty) return;
     final normalized = _normalize(position, constraints);
     List<Offset>? selectedRegion;
@@ -471,13 +615,8 @@ class _CutoutAdjustmentScreenState extends State<CutoutAdjustmentScreen> {
         }
       }
     }
-    if (selectedRegion == null ||
-        selectedRegion.length < 3 ||
-        nearestDistance > .0036) {
-      return;
-    }
-    final center = selectedRegion.reduce((a, b) => a + b) /
-        selectedRegion.length.toDouble();
+    if (selectedRegion == null || selectedRegion.length < 3 || nearestDistance > .0036) return;
+    final center = selectedRegion.reduce((a, b) => a + b) / selectedRegion.length.toDouble();
     final polygon = [...selectedRegion]
       ..sort((a, b) => math
           .atan2(a.dy - center.dy, a.dx - center.dx)
@@ -488,9 +627,7 @@ class _CutoutAdjustmentScreenState extends State<CutoutAdjustmentScreen> {
         erase: false,
         size: .002,
         fill: true,
-        points: polygon
-            .map((point) => CutoutBrushPoint(point.dx, point.dy))
-            .toList(),
+        points: polygon.map((point) => CutoutBrushPoint(point.dx, point.dy)).toList(),
       ));
     });
     await _renderBrushEdits(refreshOutline: true);
@@ -551,7 +688,7 @@ class _CutoutAdjustmentScreenState extends State<CutoutAdjustmentScreen> {
           const SizedBox(width: 6),
           Expanded(
             child: Text(
-              '自動生成モード — スライダーで背景除去の強さを調整',
+              '自動生成モード — 下のパネルで切り抜き強さを調整',
               style: TextStyle(fontSize: 12, color: cs.onTertiaryContainer),
             ),
           ),
@@ -585,12 +722,8 @@ class _CutoutAdjustmentScreenState extends State<CutoutAdjustmentScreen> {
           magnificationScale: 3.0,
           focalPointOffset: finger - center,
           decoration: const MagnifierDecoration(
-            shape: CircleBorder(
-              side: BorderSide(color: Colors.orange, width: 4),
-            ),
-            shadows: [
-              BoxShadow(color: Colors.black54, blurRadius: 10),
-            ],
+            shape: CircleBorder(side: BorderSide(color: Colors.orange, width: 4)),
+            shadows: [BoxShadow(color: Colors.black54, blurRadius: 10)],
           ),
         ),
       ),
@@ -670,8 +803,7 @@ class _CutoutAdjustmentScreenState extends State<CutoutAdjustmentScreen> {
         for (var dy = -2; dy <= 2; dy++) {
           for (var dx = -2; dx <= 2; dx++) {
             if (dx == 0 && dy == 0) continue;
-            final neighborKey =
-                (current.gy + dy) * 100000 + current.gx + dx;
+            final neighborKey = (current.gy + dy) * 100000 + current.gx + dx;
             if (remaining.remove(neighborKey)) queue.add(neighborKey);
           }
         }
@@ -682,6 +814,229 @@ class _CutoutAdjustmentScreenState extends State<CutoutAdjustmentScreen> {
     return points;
   }
 }
+
+// ---------------------------------------------------------------------------
+// 調整パネル（BottomSheet）
+// ---------------------------------------------------------------------------
+
+class _AdjustmentPanel extends StatefulWidget {
+  const _AdjustmentPanel({
+    required this.threshold,
+    required this.smoothing,
+    required this.antialiasing,
+    required this.processing,
+    required this.onThresholdChanged,
+    required this.onSmoothingChanged,
+    required this.onAntialiasingChanged,
+    required this.onGenerate,
+  });
+
+  final double threshold;
+  final double smoothing;
+  final double antialiasing;
+  final bool processing;
+  final ValueChanged<double> onThresholdChanged;
+  final ValueChanged<double> onSmoothingChanged;
+  final ValueChanged<double> onAntialiasingChanged;
+  final VoidCallback onGenerate;
+
+  @override
+  State<_AdjustmentPanel> createState() => _AdjustmentPanelState();
+}
+
+class _AdjustmentPanelState extends State<_AdjustmentPanel> {
+  late double _threshold;
+  late double _smoothing;
+  late double _antialiasing;
+  Timer? _stepTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    _threshold = widget.threshold;
+    _smoothing = widget.smoothing;
+    _antialiasing = widget.antialiasing;
+  }
+
+  @override
+  void dispose() {
+    _stepTimer?.cancel();
+    super.dispose();
+  }
+
+  void _startLongPress(VoidCallback tick) {
+    _stepTimer?.cancel();
+    _stepTimer = Timer.periodic(const Duration(milliseconds: 80), (_) {
+      if (mounted) {
+        setState(tick);
+      }
+    });
+  }
+
+  void _stopLongPress() {
+    _stepTimer?.cancel();
+    _stepTimer = null;
+  }
+
+  Widget _buildStepBtn({
+    required IconData icon,
+    required double value,
+    required double min,
+    required double max,
+    required double step,
+    required ValueChanged<double> onChanged,
+  }) {
+    final next = (value + step).clamp(min, max);
+    return GestureDetector(
+      onTapDown: (_) => setState(() => onChanged(next)),
+      onLongPressStart: (_) => _startLongPress(() => onChanged((value + step).clamp(min, max))),
+      onLongPressEnd: (_) => _stopLongPress(),
+      onLongPressCancel: _stopLongPress,
+      child: Container(
+        width: 36,
+        height: 36,
+        decoration: BoxDecoration(
+          border: Border.all(color: Theme.of(context).colorScheme.outline),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Icon(icon, size: 18),
+      ),
+    );
+  }
+
+  Widget _buildRow({
+    required String label,
+    required double value,
+    required double min,
+    required double max,
+    required ValueChanged<double> onChanged,
+    required VoidCallback onChangeEnd,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 100,
+            child: Text(label, style: const TextStyle(fontSize: 13)),
+          ),
+          _buildStepBtn(
+            icon: Icons.remove,
+            value: value,
+            min: min,
+            max: max,
+            step: -(max - min) / 100,
+            onChanged: (v) { onChanged(v); setState(() {}); },
+          ),
+          Expanded(
+            child: Slider(
+              value: value,
+              min: min,
+              max: max,
+              onChanged: widget.processing ? null : (v) {
+                setState(() => onChanged(v));
+              },
+              onChangeEnd: (_) => onChangeEnd(),
+            ),
+          ),
+          _buildStepBtn(
+            icon: Icons.add,
+            value: value,
+            min: min,
+            max: max,
+            step: (max - min) / 100,
+            onChanged: (v) { onChanged(v); setState(() {}); },
+          ),
+          SizedBox(
+            width: 32,
+            child: Text(
+              '${value.round()}',
+              textAlign: TextAlign.right,
+              style: const TextStyle(fontSize: 12),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(
+        left: 16,
+        right: 16,
+        top: 8,
+        bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 40,
+            height: 4,
+            margin: const EdgeInsets.only(bottom: 16),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.outlineVariant,
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          const Align(
+            alignment: Alignment.centerLeft,
+            child: Text('切り抜き設定', style: TextStyle(fontWeight: FontWeight.bold)),
+          ),
+          const SizedBox(height: 8),
+          _buildRow(
+            label: '背景除去の強さ',
+            value: _threshold,
+            min: 20,
+            max: 220,
+            onChanged: (v) {
+              _threshold = v;
+              widget.onThresholdChanged(v);
+            },
+            onChangeEnd: widget.onGenerate,
+          ),
+          _buildRow(
+            label: 'スムージング',
+            value: _smoothing,
+            min: 0,
+            max: 100,
+            onChanged: (v) {
+              _smoothing = v;
+              widget.onSmoothingChanged(v);
+            },
+            onChangeEnd: widget.onGenerate,
+          ),
+          _buildRow(
+            label: 'アンチエイリアス',
+            value: _antialiasing,
+            min: 0,
+            max: 100,
+            onChanged: (v) {
+              _antialiasing = v;
+              widget.onAntialiasingChanged(v);
+            },
+            onChangeEnd: widget.onGenerate,
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton.icon(
+              onPressed: widget.processing ? null : widget.onGenerate,
+              icon: const Icon(Icons.refresh),
+              label: const Text('この設定で再生成'),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// 既存ヘルパークラス（変更なし）
+// ---------------------------------------------------------------------------
 
 class _OutlineGridPoint {
   const _OutlineGridPoint(this.gx, this.gy, this.offset);
@@ -706,17 +1061,13 @@ class _TransparencyCheckerPainter extends CustomPainter {
         final column = (x / tileSize).floor();
         final row = (y / tileSize).floor();
         paint.color = (column + row).isEven ? light : dark;
-        canvas.drawRect(
-          Rect.fromLTWH(x, y, tileSize, tileSize),
-          paint,
-        );
+        canvas.drawRect(Rect.fromLTWH(x, y, tileSize, tileSize), paint);
       }
     }
   }
 
   @override
-  bool shouldRepaint(covariant _TransparencyCheckerPainter oldDelegate) =>
-      false;
+  bool shouldRepaint(covariant _TransparencyCheckerPainter oldDelegate) => false;
 }
 
 class _OutlinePainter extends CustomPainter {
