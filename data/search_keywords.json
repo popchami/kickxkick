@@ -1,6 +1,6 @@
 {
-  "version": "0.5.1",
-  "updatedAt": "2026-07-01",
+  "version": "0.5.2",
+  "updatedAt": "2026-07-02",
   "items": [
     {"modelId":"nike_air_force_1","keyword":"エアフォース"},
     {"modelId":"nike_air_force_1","keyword":"エアフォース1"},
@@ -205,6 +205,15 @@
     {"modelId":"brooks_cascadia_elite","keyword":"カスケディアエリート"},
     {"modelId":"brooks_revel_max","keyword":"RevelMax"},
     {"modelId":"brooks_revel_max","keyword":"レベルマックス"},
-    {"modelId":"brooks_vanguard","keyword":"ヴァンガード"}
+    {"modelId":"brooks_vanguard","keyword":"ヴァンガード"},
+
+    {"modelId":"skechers_d_lites","keyword":"DLites"},
+    {"modelId":"skechers_d_lites","keyword":"ディーライツ"},
+    {"modelId":"skechers_uno","keyword":"SkechersUno"},
+    {"modelId":"skechers_uno","keyword":"スケッチャーズウノ"},
+    {"modelId":"skechers_go_walk","keyword":"GoWalk"},
+    {"modelId":"skechers_go_walk","keyword":"ゴーウォーク"},
+    {"modelId":"skechers_go_run","keyword":"GoRun"},
+    {"modelId":"skechers_go_run","keyword":"ゴーラン"}
   ]
 }
