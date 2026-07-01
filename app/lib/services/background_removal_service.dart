@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart';
 import 'package:google_mlkit_subject_segmentation/google_mlkit_subject_segmentation.dart';
 import 'package:image/image.dart' as img;
 import 'package:path/path.dart' as p;
@@ -55,7 +56,9 @@ class BackgroundRemovalService {
           smoothing: smoothing,
           antialiasing: antialiasing,
         );
-      } catch (_) {
+      } catch (e, stackTrace) {
+        debugPrint('[BackgroundRemovalService] ML Kit failed, falling back to floodfill: $e');
+        debugPrintStack(stackTrace: stackTrace);
         return await _removeWithFloodFill(
           sourcePath, shoeId,
           threshold: threshold,
