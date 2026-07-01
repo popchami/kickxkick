@@ -4,6 +4,43 @@
 
 ---
 
+## 2026-07-02 v0.5.2
+
+### Added / Updated
+
+- `data/models.json` を v0.5.2 に更新
+  - SKECHERS: `D'Lites` / `Uno` / `GO WALK` / `GO RUN`
+- `app/assets/data/models.json` を v0.5.2 に同期更新
+- `data/aliases.json` を v0.5.2 に更新
+  - SKECHERS: `DLites` / `D-Lites` / `SkechersUno` / `GoWalk` / `GoRun`
+- `app/assets/data/aliases.json` を v0.5.2 に同期更新
+- `data/search_keywords.json` を v0.5.2 に更新
+  - SKECHERS: `DLites` / `ディーライツ` / `SkechersUno` / `スケッチャーズウノ` / `GoWalk` / `ゴーウォーク` / `GoRun` / `ゴーラン`
+- `app/assets/data/search_keywords.json` を v0.5.2 に同期更新
+- `data/README.md` を v0.5.2 状態に更新
+- `data/validation_rules.md` を v1.4 に更新
+- `specs/MODEL_MASTER_COVERAGE.md` を v1.9 に更新
+- `specs/KICKXKICK_TASK_BOARD.md` を v2.3 に更新
+
+### Audited
+
+- SKECHERS公式サイトのCollectionsに `D'Lites` / `GO WALK` / `GO RUN` / `UNOs` が掲載されていることを確認
+- `skechers` は `brands.json` に既存登録済み
+- `models.json.brandId -> brands.json.brandId` の参照を確認
+- `aliases.json.modelId -> models.json.id` の追加分参照を確認
+- `search_keywords.json.modelId -> models.json.id` の追加分参照を確認
+- `Uno` / `Walk` / `Run` など広すぎる単語単体はAlias/searchKeywordsに追加なし
+- 色名、商品説明文、商品画像、在庫情報、コラボ名は追加なし
+
+### Remaining
+
+- Search MVPテストケース実施
+- data/*.json と app/assets/data/*.json の同期自動化
+- Tier S / A / B のABC-MART差分監査
+- Tier Cブランドのモデル追加継続
+
+---
+
 ## 2026-07-01 v0.5.1 completion
 
 ### Added / Updated
