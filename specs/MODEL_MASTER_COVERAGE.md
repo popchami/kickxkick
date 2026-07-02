@@ -1,4 +1,4 @@
-# Kick×Kick Model Master Coverage v1.8
+# Kick×Kick Model Master Coverage v1.9
 
 ## Purpose
 
@@ -24,6 +24,12 @@ Kick×Kick のブランド・モデルマスター資産の育成状況を管理
 PASS
 - MVPで十分な品質
 - 主要モデル / Alias / searchKeywords / Canonical Name が揃っている
+
+MODEL_STARTED
+- ブランド名は登録済み
+- 高確度モデルを一部追加済み
+- Alias / searchKeywords も追加済み
+- ただし代表モデル量はまだ拡張余地がある
 
 BRAND_ONLY
 - ブランド名は登録済み
@@ -73,12 +79,20 @@ TODO
 
 ---
 
+## Tier C Coverage
+
+| Brand | Model Coverage | Alias | searchKeywords | Canonical Name | Status | Notes |
+|---|---|---|---|---|---|---|
+| SKECHERS | PARTIAL | PASS | PASS | PASS | MODEL_STARTED | 公式Collections確認ベースで `D'Lites` / `Uno` / `GO WALK` / `GO RUN` を追加。`Uno` / `Walk` / `Run` 単体は未追加。 |
+
+---
+
 ## Tier C Brand Registry
 
 Tier Cは、国内流通リファレンスに掲載されるブランド名を先行登録した状態。
 
 ```text
-HAWKINS / FILA / byA / ABC SELECT / NUOVO / SKECHERS / Danner / STEFANO ROSSI / Timberland / SPERRY TOPSIDER / le coq sportif / DESCENTE / COLE HAAN / ROCKPORT / SYUNSOKU / Dr.Martens / PATRICK / TEVA / crocs / UNDER ARMOUR / HUNTER / JOLI ENCORE / IFME / G.C.MORELLI / HARUTA / SUPERGA / JEWEL / RED WING / A+ / AIGLE / AKTR / AMBITIOUS / BENTER / BIRKENSTOCK / BLUNDSTONE / BUNKER / BUTTERFLYTWISTS / CHAMPION / CLARKS / COLUMBUS / CORSO NAPOLEONE / COXX BORBA / EVE / FLUCHOS / FRED PERRY / FOOTJOY / GAVIC / GENTILE / GIANNI SIMONE / HARRIS / HI-TEC / HOME COLLECT / HOME EXE / HYPER JUMPER / Ipanema / K-SWISS / LACOSTE / LIBERTY HOUSE / MINNETONKA / molten / MONTRRE / MOONSTAR / NEW ERA / PANSY / PEACEPARK / PEDAG / POLO R.LAUREN / POLSA / REGETA / SKA / SHAKA / STANCE SOCKS / STILMODA / TEXCY / UMBRO / zamst
+HAWKINS / FILA / byA / ABC SELECT / NUOVO / Danner / STEFANO ROSSI / Timberland / SPERRY TOPSIDER / le coq sportif / DESCENTE / COLE HAAN / ROCKPORT / SYUNSOKU / Dr.Martens / PATRICK / TEVA / crocs / UNDER ARMOUR / HUNTER / JOLI ENCORE / IFME / G.C.MORELLI / HARUTA / SUPERGA / JEWEL / RED WING / A+ / AIGLE / AKTR / AMBITIOUS / BENTER / BIRKENSTOCK / BLUNDSTONE / BUNKER / BUTTERFLYTWISTS / CHAMPION / CLARKS / COLUMBUS / CORSO NAPOLEONE / COXX BORBA / EVE / FLUCHOS / FRED PERRY / FOOTJOY / GAVIC / GENTILE / GIANNI SIMONE / HARRIS / HI-TEC / HOME COLLECT / HOME EXE / HYPER JUMPER / Ipanema / K-SWISS / LACOSTE / LIBERTY HOUSE / MINNETONKA / molten / MONTRRE / MOONSTAR / NEW ERA / PANSY / PEACEPARK / PEDAG / POLO R.LAUREN / POLSA / REGETA / SKA / SHAKA / STANCE SOCKS / STILMODA / TEXCY / UMBRO / zamst
 ```
 
 状態:
@@ -118,6 +132,10 @@ searchKeywords: TODO
 2026-07-01 v0.5.1
 - MERRELL / BROOKS のモデル、Alias、searchKeywordsを追加
 - data/*.json と app/assets/data/*.json の同期状態を回復
+
+2026-07-02 v0.5.2
+- SKECHERS の代表モデル、Alias、searchKeywordsを追加開始
+- data/models・aliases・search_keywords と app/assets/data 側を同期
 ```
 
 ---
@@ -126,9 +144,10 @@ searchKeywords: TODO
 
 ```text
 1. Tier Cブランドのモデル追加を優先度順に進める
-2. Tier S / A / B のABC-MART差分監査を継続
-3. Search MVPテストケースを実機またはFlutterテストで実施
-4. data/*.json と app/assets/data/*.json の同期自動化
+2. SKECHERSの国内流通差分監査を継続
+3. Tier S / A / B のABC-MART差分監査を継続
+4. Search MVPテストケースを実機またはFlutterテストで実施
+5. data/*.json と app/assets/data/*.json の同期自動化
 ```
 
 ---

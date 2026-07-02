@@ -1,4 +1,4 @@
-# Kick×Kick Data Validation Rules v1.3
+# Kick×Kick Data Validation Rules v1.4
 
 ## Purpose
 
@@ -63,6 +63,10 @@ AGILITY PEAK 6
 VAPOR GLOVE 7
 Ghost 18
 Cascadia Elite
+D'Lites
+Uno
+GO WALK
+GO RUN
 ```
 
 ### NG
@@ -82,6 +86,9 @@ AgilityPeak6
 VaporGlove7
 Ghost18
 CascadiaElite
+DLites
+GoWalk
+GoRun
 ```
 
 ---
@@ -111,6 +118,8 @@ saucony_ride_19
 salomon_xt_6
 merrell_agility_peak_6
 brooks_ghost_18
+skechers_d_lites
+skechers_go_walk
 ```
 
 ### NG
@@ -124,6 +133,7 @@ OldSkool
 XT6
 AgilityPeak6
 Ghost18
+GoWalk
 ```
 
 ---
@@ -146,6 +156,7 @@ brandId: saucony
 brandId: salomon
 brandId: merrell
 brandId: brooks
+brandId: skechers
 ```
 
 ### NG
@@ -157,6 +168,7 @@ brandId: nike_sportswear
 brandId: converse_all_star
 brandId: salomon_sportstyle
 brandId: brooks_running
+brandId: skechers_usa
 ```
 
 ---
@@ -195,6 +207,11 @@ GhostTrail
 AdrenalineGTS
 CascadiaElite
 RevelMax
+DLites
+D-Lites
+SkechersUno
+GoWalk
+GoRun
 ```
 
 ### Aliasに入れないもの
@@ -218,7 +235,9 @@ Peak
 Glove
 Ghost
 Trail
-Max
+Uno
+Walk
+Run
 ```
 
 理由:
@@ -253,6 +272,10 @@ AirMax95
 ベイパーグローブ7
 ゴースト18
 カスケディアエリート
+ディーライツ
+スケッチャーズウノ
+ゴーウォーク
+ゴーラン
 ```
 
 ### searchKeywordsに入れないもの
@@ -277,6 +300,9 @@ Peak
 Glove
 Ghost
 Trail
+Uno
+Walk
+Run
 ```
 
 理由:
@@ -330,6 +356,8 @@ salomon_xt6
 salomon_xt_6
 brooks_ghost18
 brooks_ghost_18
+skechers_gowalk
+skechers_go_walk
 ```
 
 ### OK

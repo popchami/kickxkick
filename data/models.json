@@ -1,6 +1,6 @@
 {
-  "version": "0.5.1",
-  "updatedAt": "2026-06-30",
+  "version": "0.5.2",
+  "updatedAt": "2026-07-02",
   "items": [
     {"id":"nike_air_force_1","brandId":"nike","modelName":"Air Force 1","category":"lifestyle","source":"master"},
     {"id":"nike_air_max_1","brandId":"nike","modelName":"Air Max 1","category":"lifestyle","source":"master"},
@@ -141,6 +141,11 @@
     {"id":"brooks_hyperion","brandId":"brooks","modelName":"Hyperion","category":"running","source":"master"},
     {"id":"brooks_cascadia_elite","brandId":"brooks","modelName":"Cascadia Elite","category":"trail_running","source":"master"},
     {"id":"brooks_revel_max","brandId":"brooks","modelName":"Revel MAX","category":"running","source":"master"},
-    {"id":"brooks_vanguard","brandId":"brooks","modelName":"Vanguard","category":"lifestyle","source":"master"}
+    {"id":"brooks_vanguard","brandId":"brooks","modelName":"Vanguard","category":"lifestyle","source":"master"},
+
+    {"id":"skechers_d_lites","brandId":"skechers","modelName":"D'Lites","category":"lifestyle","source":"master"},
+    {"id":"skechers_uno","brandId":"skechers","modelName":"Uno","category":"lifestyle","source":"master"},
+    {"id":"skechers_go_walk","brandId":"skechers","modelName":"GO WALK","category":"walking","source":"master"},
+    {"id":"skechers_go_run","brandId":"skechers","modelName":"GO RUN","category":"running","source":"master"}
   ]
 }
