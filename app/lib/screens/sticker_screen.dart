@@ -593,6 +593,10 @@ class _StickerScreenState extends ConsumerState<StickerScreen> {
             sourcePath: asset.sourcePath,
             shoeId: asset.shoeId,
             initialCutoutPath: asset.stickerPath,
+            initialCropOffsetXFrac: asset.cropOffsetXFrac,
+            initialCropOffsetYFrac: asset.cropOffsetYFrac,
+            initialCropWidthFrac: asset.cropWidthFrac,
+            initialCropHeightFrac: asset.cropHeightFrac,
           ),
         ),
       );

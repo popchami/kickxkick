@@ -509,23 +509,38 @@ class BackgroundRemovalService {
   }
 
   // ---------------------------------------------------------------------------
-  // ブラシ編集（変更なし）
+  // ブラシ編集
   // ---------------------------------------------------------------------------
 
   Future<void> applyBrushEdits({
     required String originalPath,
     required String cutoutPath,
     required List<CutoutBrushStroke> strokes,
+    double offsetXFrac = 0,
+    double offsetYFrac = 0,
+    double widthFrac = 1,
+    double heightFrac = 1,
   }) async {
     final cutout = img.decodeImage(await File(cutoutPath).readAsBytes());
     final source = img.decodeImage(await File(originalPath).readAsBytes());
     if (cutout == null || source == null) {
       throw StateError('画像を読み込めませんでした');
     }
-    final original =
-        source.width == cutout.width && source.height == cutout.height
+    // クロップ（元画像のうちcutoutに対応する範囲を切り出す）→ リサイズ の2段階で
+    // originalをcutoutと同じピクセルグリッドに揃える。offsetXFrac等が未指定（0,0,1,1）
+    // なら従来通りクロップなしでリサイズのみになる。
+    final cropX = (offsetXFrac * source.width).round().clamp(0, source.width - 1);
+    final cropY = (offsetYFrac * source.height).round().clamp(0, source.height - 1);
+    final cropW = (widthFrac * source.width).round().clamp(1, source.width - cropX);
+    final cropH = (heightFrac * source.height).round().clamp(1, source.height - cropY);
+    final croppedSource =
+        (cropX == 0 && cropY == 0 && cropW == source.width && cropH == source.height)
             ? source
-            : img.copyResize(source, width: cutout.width, height: cutout.height);
+            : img.copyCrop(source, x: cropX, y: cropY, width: cropW, height: cropH);
+    final original =
+        croppedSource.width == cutout.width && croppedSource.height == cutout.height
+            ? croppedSource
+            : img.copyResize(croppedSource, width: cutout.width, height: cutout.height);
     for (final stroke in strokes) {
       final radius = (stroke.size * cutout.width).round().clamp(1, 200);
       if (stroke.fill && stroke.points.length >= 3) {

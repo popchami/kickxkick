@@ -15,11 +15,22 @@ class CutoutAdjustmentScreen extends StatefulWidget {
     required this.sourcePath,
     required this.shoeId,
     this.initialCutoutPath,
+    this.initialCropOffsetXFrac = 0,
+    this.initialCropOffsetYFrac = 0,
+    this.initialCropWidthFrac = 1,
+    this.initialCropHeightFrac = 1,
   });
 
   final String sourcePath;
   final int shoeId;
   final String? initialCutoutPath;
+
+  /// 既存のクロップ位置・範囲（元画像に対する 0〜1 の割合）。
+  /// 既存のPhoto/StickerAssetを再編集する場合に渡す。新規生成時は指定不要。
+  final double initialCropOffsetXFrac;
+  final double initialCropOffsetYFrac;
+  final double initialCropWidthFrac;
+  final double initialCropHeightFrac;
 
   @override
   State<CutoutAdjustmentScreen> createState() => _CutoutAdjustmentScreenState();
@@ -32,6 +43,10 @@ class _CutoutAdjustmentScreenState extends State<CutoutAdjustmentScreen> {
   String? _previewPath;
   String? _maskPath;
   String _cutoutEngine = 'floodfill';
+  late double _cropOffsetXFrac;
+  late double _cropOffsetYFrac;
+  late double _cropWidthFrac;
+  late double _cropHeightFrac;
   Uint8List? _basePreviewBytes;
   int _previewRevision = 0;
   bool _processing = false;
@@ -62,6 +77,10 @@ class _CutoutAdjustmentScreenState extends State<CutoutAdjustmentScreen> {
   @override
   void initState() {
     super.initState();
+    _cropOffsetXFrac = widget.initialCropOffsetXFrac;
+    _cropOffsetYFrac = widget.initialCropOffsetYFrac;
+    _cropWidthFrac = widget.initialCropWidthFrac;
+    _cropHeightFrac = widget.initialCropHeightFrac;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final initialPath = widget.initialCutoutPath;
       if (initialPath != null && File(initialPath).existsSync()) {
@@ -130,6 +149,10 @@ class _CutoutAdjustmentScreenState extends State<CutoutAdjustmentScreen> {
           _previewPath = result.cutoutPath;
           _maskPath = result.maskPath;
           _cutoutEngine = result.engine;
+          _cropOffsetXFrac = result.offsetXFrac;
+          _cropOffsetYFrac = result.offsetYFrac;
+          _cropWidthFrac = result.widthFrac;
+          _cropHeightFrac = result.heightFrac;
           _basePreviewBytes = baseBytes;
           _previewRevision++;
           _outlinePoints = outline;
@@ -501,6 +524,10 @@ class _CutoutAdjustmentScreenState extends State<CutoutAdjustmentScreen> {
                                       engine: _cutoutEngine,
                                       smoothing: _smoothing,
                                       antialiasing: _antialiasing,
+                                      offsetXFrac: _cropOffsetXFrac,
+                                      offsetYFrac: _cropOffsetYFrac,
+                                      widthFrac: _cropWidthFrac,
+                                      heightFrac: _cropHeightFrac,
                                     ),
                                   );
                                 }
@@ -756,6 +783,10 @@ class _CutoutAdjustmentScreenState extends State<CutoutAdjustmentScreen> {
           originalPath: widget.sourcePath,
           cutoutPath: path,
           strokes: List.of(_strokes),
+          offsetXFrac: _cropOffsetXFrac,
+          offsetYFrac: _cropOffsetYFrac,
+          widthFrac: _cropWidthFrac,
+          heightFrac: _cropHeightFrac,
         );
       }
       await FileImage(File(path)).evict();
