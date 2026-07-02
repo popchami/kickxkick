@@ -428,10 +428,18 @@ class _StickerScreenState extends ConsumerState<StickerScreen> {
     var loadingOpen = true;
     try {
       var cutoutPath = photo.cutoutPath;
+      var cropOffsetXFrac = photo.cropOffsetXFrac;
+      var cropOffsetYFrac = photo.cropOffsetYFrac;
+      var cropWidthFrac = photo.cropWidthFrac;
+      var cropHeightFrac = photo.cropHeightFrac;
       if (cutoutPath == null || !await File(cutoutPath).exists()) {
         final result = await BackgroundRemovalService()
             .removeEdgeBackground(photo.filePath, shoe.id!);
         cutoutPath = result.cutoutPath;
+        cropOffsetXFrac = result.offsetXFrac;
+        cropOffsetYFrac = result.offsetYFrac;
+        cropWidthFrac = result.widthFrac;
+        cropHeightFrac = result.heightFrac;
         await ref.read(photoRepositoryProvider).updatePhoto(
               photo.copyWith(
                 cutoutPath: result.cutoutPath,
@@ -440,6 +448,10 @@ class _StickerScreenState extends ConsumerState<StickerScreen> {
                 cutoutEngine: result.engine,
                 cutoutSmoothing: result.smoothing,
                 cutoutAntialiasing: result.antialiasing,
+                cropOffsetXFrac: result.offsetXFrac,
+                cropOffsetYFrac: result.offsetYFrac,
+                cropWidthFrac: result.widthFrac,
+                cropHeightFrac: result.heightFrac,
               ),
             );
         ref.invalidate(mainPhotoProvider(shoe.id!));
@@ -470,6 +482,10 @@ class _StickerScreenState extends ConsumerState<StickerScreen> {
         textScale: design.textScale,
         textX: design.textX,
         textY: design.textY,
+        cropOffsetXFrac: cropOffsetXFrac,
+        cropOffsetYFrac: cropOffsetYFrac,
+        cropWidthFrac: cropWidthFrac,
+        cropHeightFrac: cropHeightFrac,
       );
       final boardId = await repository.ensureDefaultBoard();
       final count = await repository.getBoardItemCount(boardId);
@@ -555,6 +571,10 @@ class _StickerScreenState extends ConsumerState<StickerScreen> {
     }
     if (shoe == null) return;
     var stickerPath = asset.stickerPath;
+    var cropOffsetXFrac = asset.cropOffsetXFrac;
+    var cropOffsetYFrac = asset.cropOffsetYFrac;
+    var cropWidthFrac = asset.cropWidthFrac;
+    var cropHeightFrac = asset.cropHeightFrac;
     var design = _StickerDesign(
       text: asset.stickerText,
       textColor: asset.textColor,
@@ -578,6 +598,10 @@ class _StickerScreenState extends ConsumerState<StickerScreen> {
       );
       if (editResult == null || !mounted) return;
       stickerPath = editResult.cutoutPath;
+      cropOffsetXFrac = editResult.offsetXFrac;
+      cropOffsetYFrac = editResult.offsetYFrac;
+      cropWidthFrac = editResult.widthFrac;
+      cropHeightFrac = editResult.heightFrac;
       final photo = await ref.read(photoRepositoryProvider).getMainPhoto(asset.shoeId);
       if (photo != null) {
         await ref.read(photoRepositoryProvider).updatePhoto(
@@ -588,6 +612,10 @@ class _StickerScreenState extends ConsumerState<StickerScreen> {
                 cutoutEngine: editResult.engine,
                 cutoutSmoothing: editResult.smoothing,
                 cutoutAntialiasing: editResult.antialiasing,
+                cropOffsetXFrac: editResult.offsetXFrac,
+                cropOffsetYFrac: editResult.offsetYFrac,
+                cropWidthFrac: editResult.widthFrac,
+                cropHeightFrac: editResult.heightFrac,
               ),
             );
         ref.invalidate(mainPhotoProvider(asset.shoeId));
@@ -610,6 +638,10 @@ class _StickerScreenState extends ConsumerState<StickerScreen> {
           textScale: design.textScale,
           textX: design.textX,
           textY: design.textY,
+          cropOffsetXFrac: cropOffsetXFrac,
+          cropOffsetYFrac: cropOffsetYFrac,
+          cropWidthFrac: cropWidthFrac,
+          cropHeightFrac: cropHeightFrac,
         );
     ref.invalidate(stickersProvider);
   }

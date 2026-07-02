@@ -84,6 +84,10 @@ class ShoeDetailScreen extends ConsumerWidget {
               cutoutEngine: result.engine,
               cutoutSmoothing: result.smoothing,
               cutoutAntialiasing: result.antialiasing,
+              cropOffsetXFrac: result.offsetXFrac,
+              cropOffsetYFrac: result.offsetYFrac,
+              cropWidthFrac: result.widthFrac,
+              cropHeightFrac: result.heightFrac,
             ),
           );
       final storage = ref.read(photoStorageServiceProvider);
@@ -424,6 +428,10 @@ class _MainPhotoSectionState extends ConsumerState<_MainPhotoSection> {
           cutoutEngine: result.engine,
           cutoutSmoothing: result.smoothing,
           cutoutAntialiasing: result.antialiasing,
+          cropOffsetXFrac: result.offsetXFrac,
+          cropOffsetYFrac: result.offsetYFrac,
+          cropWidthFrac: result.widthFrac,
+          cropHeightFrac: result.heightFrac,
         ),
       );
 
@@ -431,6 +439,10 @@ class _MainPhotoSectionState extends ConsumerState<_MainPhotoSection> {
         shoeId: widget.shoeId,
         sourcePath: photo.filePath,
         stickerPath: result.cutoutPath,
+        cropOffsetXFrac: result.offsetXFrac,
+        cropOffsetYFrac: result.offsetYFrac,
+        cropWidthFrac: result.widthFrac,
+        cropHeightFrac: result.heightFrac,
       );
 
       ref.invalidate(mainPhotoProvider(widget.shoeId));

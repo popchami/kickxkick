@@ -240,6 +240,10 @@ class _ShoeFormScreenState extends ConsumerState<ShoeFormScreen> {
         cutoutEngine: result.engine,
         cutoutSmoothing: result.smoothing,
         cutoutAntialiasing: result.antialiasing,
+        cropOffsetXFrac: result.offsetXFrac,
+        cropOffsetYFrac: result.offsetYFrac,
+        cropWidthFrac: result.widthFrac,
+        cropHeightFrac: result.heightFrac,
       ),
     );
     for (final previousPhoto in previousPhotos) {
