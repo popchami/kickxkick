@@ -23,6 +23,10 @@ class Photo {
   final String? cutoutEngine;
   final double cutoutSmoothing;
   final double cutoutAntialiasing;
+  final double cropOffsetXFrac;
+  final double cropOffsetYFrac;
+  final double cropWidthFrac;
+  final double cropHeightFrac;
   final int displayOrder;
   final DateTime createdAt;
 
@@ -37,6 +41,10 @@ class Photo {
     this.cutoutEngine,
     this.cutoutSmoothing = 50,
     this.cutoutAntialiasing = 50,
+    this.cropOffsetXFrac = 0,
+    this.cropOffsetYFrac = 0,
+    this.cropWidthFrac = 1,
+    this.cropHeightFrac = 1,
     required this.displayOrder,
     required this.createdAt,
   });
@@ -51,6 +59,10 @@ class Photo {
     String? cutoutEngine,
     double cutoutSmoothing = 50,
     double cutoutAntialiasing = 50,
+    double cropOffsetXFrac = 0,
+    double cropOffsetYFrac = 0,
+    double cropWidthFrac = 1,
+    double cropHeightFrac = 1,
     int displayOrder = 0,
   }) {
     return Photo(
@@ -63,6 +75,10 @@ class Photo {
       cutoutEngine: cutoutEngine,
       cutoutSmoothing: cutoutSmoothing,
       cutoutAntialiasing: cutoutAntialiasing,
+      cropOffsetXFrac: cropOffsetXFrac,
+      cropOffsetYFrac: cropOffsetYFrac,
+      cropWidthFrac: cropWidthFrac,
+      cropHeightFrac: cropHeightFrac,
       displayOrder: displayOrder,
       createdAt: DateTime.now(),
     );
@@ -80,6 +96,10 @@ class Photo {
       cutoutEngine: map['cutout_engine'] as String?,
       cutoutSmoothing: (map['cutout_smoothing'] as num?)?.toDouble() ?? 50,
       cutoutAntialiasing: (map['cutout_antialiasing'] as num?)?.toDouble() ?? 50,
+      cropOffsetXFrac: (map['crop_offset_x_frac'] as num?)?.toDouble() ?? 0,
+      cropOffsetYFrac: (map['crop_offset_y_frac'] as num?)?.toDouble() ?? 0,
+      cropWidthFrac: (map['crop_width_frac'] as num?)?.toDouble() ?? 1,
+      cropHeightFrac: (map['crop_height_frac'] as num?)?.toDouble() ?? 1,
       displayOrder: map['display_order'] as int,
       createdAt: DateTime.parse(map['created_at'] as String),
     );
@@ -97,6 +117,10 @@ class Photo {
       'cutout_engine': cutoutEngine,
       'cutout_smoothing': cutoutSmoothing,
       'cutout_antialiasing': cutoutAntialiasing,
+      'crop_offset_x_frac': cropOffsetXFrac,
+      'crop_offset_y_frac': cropOffsetYFrac,
+      'crop_width_frac': cropWidthFrac,
+      'crop_height_frac': cropHeightFrac,
       'display_order': displayOrder,
       'created_at': createdAt.toIso8601String(),
     };
@@ -113,6 +137,10 @@ class Photo {
     String? cutoutEngine,
     double? cutoutSmoothing,
     double? cutoutAntialiasing,
+    double? cropOffsetXFrac,
+    double? cropOffsetYFrac,
+    double? cropWidthFrac,
+    double? cropHeightFrac,
     int? displayOrder,
     DateTime? createdAt,
   }) {
@@ -127,6 +155,10 @@ class Photo {
       cutoutEngine: cutoutEngine ?? this.cutoutEngine,
       cutoutSmoothing: cutoutSmoothing ?? this.cutoutSmoothing,
       cutoutAntialiasing: cutoutAntialiasing ?? this.cutoutAntialiasing,
+      cropOffsetXFrac: cropOffsetXFrac ?? this.cropOffsetXFrac,
+      cropOffsetYFrac: cropOffsetYFrac ?? this.cropOffsetYFrac,
+      cropWidthFrac: cropWidthFrac ?? this.cropWidthFrac,
+      cropHeightFrac: cropHeightFrac ?? this.cropHeightFrac,
       displayOrder: displayOrder ?? this.displayOrder,
       createdAt: createdAt ?? this.createdAt,
     );

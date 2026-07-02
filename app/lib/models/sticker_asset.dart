@@ -13,6 +13,10 @@ class StickerAsset {
     this.textScale = .75,
     this.textX = .5,
     this.textY = .55,
+    this.cropOffsetXFrac = 0,
+    this.cropOffsetYFrac = 0,
+    this.cropWidthFrac = 1,
+    this.cropHeightFrac = 1,
   });
 
   final int id;
@@ -28,6 +32,10 @@ class StickerAsset {
   final double textScale;
   final double textX;
   final double textY;
+  final double cropOffsetXFrac;
+  final double cropOffsetYFrac;
+  final double cropWidthFrac;
+  final double cropHeightFrac;
 
   String get displayPath => previewPath ?? stickerPath;
 
@@ -47,6 +55,10 @@ class StickerAsset {
         textScale: (map['text_scale'] as num?)?.toDouble() ?? .75,
         textX: (map['text_x'] as num?)?.toDouble() ?? .5,
         textY: (map['text_y'] as num?)?.toDouble() ?? .55,
+        cropOffsetXFrac: (map['crop_offset_x_frac'] as num?)?.toDouble() ?? 0,
+        cropOffsetYFrac: (map['crop_offset_y_frac'] as num?)?.toDouble() ?? 0,
+        cropWidthFrac: (map['crop_width_frac'] as num?)?.toDouble() ?? 1,
+        cropHeightFrac: (map['crop_height_frac'] as num?)?.toDouble() ?? 1,
       );
 }
 

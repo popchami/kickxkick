@@ -21,7 +21,7 @@ class AppDatabase {
 
     return openDatabase(
       path,
-      version: 17,
+      version: 18,
       onConfigure: (db) async {
         await db.execute('PRAGMA foreign_keys = ON');
       },
@@ -172,6 +172,16 @@ class AppDatabase {
         'ALTER TABLE photos ADD COLUMN cutout_antialiasing REAL NOT NULL DEFAULT 50',
       );
     }
+    if (oldVersion < 18) {
+      await db.execute('ALTER TABLE photos ADD COLUMN crop_offset_x_frac REAL NOT NULL DEFAULT 0');
+      await db.execute('ALTER TABLE photos ADD COLUMN crop_offset_y_frac REAL NOT NULL DEFAULT 0');
+      await db.execute('ALTER TABLE photos ADD COLUMN crop_width_frac REAL NOT NULL DEFAULT 1');
+      await db.execute('ALTER TABLE photos ADD COLUMN crop_height_frac REAL NOT NULL DEFAULT 1');
+      await db.execute('ALTER TABLE stickers ADD COLUMN crop_offset_x_frac REAL NOT NULL DEFAULT 0');
+      await db.execute('ALTER TABLE stickers ADD COLUMN crop_offset_y_frac REAL NOT NULL DEFAULT 0');
+      await db.execute('ALTER TABLE stickers ADD COLUMN crop_width_frac REAL NOT NULL DEFAULT 1');
+      await db.execute('ALTER TABLE stickers ADD COLUMN crop_height_frac REAL NOT NULL DEFAULT 1');
+    }
   }
 
   Future<void> _createShoeIndexes(Database db) async {
@@ -196,6 +206,10 @@ class AppDatabase {
         cutout_engine TEXT,
         cutout_smoothing REAL NOT NULL DEFAULT 50,
         cutout_antialiasing REAL NOT NULL DEFAULT 50,
+        crop_offset_x_frac REAL NOT NULL DEFAULT 0,
+        crop_offset_y_frac REAL NOT NULL DEFAULT 0,
+        crop_width_frac REAL NOT NULL DEFAULT 1,
+        crop_height_frac REAL NOT NULL DEFAULT 1,
         photo_type TEXT NOT NULL,
         display_order INTEGER NOT NULL DEFAULT 0,
         created_at TEXT NOT NULL,
@@ -305,6 +319,10 @@ class AppDatabase {
         text_scale REAL NOT NULL DEFAULT 0.75,
         text_x REAL NOT NULL DEFAULT 0.5,
         text_y REAL NOT NULL DEFAULT 0.55,
+        crop_offset_x_frac REAL NOT NULL DEFAULT 0,
+        crop_offset_y_frac REAL NOT NULL DEFAULT 0,
+        crop_width_frac REAL NOT NULL DEFAULT 1,
+        crop_height_frac REAL NOT NULL DEFAULT 1,
         created_at TEXT NOT NULL,
         updated_at TEXT NOT NULL,
         FOREIGN KEY (shoe_id) REFERENCES shoes(id) ON DELETE CASCADE

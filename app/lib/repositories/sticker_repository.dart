@@ -53,6 +53,10 @@ class StickerRepository {
     double textScale = .75,
     double textX = .5,
     double textY = .55,
+    double cropOffsetXFrac = 0,
+    double cropOffsetYFrac = 0,
+    double cropWidthFrac = 1,
+    double cropHeightFrac = 1,
   }) async {
     final db = await AppDatabase.instance.database;
     final now = DateTime.now().toIso8601String();
@@ -61,8 +65,10 @@ class StickerRepository {
       INSERT INTO stickers (
         shoe_id, source_path, sticker_path, sticker_text, text_color,
         inner_border_color, outer_border_color, shadow_enabled, preview_path,
-        text_scale, text_x, text_y, created_at, updated_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        text_scale, text_x, text_y,
+        crop_offset_x_frac, crop_offset_y_frac, crop_width_frac, crop_height_frac,
+        created_at, updated_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       ON CONFLICT(shoe_id) DO UPDATE SET
         source_path = excluded.source_path,
         sticker_path = excluded.sticker_path,
@@ -75,6 +81,10 @@ class StickerRepository {
         text_scale = excluded.text_scale,
         text_x = excluded.text_x,
         text_y = excluded.text_y,
+        crop_offset_x_frac = excluded.crop_offset_x_frac,
+        crop_offset_y_frac = excluded.crop_offset_y_frac,
+        crop_width_frac = excluded.crop_width_frac,
+        crop_height_frac = excluded.crop_height_frac,
         updated_at = excluded.updated_at
     ''', [
       shoeId,
@@ -89,6 +99,10 @@ class StickerRepository {
       textScale,
       textX,
       textY,
+      cropOffsetXFrac,
+      cropOffsetYFrac,
+      cropWidthFrac,
+      cropHeightFrac,
       now,
       now,
     ]);
@@ -165,6 +179,10 @@ class StickerRepository {
     required int shoeId,
     required String sourcePath,
     required String stickerPath,
+    double cropOffsetXFrac = 0,
+    double cropOffsetYFrac = 0,
+    double cropWidthFrac = 1,
+    double cropHeightFrac = 1,
   }) async {
     final db = await AppDatabase.instance.database;
     final existing = await db.query(
@@ -182,6 +200,10 @@ class StickerRepository {
         'source_path': sourcePath,
         'sticker_path': stickerPath,
         'preview_path': previewPath,
+        'crop_offset_x_frac': cropOffsetXFrac,
+        'crop_offset_y_frac': cropOffsetYFrac,
+        'crop_width_frac': cropWidthFrac,
+        'crop_height_frac': cropHeightFrac,
         'updated_at': DateTime.now().toIso8601String(),
       },
       where: 'shoe_id = ?',
