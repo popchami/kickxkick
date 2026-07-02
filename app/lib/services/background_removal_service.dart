@@ -17,6 +17,10 @@ class CutoutResult {
     required this.engine,
     this.smoothing = 50,
     this.antialiasing = 50,
+    this.offsetXFrac = 0,
+    this.offsetYFrac = 0,
+    this.widthFrac = 1,
+    this.heightFrac = 1,
   });
 
   final String cutoutPath;
@@ -25,6 +29,12 @@ class CutoutResult {
   final String engine;
   final double smoothing;
   final double antialiasing;
+
+  /// クロップ位置・範囲（元画像に対する 0〜1 の割合）。クロップなしなら (0, 0, 1, 1)。
+  final double offsetXFrac;
+  final double offsetYFrac;
+  final double widthFrac;
+  final double heightFrac;
 }
 
 class BackgroundRemovalService {
@@ -140,7 +150,8 @@ class BackgroundRemovalService {
 
       _applyAntialiasing(image, visited, antialiasing);
       _smoothCutoutEdge(image, visited, smoothing);
-      final cutoutPath = await _savePng(image, shoeId);
+      final crop = _cropToOpaqueBounds(image);
+      final cutoutPath = await _savePng(crop.image, shoeId);
       final maskPath = await _saveMaskPng(confidences, maskW, maskH, shoeId);
       await _markMlKitReady();
       return CutoutResult(
@@ -150,6 +161,10 @@ class BackgroundRemovalService {
         engine: 'mlkit',
         smoothing: smoothing,
         antialiasing: antialiasing,
+        offsetXFrac: crop.offsetXFrac,
+        offsetYFrac: crop.offsetYFrac,
+        widthFrac: crop.widthFrac,
+        heightFrac: crop.heightFrac,
       );
     } finally {
       await segmenter.close();
@@ -268,19 +283,65 @@ class BackgroundRemovalService {
     }
     _applyAntialiasing(image, visited, antialiasing);
     _smoothCutoutEdge(image, visited, smoothing);
+    final crop = _cropToOpaqueBounds(image);
     return CutoutResult(
-      cutoutPath: await _savePng(image, shoeId),
+      cutoutPath: await _savePng(crop.image, shoeId),
       maskPath: null,
       threshold: threshold,
       engine: 'floodfill',
       smoothing: smoothing,
       antialiasing: antialiasing,
+      offsetXFrac: crop.offsetXFrac,
+      offsetYFrac: crop.offsetYFrac,
+      widthFrac: crop.widthFrac,
+      heightFrac: crop.heightFrac,
     );
   }
 
   // ---------------------------------------------------------------------------
   // 共通ヘルパー
   // ---------------------------------------------------------------------------
+
+  /// 不透明ピクセル（アルファ値 > 0）の外接矩形を計算し、各辺に8%のマージンを
+  /// 加えてクロップする。画像端を超える場合はクランプする。
+  /// 不透明ピクセルが1つもなければクロップせず (0, 0, 1, 1) を返す。
+  ({img.Image image, double offsetXFrac, double offsetYFrac, double widthFrac, double heightFrac})
+      _cropToOpaqueBounds(img.Image image) {
+    final width = image.width;
+    final height = image.height;
+    var minX = width, minY = height, maxX = -1, maxY = -1;
+    for (var y = 0; y < height; y++) {
+      for (var x = 0; x < width; x++) {
+        if (image.getPixel(x, y).a > 0) {
+          if (x < minX) minX = x;
+          if (x > maxX) maxX = x;
+          if (y < minY) minY = y;
+          if (y > maxY) maxY = y;
+        }
+      }
+    }
+    if (maxX < minX || maxY < minY) {
+      return (image: image, offsetXFrac: 0, offsetYFrac: 0, widthFrac: 1, heightFrac: 1);
+    }
+    final boxW = maxX - minX + 1;
+    final boxH = maxY - minY + 1;
+    final marginX = (boxW * 0.08).round();
+    final marginY = (boxH * 0.08).round();
+    final left = (minX - marginX).clamp(0, width - 1);
+    final top = (minY - marginY).clamp(0, height - 1);
+    final right = (maxX + marginX).clamp(0, width - 1);
+    final bottom = (maxY + marginY).clamp(0, height - 1);
+    final cropW = right - left + 1;
+    final cropH = bottom - top + 1;
+    final cropped = img.copyCrop(image, x: left, y: top, width: cropW, height: cropH);
+    return (
+      image: cropped,
+      offsetXFrac: left / width,
+      offsetYFrac: top / height,
+      widthFrac: cropW / width,
+      heightFrac: cropH / height,
+    );
+  }
 
   Future<String> _savePng(img.Image image, int shoeId) async {
     final root = await getApplicationDocumentsDirectory();
@@ -432,13 +493,18 @@ class BackgroundRemovalService {
     _applyAntialiasing(image, visited, antialiasing);
     _smoothCutoutEdge(image, visited, smoothing);
 
+    final crop = _cropToOpaqueBounds(image);
     return CutoutResult(
-      cutoutPath: await _savePng(image, shoeId),
+      cutoutPath: await _savePng(crop.image, shoeId),
       maskPath: maskPath,
       threshold: threshold,
       engine: 'mlkit',
       smoothing: smoothing,
       antialiasing: antialiasing,
+      offsetXFrac: crop.offsetXFrac,
+      offsetYFrac: crop.offsetYFrac,
+      widthFrac: crop.widthFrac,
+      heightFrac: crop.heightFrac,
     );
   }
 
