@@ -59,10 +59,12 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen> {
   static const _lastShelfIdKey = 'last_shelf_id';
 
   final _searchController = TextEditingController();
+  final _pageController = PageController();
   final Map<int, GlobalKey> _shareKeys = {};
   String _searchText = '';
   List<Shelf> _shelves = [];
   int? _shelfId;
+  bool _isDragging = false;
 
   GlobalKey _shareKeyFor(int shelfId) =>
       _shareKeys.putIfAbsent(shelfId, () => GlobalKey());
@@ -85,6 +87,7 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen> {
   @override
   void dispose() {
     _searchController.dispose();
+    _pageController.dispose();
     super.dispose();
   }
 
@@ -102,21 +105,27 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen> {
       (shelf) => shelf.id == savedId,
       orElse: () => shelves.first,
     );
+    final initialIndex = shelves.indexOf(initialShelf);
     if (!mounted) return;
     setState(() {
       _shelves = shelves;
       _shelfId = initialShelf.id;
     });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && _pageController.hasClients) {
+        _pageController.jumpToPage(initialIndex);
+      }
+    });
   }
 
-  Future<void> _switchShelf(Shelf shelf) async {
-    if (shelf.id == _shelfId) return;
+  /// PageViewで棚が切り替わった時の副作用を一元管理する
+  /// （スワイプ・棚一覧からの選択・新規作成後の移動、いずれもここを通る）。
+  Future<void> _onShelfPageChanged(int index) async {
+    final shelf = _shelves[index];
+    setState(() => _shelfId = shelf.id);
     await ref
         .read(settingsRepositoryProvider)
         .setValue(_lastShelfIdKey, shelf.id.toString());
-    if (mounted) {
-      setState(() => _shelfId = shelf.id);
-    }
   }
 
   /// 無料版で棚が既に上限(1枚)ある場合はPremium案内を表示してブロックする。
@@ -142,15 +151,15 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen> {
     final repository = ref.read(shelfRepositoryProvider);
     final id = await repository.createShelf(name);
     final shelves = await repository.getShelves();
-    await ref
-        .read(settingsRepositoryProvider)
-        .setValue(_lastShelfIdKey, id.toString());
-    if (mounted) {
-      setState(() {
-        _shelves = shelves;
-        _shelfId = id;
-      });
-    }
+    final index = shelves.indexWhere((shelf) => shelf.id == id);
+    if (!mounted) return;
+    setState(() => _shelves = shelves);
+    if (index == -1) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && _pageController.hasClients) {
+        _pageController.jumpToPage(index);
+      }
+    });
   }
 
   void _showShelfPicker() {
@@ -173,7 +182,8 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen> {
                 title: Text(shelf.name),
                 onTap: () {
                   Navigator.pop(ctx);
-                  _switchShelf(shelf);
+                  final index = _shelves.indexOf(shelf);
+                  if (index != -1) _pageController.jumpToPage(index);
                 },
               ),
             const Divider(height: 1),
@@ -225,8 +235,6 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen> {
     final brandsAsync = ref.watch(brandsProvider);
     final collectionFilter = ref.watch(collectionFilterProvider);
     final shelfId = _shelfId;
-    final shelfItems =
-        shelfId == null ? null : ref.watch(shelfItemsProvider(shelfId)).value;
 
     return Scaffold(
       appBar: AppBar(
@@ -274,15 +282,20 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen> {
             );
           }
 
-          if (shelfId == null || shelfItems == null) {
+          if (shelfId == null || _shelves.isEmpty) {
             return const Center(child: CircularProgressIndicator());
           }
 
           return brandsAsync.when(
             data: (brands) => _CollectionContent(
               shoes: shoes,
-              shelfId: shelfId,
-              shelfItems: shelfItems,
+              shelves: _shelves,
+              pageController: _pageController,
+              shareKeyFor: _shareKeyFor,
+              onPageChanged: _onShelfPageChanged,
+              isDragging: _isDragging,
+              onDragStarted: () => setState(() => _isDragging = true),
+              onDragEnd: () => setState(() => _isDragging = false),
               brands: brands,
               selectedBrandId: collectionFilter.brandId,
               selectedStatus: collectionFilter.status,
@@ -318,13 +331,17 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen> {
                       color: color,
                     );
               },
-              shareKey: _shareKeyFor(shelfId),
             ),
             loading: () => const Center(child: CircularProgressIndicator()),
             error: (_, __) => _CollectionContent(
               shoes: shoes,
-              shelfId: shelfId,
-              shelfItems: shelfItems,
+              shelves: _shelves,
+              pageController: _pageController,
+              shareKeyFor: _shareKeyFor,
+              onPageChanged: _onShelfPageChanged,
+              isDragging: _isDragging,
+              onDragStarted: () => setState(() => _isDragging = true),
+              onDragEnd: () => setState(() => _isDragging = false),
               brands: const [],
               selectedBrandId: collectionFilter.brandId,
               selectedStatus: collectionFilter.status,
@@ -360,7 +377,6 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen> {
                       color: color,
                     );
               },
-              shareKey: _shareKeyFor(shelfId),
             ),
           );
         },
@@ -452,8 +468,13 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen> {
 
 class _CollectionContent extends ConsumerWidget {
   final List<Shoe> shoes;
-  final int shelfId;
-  final List<ShelfItem> shelfItems;
+  final List<Shelf> shelves;
+  final PageController pageController;
+  final GlobalKey Function(int shelfId) shareKeyFor;
+  final ValueChanged<int> onPageChanged;
+  final bool isDragging;
+  final VoidCallback onDragStarted;
+  final VoidCallback onDragEnd;
   final List<Brand> brands;
   final int? selectedBrandId;
   final String? selectedStatus;
@@ -464,12 +485,16 @@ class _CollectionContent extends ConsumerWidget {
   final ValueChanged<int?> onBrandSelected;
   final ValueChanged<String?> onStatusSelected;
   final ValueChanged<String?> onColorSelected;
-  final GlobalKey shareKey;
 
   const _CollectionContent({
     required this.shoes,
-    required this.shelfId,
-    required this.shelfItems,
+    required this.shelves,
+    required this.pageController,
+    required this.shareKeyFor,
+    required this.onPageChanged,
+    required this.isDragging,
+    required this.onDragStarted,
+    required this.onDragEnd,
     required this.brands,
     required this.selectedBrandId,
     required this.selectedStatus,
@@ -480,7 +505,6 @@ class _CollectionContent extends ConsumerWidget {
     required this.onBrandSelected,
     required this.onStatusSelected,
     required this.onColorSelected,
-    required this.shareKey,
   });
 
   @override
@@ -568,18 +592,43 @@ class _CollectionContent extends ConsumerWidget {
           ),
         ),
         Expanded(
-          child: RepaintBoundary(
-            key: shareKey,
-            child: ColoredBox(
-              color: Theme.of(context).scaffoldBackgroundColor,
-              child: _ShelfGrid(
-                shelfId: shelfId,
-                shelfItems: shelfItems,
-                filteredShoes: filteredShoes,
-                allShoes: shoes,
-                brandNames: brandNames,
-              ),
-            ),
+          child: PageView.builder(
+            controller: pageController,
+            physics: isDragging
+                ? const NeverScrollableScrollPhysics()
+                : const PageScrollPhysics(),
+            onPageChanged: onPageChanged,
+            itemCount: shelves.length,
+            itemBuilder: (context, index) {
+              final shelf = shelves[index];
+              return RepaintBoundary(
+                key: shareKeyFor(shelf.id),
+                child: ColoredBox(
+                  color: Theme.of(context).scaffoldBackgroundColor,
+                  child: Consumer(
+                    builder: (context, ref, _) {
+                      final shelfItemsAsync =
+                          ref.watch(shelfItemsProvider(shelf.id));
+                      return shelfItemsAsync.when(
+                        data: (shelfItems) => _ShelfGrid(
+                          shelfId: shelf.id,
+                          shelfItems: shelfItems,
+                          filteredShoes: filteredShoes,
+                          allShoes: shoes,
+                          brandNames: brandNames,
+                          onDragStarted: onDragStarted,
+                          onDragEnd: onDragEnd,
+                        ),
+                        loading: () =>
+                            const Center(child: CircularProgressIndicator()),
+                        error: (_, __) =>
+                            const Center(child: Text('棚を読み込めませんでした')),
+                      );
+                    },
+                  ),
+                ),
+              );
+            },
           ),
         ),
       ],
@@ -757,6 +806,8 @@ class _ShelfGrid extends ConsumerWidget {
   final List<Shoe> filteredShoes;
   final List<Shoe> allShoes;
   final Map<int, String> brandNames;
+  final VoidCallback onDragStarted;
+  final VoidCallback onDragEnd;
 
   const _ShelfGrid({
     required this.shelfId,
@@ -764,6 +815,8 @@ class _ShelfGrid extends ConsumerWidget {
     required this.filteredShoes,
     required this.allShoes,
     required this.brandNames,
+    required this.onDragStarted,
+    required this.onDragEnd,
   });
 
   double _gridSpacing(int columns) {
@@ -847,6 +900,8 @@ class _ShelfGrid extends ConsumerWidget {
                           slotIndex: slotIndex,
                           shoe: shoe,
                           brandNames: brandNames,
+                          onDragStarted: onDragStarted,
+                          onDragEnd: onDragEnd,
                         );
                       },
                     ),
@@ -888,12 +943,16 @@ class _ShelfSlot extends ConsumerWidget {
     required this.slotIndex,
     required this.shoe,
     required this.brandNames,
+    required this.onDragStarted,
+    required this.onDragEnd,
   });
 
   final int shelfId;
   final int slotIndex;
   final Shoe? shoe;
   final Map<int, String> brandNames;
+  final VoidCallback onDragStarted;
+  final VoidCallback onDragEnd;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -942,6 +1001,8 @@ class _ShelfSlot extends ConsumerWidget {
             child: SizedBox(width: 130, height: 170, child: card),
           ),
           childWhenDragging: const _EmptySlot(highlighted: false),
+          onDragStarted: onDragStarted,
+          onDragEnd: (_) => onDragEnd(),
           child: card,
         );
       },
