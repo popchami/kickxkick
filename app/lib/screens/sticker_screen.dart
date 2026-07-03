@@ -21,6 +21,7 @@ import '../providers/settings_provider.dart';
 import '../repositories/sticker_repository.dart';
 import '../services/background_removal_service.dart'
     show BackgroundRemovalService, CutoutResult;
+import '../widgets/app_dialogs.dart';
 import '../widgets/empty_state.dart';
 import 'cutout_adjustment_screen.dart';
 
@@ -916,22 +917,12 @@ class _StickerScreenState extends ConsumerState<StickerScreen> {
     final count = await ref.read(stickerRepositoryProvider).getBoardItemCount(boardId);
     if (count < limit) return true;
     if (!mounted) return false;
-    await showDialog<void>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('ボードの上限です'),
-        content: Text(
-          isPremium
-              ? 'Premiumでは1ボード30枚まで貼り付けできます。'
-              : '無料版では1ボード10枚までです。',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('閉じる'),
-          ),
-        ],
-      ),
+    await showAppMessage(
+      context,
+      title: 'Premiumへのご案内',
+      message: isPremium
+          ? 'Premiumでは1ボード30枚まで貼り付けできます。'
+          : '無料版では1ボードにステッカーを10枚まで貼り付けできます。もっと貼り付けるにはPremiumへのアップグレードが必要です。',
     );
     return false;
   }
