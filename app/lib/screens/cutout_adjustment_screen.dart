@@ -1013,7 +1013,7 @@ class _AdjustmentPanelState extends State<_AdjustmentPanel> {
         left: 16,
         right: 16,
         top: 8,
-        bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+        bottom: MediaQuery.of(context).viewInsets.bottom + MediaQuery.of(context).viewPadding.bottom + 16,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
