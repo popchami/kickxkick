@@ -1,4 +1,4 @@
-# Kick×Kick Model Master Coverage v1.9
+# Kick×Kick Model Master Coverage v2.0
 
 ## Purpose
 
@@ -83,7 +83,7 @@ TODO
 
 | Brand | Model Coverage | Alias | searchKeywords | Canonical Name | Status | Notes |
 |---|---|---|---|---|---|---|
-| SKECHERS | PARTIAL | PASS | PASS | PASS | MODEL_STARTED | 公式Collections確認ベースで `D'Lites` / `Uno` / `GO WALK` / `GO RUN` を追加。`Uno` / `Walk` / `Run` 単体は未追加。 |
+| SKECHERS | PARTIAL | PASS | PASS | PASS | MODEL_STARTED | 公式Collections確認ベースで8件追加。`Uno` / `Walk` / `Run` / `BOBS` / `Street` / `Golf` 単体は未追加。 |
 
 ---
 
@@ -135,6 +135,10 @@ searchKeywords: TODO
 
 2026-07-02 v0.5.2
 - SKECHERS の代表モデル、Alias、searchKeywordsを追加開始
+- data/models・aliases・search_keywords と app/assets/data 側を同期
+
+2026-07-03 v0.5.3
+- SKECHERSを8モデルまで拡張
 - data/models・aliases・search_keywords と app/assets/data 側を同期
 ```
 
