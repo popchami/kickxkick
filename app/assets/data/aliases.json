@@ -1,6 +1,6 @@
 {
-  "version": "0.5.2",
-  "updatedAt": "2026-07-02",
+  "version": "0.5.3",
+  "updatedAt": "2026-07-03",
   "items": [
     {"modelId":"nike_air_force_1","alias":"AF1"},
     {"modelId":"nike_air_force_1","alias":"AF-1"},
@@ -26,7 +26,6 @@
     {"modelId":"nike_zoomx_invincible_run","alias":"Invincible"},
     {"modelId":"nike_shox_r4","alias":"ShoxR4"},
     {"modelId":"nike_tc_7900","alias":"TC7900"},
-
     {"modelId":"air_jordan_1","alias":"AJ1"},
     {"modelId":"air_jordan_1","alias":"J1"},
     {"modelId":"air_jordan_1","alias":"Jordan1"},
@@ -59,7 +58,6 @@
     {"modelId":"air_jordan_14","alias":"Jordan14"},
     {"modelId":"air_jordan_spizike","alias":"Spizike"},
     {"modelId":"air_jordan_legacy_312","alias":"Legacy312"},
-
     {"modelId":"adidas_samba","alias":"Samba"},
     {"modelId":"adidas_gazelle","alias":"Gazelle"},
     {"modelId":"adidas_campus_00s","alias":"Campus"},
@@ -74,7 +72,6 @@
     {"modelId":"adidas_adimatic","alias":"Adimatic"},
     {"modelId":"adidas_ultraboost","alias":"UltraBoost"},
     {"modelId":"adidas_yeezy_350","alias":"Yeezy350"},
-
     {"modelId":"new_balance_530","alias":"NB530"},
     {"modelId":"new_balance_550","alias":"NB550"},
     {"modelId":"new_balance_574","alias":"NB574"},
@@ -103,7 +100,6 @@
     {"modelId":"new_balance_991","alias":"NB991"},
     {"modelId":"new_balance_992","alias":"NB992"},
     {"modelId":"new_balance_993","alias":"NB993"},
-
     {"modelId":"asics_gt_2160","alias":"GT2160"},
     {"modelId":"asics_gel_1130","alias":"GEL1130"},
     {"modelId":"asics_gel_1090","alias":"GEL1090"},
@@ -118,7 +114,6 @@
     {"modelId":"asics_gel_lyte_v","alias":"GelLyteV"},
     {"modelId":"asics_ex89","alias":"EX89"},
     {"modelId":"asics_japan_s","alias":"JapanS"},
-
     {"modelId":"puma_suede","alias":"Suede"},
     {"modelId":"puma_palermo","alias":"Palermo"},
     {"modelId":"puma_speedcat","alias":"Speedcat"},
@@ -126,7 +121,6 @@
     {"modelId":"puma_rs_x","alias":"RSX"},
     {"modelId":"puma_rs_x","alias":"RS-X"},
     {"modelId":"puma_basket","alias":"Basket"},
-
     {"modelId":"converse_chuck_taylor_all_star","alias":"ChuckTaylor"},
     {"modelId":"converse_chuck_taylor_all_star","alias":"ChuckTaylorAllStar"},
     {"modelId":"converse_chuck_taylor_all_star","alias":"AllStar"},
@@ -134,57 +128,53 @@
     {"modelId":"converse_one_star","alias":"OneStar"},
     {"modelId":"converse_jack_purcell","alias":"JackPurcell"},
     {"modelId":"converse_run_star_hike","alias":"RunStarHike"},
-
     {"modelId":"vans_old_skool","alias":"OldSkool"},
     {"modelId":"vans_classic_slip_on","alias":"SlipOn"},
     {"modelId":"vans_classic_slip_on","alias":"ClassicSlipOn"},
     {"modelId":"vans_sk8_hi","alias":"Sk8Hi"},
     {"modelId":"vans_sk8_hi","alias":"Sk8-Hi"},
     {"modelId":"vans_knu_skool","alias":"KnuSkool"},
-
     {"modelId":"reebok_club_c","alias":"ClubC"},
     {"modelId":"reebok_classic_leather","alias":"ClassicLeather"},
     {"modelId":"reebok_instapump_fury","alias":"InstaPumpFury"},
     {"modelId":"reebok_workout_plus","alias":"WorkoutPlus"},
     {"modelId":"reebok_freestyle","alias":"Freestyle"},
-
     {"modelId":"hoka_bondi_9","alias":"Bondi9"},
     {"modelId":"hoka_clifton_10","alias":"Clifton10"},
     {"modelId":"hoka_speedgoat_7","alias":"Speedgoat7"},
     {"modelId":"hoka_arahi_8","alias":"Arahi8"},
     {"modelId":"hoka_transport_2","alias":"Transport2"},
     {"modelId":"hoka_challenger_8","alias":"Challenger8"},
-
     {"modelId":"saucony_ride_19","alias":"Ride19"},
     {"modelId":"saucony_triumph_24","alias":"Triumph24"},
     {"modelId":"saucony_guide_19","alias":"Guide19"},
     {"modelId":"saucony_hurricane_25","alias":"Hurricane25"},
     {"modelId":"saucony_progrid_omni_9","alias":"ProGridOmni9"},
     {"modelId":"saucony_progrid_guide_7","alias":"ProGridGuide7"},
-
     {"modelId":"salomon_xt_6","alias":"XT6"},
     {"modelId":"salomon_xt_whisper","alias":"XTWhisper"},
     {"modelId":"salomon_xa_pro","alias":"XAPro"},
     {"modelId":"salomon_speedcross","alias":"Speedcross"},
     {"modelId":"salomon_x_ultra","alias":"XUltra"},
     {"modelId":"salomon_xt_4","alias":"XT4"},
-
     {"modelId":"merrell_agility_peak_6","alias":"AgilityPeak6"},
     {"modelId":"merrell_agility_peak_6_gore_tex","alias":"AgilityPeak6GTX"},
     {"modelId":"merrell_vapor_glove_7","alias":"VaporGlove7"},
     {"modelId":"merrell_trail_glove_8","alias":"TrailGlove8"},
     {"modelId":"merrell_jungle_trek_moc","alias":"JungleTrekMoc"},
-
     {"modelId":"brooks_ghost_18","alias":"Ghost18"},
     {"modelId":"brooks_ghost_trail","alias":"GhostTrail"},
     {"modelId":"brooks_adrenaline","alias":"AdrenalineGTS"},
     {"modelId":"brooks_cascadia_elite","alias":"CascadiaElite"},
     {"modelId":"brooks_revel_max","alias":"RevelMax"},
-
     {"modelId":"skechers_d_lites","alias":"DLites"},
     {"modelId":"skechers_d_lites","alias":"D-Lites"},
     {"modelId":"skechers_uno","alias":"SkechersUno"},
     {"modelId":"skechers_go_walk","alias":"GoWalk"},
-    {"modelId":"skechers_go_run","alias":"GoRun"}
+    {"modelId":"skechers_go_run","alias":"GoRun"},
+    {"modelId":"skechers_bobs","alias":"SkechersBOBS"},
+    {"modelId":"skechers_court_classics","alias":"CourtClassics"},
+    {"modelId":"skechers_skechers_street","alias":"SkechersStreet"},
+    {"modelId":"skechers_go_golf","alias":"GoGolf"}
   ]
 }
