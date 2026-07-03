@@ -1,6 +1,6 @@
 {
-  "version": "0.5.2",
-  "updatedAt": "2026-07-02",
+  "version": "0.5.3",
+  "updatedAt": "2026-07-03",
   "items": [
     {"id":"nike_air_force_1","brandId":"nike","modelName":"Air Force 1","category":"lifestyle","source":"master"},
     {"id":"nike_air_max_1","brandId":"nike","modelName":"Air Max 1","category":"lifestyle","source":"master"},
@@ -146,6 +146,10 @@
     {"id":"skechers_d_lites","brandId":"skechers","modelName":"D'Lites","category":"lifestyle","source":"master"},
     {"id":"skechers_uno","brandId":"skechers","modelName":"Uno","category":"lifestyle","source":"master"},
     {"id":"skechers_go_walk","brandId":"skechers","modelName":"GO WALK","category":"walking","source":"master"},
-    {"id":"skechers_go_run","brandId":"skechers","modelName":"GO RUN","category":"running","source":"master"}
+    {"id":"skechers_go_run","brandId":"skechers","modelName":"GO RUN","category":"running","source":"master"},
+    {"id":"skechers_bobs","brandId":"skechers","modelName":"BOBS","category":"lifestyle","source":"master"},
+    {"id":"skechers_court_classics","brandId":"skechers","modelName":"Court & Classics","category":"lifestyle","source":"master"},
+    {"id":"skechers_skechers_street","brandId":"skechers","modelName":"SKECHERS Street","category":"lifestyle","source":"master"},
+    {"id":"skechers_go_golf","brandId":"skechers","modelName":"GO GOLF","category":"golf","source":"master"}
   ]
 }

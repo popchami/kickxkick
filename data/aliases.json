@@ -1,6 +1,6 @@
 {
-  "version": "0.5.2",
-  "updatedAt": "2026-07-02",
+  "version": "0.5.3",
+  "updatedAt": "2026-07-03",
   "items": [
     {"modelId":"nike_air_force_1","alias":"AF1"},
     {"modelId":"nike_air_force_1","alias":"AF-1"},
@@ -185,6 +185,10 @@
     {"modelId":"skechers_d_lites","alias":"D-Lites"},
     {"modelId":"skechers_uno","alias":"SkechersUno"},
     {"modelId":"skechers_go_walk","alias":"GoWalk"},
-    {"modelId":"skechers_go_run","alias":"GoRun"}
+    {"modelId":"skechers_go_run","alias":"GoRun"},
+    {"modelId":"skechers_bobs","alias":"SkechersBOBS"},
+    {"modelId":"skechers_court_classics","alias":"CourtClassics"},
+    {"modelId":"skechers_skechers_street","alias":"SkechersStreet"},
+    {"modelId":"skechers_go_golf","alias":"GoGolf"}
   ]
 }
