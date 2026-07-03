@@ -21,7 +21,7 @@ class AppDatabase {
 
     return openDatabase(
       path,
-      version: 18,
+      version: 19,
       onConfigure: (db) async {
         await db.execute('PRAGMA foreign_keys = ON');
       },
@@ -66,6 +66,7 @@ class AppDatabase {
     await _createWearLogsTable(db);
     await _createSettingsTable(db);
     await _createStickerTables(db);
+    await _createShelfTables(db);
     await _insertInitialBrands(db);
   }
 
@@ -181,6 +182,9 @@ class AppDatabase {
       await db.execute('ALTER TABLE stickers ADD COLUMN crop_offset_y_frac REAL NOT NULL DEFAULT 0');
       await db.execute('ALTER TABLE stickers ADD COLUMN crop_width_frac REAL NOT NULL DEFAULT 1');
       await db.execute('ALTER TABLE stickers ADD COLUMN crop_height_frac REAL NOT NULL DEFAULT 1');
+    }
+    if (oldVersion < 19) {
+      await _createShelfTables(db);
     }
   }
 
@@ -360,6 +364,29 @@ class AppDatabase {
     ''');
     await db.execute('CREATE INDEX IF NOT EXISTS idx_stickers_shoe_id ON stickers(shoe_id)');
     await db.execute('CREATE INDEX IF NOT EXISTS idx_board_items_board_id ON sticker_board_items(board_id)');
+  }
+
+  Future<void> _createShelfTables(Database db) async {
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS shelves (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL
+      )
+    ''');
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS shelf_items (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        shelf_id INTEGER NOT NULL,
+        shoe_id INTEGER NOT NULL UNIQUE,
+        slot_index INTEGER NOT NULL,
+        FOREIGN KEY (shelf_id) REFERENCES shelves(id) ON DELETE CASCADE,
+        FOREIGN KEY (shoe_id) REFERENCES shoes(id) ON DELETE CASCADE,
+        UNIQUE (shelf_id, slot_index)
+      )
+    ''');
+    await db.execute('CREATE INDEX IF NOT EXISTS idx_shelf_items_shelf_id ON shelf_items(shelf_id)');
   }
 
   Future<void> _insertInitialBrands(Database db) async {
