@@ -35,6 +35,9 @@ class _StickerScreenState extends ConsumerState<StickerScreen> {
   static const _lastBoardIdKey = 'last_board_id';
 
   final Map<int, GlobalKey<_StickerBoardState>> _boardKeys = {};
+  final Map<int, List<StickerBoardItem>> _boardItemsCache = {};
+  final Set<int> _loadingBoardIds = {};
+  final _pageController = PageController();
   final _searchController = TextEditingController();
   String _searchText = '';
   int? _selectedBrandId;
@@ -46,7 +49,6 @@ class _StickerScreenState extends ConsumerState<StickerScreen> {
   StickerBoardItem? _selectedBoardItem;
   List<StickerBoard> _boards = [];
   int? _boardId;
-  List<StickerBoardItem> _boardItems = [];
 
   GlobalKey<_StickerBoardState> _boardKeyFor(int boardId) =>
       _boardKeys.putIfAbsent(boardId, () => GlobalKey<_StickerBoardState>());
@@ -69,7 +71,21 @@ class _StickerScreenState extends ConsumerState<StickerScreen> {
   @override
   void dispose() {
     _searchController.dispose();
+    _pageController.dispose();
     super.dispose();
+  }
+
+  /// 指定ボードのアイテムをキャッシュになければ取得する（多重取得は防止）。
+  Future<void> _loadBoardItems(int boardId) async {
+    if (_boardItemsCache.containsKey(boardId) || _loadingBoardIds.contains(boardId)) {
+      return;
+    }
+    _loadingBoardIds.add(boardId);
+    final items = await ref.read(stickerRepositoryProvider).getBoardItems(boardId);
+    _loadingBoardIds.remove(boardId);
+    if (mounted) {
+      setState(() => _boardItemsCache[boardId] = items);
+    }
   }
 
   Future<void> _initBoard() async {
@@ -85,31 +101,34 @@ class _StickerScreenState extends ConsumerState<StickerScreen> {
       (board) => board.id == savedId,
       orElse: () => boards.first,
     );
+    final initialIndex = boards.indexOf(initialBoard);
     final items = await repository.getBoardItems(initialBoard.id);
-    if (mounted) {
-      setState(() {
-        _boards = boards;
-        _boardId = initialBoard.id;
-        _boardItems = items;
-      });
-    }
+    if (!mounted) return;
+    setState(() {
+      _boards = boards;
+      _boardId = initialBoard.id;
+      _boardItemsCache[initialBoard.id] = items;
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && _pageController.hasClients) {
+        _pageController.jumpToPage(initialIndex);
+      }
+    });
   }
 
-  Future<void> _switchBoard(StickerBoard board) async {
-    if (board.id == _boardId) return;
-    final repository = ref.read(stickerRepositoryProvider);
-    final items = await repository.getBoardItems(board.id);
+  /// PageViewでボードが切り替わった時の副作用を一元管理する
+  /// （スワイプ・ボード一覧からの選択・新規作成後の移動、いずれもここを通る）。
+  Future<void> _onBoardPageChanged(int index) async {
+    final board = _boards[index];
+    setState(() {
+      _boardId = board.id;
+      _selectedSticker = null;
+      _selectedBoardItem = null;
+    });
     await ref
         .read(settingsRepositoryProvider)
         .setValue(_lastBoardIdKey, board.id.toString());
-    if (mounted) {
-      setState(() {
-        _boardId = board.id;
-        _boardItems = items;
-        _selectedSticker = null;
-        _selectedBoardItem = null;
-      });
-    }
+    await _loadBoardItems(board.id);
   }
 
   Future<void> _createBoard(String name) async {
@@ -117,16 +136,18 @@ class _StickerScreenState extends ConsumerState<StickerScreen> {
     final id = await repository.createBoard(name);
     final boards = await repository.getBoards();
     final items = await repository.getBoardItems(id);
-    await ref.read(settingsRepositoryProvider).setValue(_lastBoardIdKey, id.toString());
-    if (mounted) {
-      setState(() {
-        _boards = boards;
-        _boardId = id;
-        _boardItems = items;
-        _selectedSticker = null;
-        _selectedBoardItem = null;
-      });
-    }
+    final index = boards.indexWhere((board) => board.id == id);
+    if (!mounted) return;
+    setState(() {
+      _boards = boards;
+      _boardItemsCache[id] = items;
+    });
+    if (index == -1) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && _pageController.hasClients) {
+        _pageController.jumpToPage(index);
+      }
+    });
   }
 
   void _showBoardPicker() {
@@ -149,7 +170,8 @@ class _StickerScreenState extends ConsumerState<StickerScreen> {
                 title: Text(board.name),
                 onTap: () {
                   Navigator.pop(ctx);
-                  _switchBoard(board);
+                  final index = _boards.indexOf(board);
+                  if (index != -1) _pageController.jumpToPage(index);
                 },
               ),
             const Divider(height: 1),
@@ -193,6 +215,47 @@ class _StickerScreenState extends ConsumerState<StickerScreen> {
     );
     if (name == null || name.isEmpty) return;
     await _createBoard(name);
+  }
+
+  /// PageView.builderの1ページ分。board.idをキーに_boardItemsCacheを
+  /// 明示的に読み書きする（隣接ページの先行構築時に_boardIdへ暗黙依存しないため）。
+  Widget _buildBoardPage(
+    StickerBoard board,
+    List<StickerAsset> stickers,
+    List<StickerAsset> visibleStickers,
+    List<Shoe> shoes,
+  ) {
+    final items = _boardItemsCache[board.id];
+    if (items == null) {
+      _loadBoardItems(board.id);
+      return const Center(child: CircularProgressIndicator());
+    }
+    return _StickerBoard(
+      key: _boardKeyFor(board.id),
+      stickers: visibleStickers,
+      items: items,
+      editMode: _editMode,
+      selectedItemId: board.id == _boardId ? _selectedBoardItem?.id : null,
+      onPaste: (position) => _pasteStickerAt(board.id, stickers, position),
+      onChanged: (item) {
+        final current = _boardItemsCache[board.id] ?? const <StickerBoardItem>[];
+        final idx = current.indexWhere((i) => i.id == item.id);
+        if (idx != -1) {
+          _boardItemsCache[board.id] = [
+            for (final i in current) i.id == item.id ? item : i,
+          ];
+        }
+        ref.read(stickerRepositoryProvider).updateBoardItem(item);
+      },
+      onEdit: (asset, item) => setState(() {
+        _selectedSticker = asset;
+        _selectedBoardItem = item;
+      }),
+      onDesign: (asset, item) =>
+          _editSticker(asset, shoes, action: _StickerEditAction.design),
+      onToolAction: (asset, item, action) =>
+          _handleStickerTool(asset, item, action, shoes, board.id),
+    );
   }
 
   @override
@@ -374,32 +437,21 @@ class _StickerScreenState extends ConsumerState<StickerScreen> {
               Expanded(
                 child: visibleStickers.isEmpty
                     ? const Center(child: Text('該当するステッカーがありません'))
-                    : _boardId == null
+                    : _boards.isEmpty
                         ? const Center(child: CircularProgressIndicator())
-                        : _StickerBoard(
-                            key: _boardKeyFor(_boardId!),
-                            stickers: visibleStickers,
-                            items: _boardItems,
-                            editMode: _editMode,
-                            selectedItemId: _selectedBoardItem?.id,
-                            onPaste: (position) => _pasteStickerAt(stickers, position),
-                            onChanged: (item) {
-                              final idx = _boardItems.indexWhere((i) => i.id == item.id);
-                              if (idx != -1) {
-                                _boardItems = [
-                                  for (final i in _boardItems) i.id == item.id ? item : i,
-                                ];
-                              }
-                              ref.read(stickerRepositoryProvider).updateBoardItem(item);
-                            },
-                            onEdit: (asset, item) => setState(() {
-                              _selectedSticker = asset;
-                              _selectedBoardItem = item;
-                            }),
-                            onDesign: (asset, item) =>
-                                _editSticker(asset, shoes, action: _StickerEditAction.design),
-                            onToolAction: (asset, item, action) =>
-                                _handleStickerTool(asset, item, action, shoes),
+                        : PageView.builder(
+                            controller: _pageController,
+                            physics: _editMode
+                                ? const NeverScrollableScrollPhysics()
+                                : const PageScrollPhysics(),
+                            onPageChanged: _onBoardPageChanged,
+                            itemCount: _boards.length,
+                            itemBuilder: (context, index) => _buildBoardPage(
+                              _boards[index],
+                              stickers,
+                              visibleStickers,
+                              shoes,
+                            ),
                           ),
               ),
             ],
@@ -506,11 +558,11 @@ class _StickerScreenState extends ConsumerState<StickerScreen> {
   }
 
   Future<void> _pasteStickerAt(
+    int boardId,
     List<StickerAsset> stickers,
     Offset position,
   ) async {
-    final boardId = _boardId;
-    if (!_editMode || stickers.isEmpty || boardId == null) return;
+    if (!_editMode || stickers.isEmpty) return;
     if (!await _checkBoardCapacity(boardId)) return;
     StickerAsset? selected;
     for (final asset in stickers) {
@@ -523,7 +575,7 @@ class _StickerScreenState extends ConsumerState<StickerScreen> {
     final repository = ref.read(stickerRepositoryProvider);
     await repository.pasteToBoard(boardId, selected.id, x: position.dx, y: position.dy);
     final newItems = await repository.getBoardItems(boardId);
-    if (mounted) setState(() => _boardItems = newItems);
+    if (mounted) setState(() => _boardItemsCache[boardId] = newItems);
   }
 
   Future<void> _createSticker(List<Shoe> shoes) async {
@@ -642,7 +694,7 @@ class _StickerScreenState extends ConsumerState<StickerScreen> {
       }
       ref.invalidate(stickersProvider);
       final newItems = await repository.getBoardItems(boardId);
-      if (mounted) setState(() => _boardItems = newItems);
+      if (mounted) setState(() => _boardItemsCache[boardId] = newItems);
     } catch (_) {
       if (mounted) {
         if (loadingOpen) Navigator.of(context, rootNavigator: true).pop();
@@ -798,8 +850,11 @@ class _StickerScreenState extends ConsumerState<StickerScreen> {
     StickerBoardItem item,
     _StickerToolAction action,
     List<Shoe> shoes,
+    int boardId,
   ) async {
     final repository = ref.read(stickerRepositoryProvider);
+    List<StickerBoardItem> current() =>
+        _boardItemsCache[boardId] ?? const <StickerBoardItem>[];
     switch (action) {
       case _StickerToolAction.paste:
         setState(() => _pasteStickerId = asset.id);
@@ -807,33 +862,40 @@ class _StickerScreenState extends ConsumerState<StickerScreen> {
         // DB INSERT が必要なため await を維持（新アイテムの ID を DB が採番）
         if (!await _checkBoardCapacity(item.boardId)) return;
         final newItem = await repository.duplicateBoardItem(item);
-        if (mounted) setState(() => _boardItems = [..._boardItems, newItem]);
+        if (mounted) {
+          setState(() => _boardItemsCache[boardId] = [...current(), newItem]);
+        }
       case _StickerToolAction.delete:
         // UI 先行・DB バックグラウンド
         setState(() {
           _selectedSticker = null;
           _selectedBoardItem = null;
-          _boardItems = _boardItems.where((i) => i.id != item.id).toList();
+          _boardItemsCache[boardId] =
+              current().where((i) => i.id != item.id).toList();
         });
         repository.deleteBoardItem(item.id);
       case _StickerToolAction.zoomIn:
         final zoomedIn = item.copyWith(scale: (item.scale + .1).clamp(.4, 2.0));
         setState(() {
-          _boardItems = [for (final i in _boardItems) i.id == zoomedIn.id ? zoomedIn : i];
+          _boardItemsCache[boardId] = [
+            for (final i in current()) i.id == zoomedIn.id ? zoomedIn : i,
+          ];
         });
         repository.updateBoardItem(zoomedIn);
       case _StickerToolAction.zoomOut:
         final zoomedOut = item.copyWith(scale: (item.scale - .1).clamp(.4, 2.0));
         setState(() {
-          _boardItems = [for (final i in _boardItems) i.id == zoomedOut.id ? zoomedOut : i];
+          _boardItemsCache[boardId] = [
+            for (final i in current()) i.id == zoomedOut.id ? zoomedOut : i,
+          ];
         });
         repository.updateBoardItem(zoomedOut);
       case _StickerToolAction.bringFront:
-        final maxZ = _boardItems.fold(0, (m, i) => i.zIndex > m ? i.zIndex : m);
+        final maxZ = current().fold(0, (m, i) => i.zIndex > m ? i.zIndex : m);
         final fronted = item.copyWith(zIndex: maxZ + 1);
         setState(() {
-          _boardItems = ([
-            for (final i in _boardItems) i.id == item.id ? fronted : i,
+          _boardItemsCache[boardId] = ([
+            for (final i in current()) i.id == item.id ? fronted : i,
           ]..sort((a, b) => a.zIndex.compareTo(b.zIndex)));
         });
         repository.bringToFront(item);
