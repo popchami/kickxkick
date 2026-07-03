@@ -10,6 +10,7 @@ import '../models/shoe.dart';
 import '../providers/brand_provider.dart';
 import '../providers/photo_provider.dart';
 import '../providers/photo_storage_provider.dart';
+import '../providers/shelf_provider.dart';
 import '../providers/shoe_provider.dart';
 import '../providers/sticker_provider.dart';
 import '../providers/wear_log_provider.dart';
@@ -144,6 +145,29 @@ class ShoeDetailScreen extends ConsumerWidget {
     ref.invalidate(mainPhotoProvider(shoe.id!));
   }
 
+  Future<void> _addToShelf(
+    BuildContext context,
+    WidgetRef ref,
+    Shoe shoe,
+  ) async {
+    final shelfId = await ref.read(defaultShelfIdProvider.future);
+    try {
+      final result = await ref
+          .read(shelfRepositoryProvider)
+          .addShoeToShelf(shelfId, shoe.id!);
+      if (!context.mounted) return;
+      if (result == null) {
+        await showAppMessage(context, title: '棚がいっぱいです', message: '棚には25足まで置けます。');
+        return;
+      }
+      ref.invalidate(shelfItemsProvider(shelfId));
+    } catch (_) {
+      if (context.mounted) {
+        await showAppMessage(context, title: 'この靴はすでに棚にあります');
+      }
+    }
+  }
+
   Future<void> _deleteShoe(
     BuildContext context,
     WidgetRef ref,
@@ -227,9 +251,18 @@ class ShoeDetailScreen extends ConsumerWidget {
                 onSelected: (value) {
                   if (value == 'delete') {
                     _deleteShoe(context, ref, shoe);
+                  } else if (value == 'add_to_shelf') {
+                    _addToShelf(context, ref, shoe);
                   }
                 },
                 itemBuilder: (_) => const [
+                  PopupMenuItem(
+                    value: 'add_to_shelf',
+                    child: ListTile(
+                      leading: Icon(Icons.grid_view_outlined),
+                      title: Text('棚に追加'),
+                    ),
+                  ),
                   PopupMenuItem(
                     value: 'delete',
                     child: ListTile(

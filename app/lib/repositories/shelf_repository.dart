@@ -21,6 +21,14 @@ class ShelfRepository {
     );
   }
 
+  /// 棚が1つもない場合にのみ「MY SHELF」を作成する。既に1つ以上あれば先頭のIDを返す。
+  Future<int> ensureDefaultShelf() async {
+    final db = await AppDatabase.instance.database;
+    final existing = await db.query('shelves', columns: ['id'], limit: 1);
+    if (existing.isNotEmpty) return existing.first['id'] as int;
+    return createShelf('MY SHELF');
+  }
+
   Future<List<ShelfItem>> getShelfItems(int shelfId) async {
     final db = await AppDatabase.instance.database;
     final rows = await db.query(

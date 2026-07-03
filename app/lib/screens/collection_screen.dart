@@ -8,12 +8,16 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import '../models/brand.dart';
+import '../models/shelf.dart';
 import '../models/shoe.dart';
 import '../providers/brand_provider.dart';
 import '../providers/collection_filter_provider.dart';
 import '../providers/photo_provider.dart';
+import '../providers/shelf_provider.dart';
 import '../providers/shoe_provider.dart';
 import '../providers/settings_provider.dart';
+import '../repositories/shelf_repository.dart';
+import '../widgets/app_dialogs.dart';
 import '../widgets/empty_state.dart';
 import '../widgets/shoe_card.dart';
 import 'shoe_detail_screen.dart';
@@ -67,11 +71,20 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen> {
     final shoesAsync = ref.watch(shoesProvider);
     final brandsAsync = ref.watch(brandsProvider);
     final collectionFilter = ref.watch(collectionFilterProvider);
+    final shelfId = ref.watch(defaultShelfIdProvider).value;
+    final shelfItems =
+        shelfId == null ? null : ref.watch(shelfItemsProvider(shelfId)).value;
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('コレクション'),
         actions: [
+          IconButton(
+            onPressed:
+                shelfId == null ? null : () => _showAddShoeSheet(shelfId),
+            icon: const Icon(Icons.add),
+            tooltip: '棚に追加',
+          ),
           IconButton(
             onPressed: _shareCollection,
             icon: const Icon(Icons.ios_share_outlined),
@@ -97,9 +110,15 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen> {
             );
           }
 
+          if (shelfId == null || shelfItems == null) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
           return brandsAsync.when(
             data: (brands) => _CollectionContent(
               shoes: shoes,
+              shelfId: shelfId,
+              shelfItems: shelfItems,
               brands: brands,
               selectedBrandId: collectionFilter.brandId,
               selectedStatus: collectionFilter.status,
@@ -140,6 +159,8 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen> {
             loading: () => const Center(child: CircularProgressIndicator()),
             error: (_, __) => _CollectionContent(
               shoes: shoes,
+              shelfId: shelfId,
+              shelfItems: shelfItems,
               brands: const [],
               selectedBrandId: collectionFilter.brandId,
               selectedStatus: collectionFilter.status,
@@ -202,10 +223,71 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen> {
       ShareParams(files: [XFile(file.path)], subject: 'KickxKick Collection'),
     );
   }
+
+  Future<void> _showAddShoeSheet(int shelfId) async {
+    final allShoes = ref.read(shoesProvider).value ?? const <Shoe>[];
+    final shelfItems =
+        ref.read(shelfItemsProvider(shelfId)).value ?? const <ShelfItem>[];
+    final placedIds = shelfItems.map((item) => item.shoeId).toSet();
+    final availableShoes =
+        allShoes.where((shoe) => !placedIds.contains(shoe.id)).toList();
+    final brands = ref.read(brandsProvider).value ?? const <Brand>[];
+    final brandNames = {
+      for (final brand in brands)
+        if (brand.id != null) brand.id!: brand.name,
+    };
+
+    final selected = await showModalBottomSheet<Shoe>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (ctx) => SafeArea(
+        child: availableShoes.isEmpty
+            ? const Padding(
+                padding: EdgeInsets.all(24),
+                child: Text('追加できる靴がありません（すべて棚に置かれています）'),
+              )
+            : ListView.builder(
+                shrinkWrap: true,
+                itemCount: availableShoes.length,
+                itemBuilder: (context, index) {
+                  final shoe = availableShoes[index];
+                  return ListTile(
+                    title: Text(
+                      shoe.displayTitle?.isNotEmpty == true
+                          ? shoe.displayTitle!
+                          : shoe.modelName,
+                    ),
+                    subtitle: Text(brandNames[shoe.brandId] ?? ''),
+                    onTap: () => Navigator.pop(ctx, shoe),
+                  );
+                },
+              ),
+      ),
+    );
+    if (selected == null || selected.id == null || !mounted) return;
+
+    final result = await ref
+        .read(shelfRepositoryProvider)
+        .addShoeToShelf(shelfId, selected.id!);
+    if (result == null) {
+      if (mounted) {
+        await showAppMessage(
+          context,
+          title: '棚がいっぱいです',
+          message: '棚には25足まで置けます。',
+        );
+      }
+      return;
+    }
+    ref.invalidate(shelfItemsProvider(shelfId));
+  }
 }
 
 class _CollectionContent extends ConsumerWidget {
   final List<Shoe> shoes;
+  final int shelfId;
+  final List<ShelfItem> shelfItems;
   final List<Brand> brands;
   final int? selectedBrandId;
   final String? selectedStatus;
@@ -220,6 +302,8 @@ class _CollectionContent extends ConsumerWidget {
 
   const _CollectionContent({
     required this.shoes,
+    required this.shelfId,
+    required this.shelfItems,
     required this.brands,
     required this.selectedBrandId,
     required this.selectedStatus,
@@ -322,13 +406,13 @@ class _CollectionContent extends ConsumerWidget {
             key: shareKey,
             child: ColoredBox(
               color: Theme.of(context).scaffoldBackgroundColor,
-              child: filteredShoes.isEmpty
-                  ? const EmptyState(
-                      icon: Icons.search_off_outlined,
-                      title: '該当するスニーカーがありません',
-                      description: '検索条件を変更してください',
-                    )
-                  : _ShoeGrid(shoes: filteredShoes, brandNames: brandNames),
+              child: _ShelfGrid(
+                shelfId: shelfId,
+                shelfItems: shelfItems,
+                filteredShoes: filteredShoes,
+                allShoes: shoes,
+                brandNames: brandNames,
+              ),
             ),
           ),
         ),
@@ -501,11 +585,20 @@ class _FilterGroup extends StatelessWidget {
 
 }
 
-class _ShoeGrid extends ConsumerWidget {
-  final List<Shoe> shoes;
+class _ShelfGrid extends ConsumerWidget {
+  final int shelfId;
+  final List<ShelfItem> shelfItems;
+  final List<Shoe> filteredShoes;
+  final List<Shoe> allShoes;
   final Map<int, String> brandNames;
 
-  const _ShoeGrid({required this.shoes, required this.brandNames});
+  const _ShelfGrid({
+    required this.shelfId,
+    required this.shelfItems,
+    required this.filteredShoes,
+    required this.allShoes,
+    required this.brandNames,
+  });
 
   double _gridSpacing(int columns) {
     switch (columns) {
@@ -525,6 +618,12 @@ class _ShoeGrid extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final columns = ref.watch(collectionColumnsProvider).value ?? 2;
+    final filteredIds = filteredShoes.map((shoe) => shoe.id).toSet();
+    final shoesById = {for (final shoe in allShoes) shoe.id: shoe};
+    final slotToShoeId = {
+      for (final item in shelfItems) item.slotIndex: item.shoeId,
+    };
+
     return Column(
       children: [
         Padding(
@@ -532,7 +631,7 @@ class _ShoeGrid extends ConsumerWidget {
           child: Row(
             children: [
               Text(
-                '${shoes.length}/25',
+                '${shelfItems.length}/${ShelfRepository.slotCount}',
                 style: Theme.of(context).textTheme.labelLarge,
               ),
             ],
@@ -557,47 +656,151 @@ class _ShoeGrid extends ConsumerWidget {
                       ? 68.0
                       : 116.0;
 
-              return GridView.builder(
+              return SingleChildScrollView(
                 padding: const EdgeInsets.all(12),
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: columns,
-                  mainAxisExtent: imageHeight + titleHeight,
-                  mainAxisSpacing: spacing,
-                  crossAxisSpacing: spacing,
+                child: _ShelfBackdrop(
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: columns,
+                        mainAxisExtent: imageHeight + titleHeight,
+                        mainAxisSpacing: spacing,
+                        crossAxisSpacing: spacing,
+                      ),
+                      itemCount: ShelfRepository.slotCount,
+                      itemBuilder: (context, slotIndex) {
+                        final shoeId = slotToShoeId[slotIndex];
+                        final shoe = (shoeId != null && filteredIds.contains(shoeId))
+                            ? shoesById[shoeId]
+                            : null;
+                        return _ShelfSlot(
+                          shelfId: shelfId,
+                          slotIndex: slotIndex,
+                          shoe: shoe,
+                          brandNames: brandNames,
+                        );
+                      },
+                    ),
+                  ),
                 ),
-                itemCount: shoes.length,
-                itemBuilder: (context, index) {
-                  final shoe = shoes[index];
-                  final mainPhotoAsync = ref.watch(mainPhotoProvider(shoe.id!));
-                  final imagePath = mainPhotoAsync.maybeWhen(
-                    data: (photo) => photo?.cutoutPath ?? photo?.filePath,
-                    orElse: () => null,
-                  );
-
-                  return ShoeCard(
-                    brandName: brandNames[shoe.brandId] ?? 'Unknown',
-                    modelName: shoe.displayTitle?.isNotEmpty == true
-                        ? shoe.displayTitle!
-                        : shoe.modelName,
-                    size: shoe.size ?? '-',
-                    color: shoe.color ?? '',
-                    statusLabel: shoe.statusLabel,
-                    imagePath: imagePath,
-                    archiveNumber: null,
-                    onTap: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => ShoeDetailScreen(shoeId: shoe.id!),
-                        ),
-                      );
-                    },
-                  );
-                },
               );
             },
           ),
         ),
       ],
+    );
+  }
+}
+
+/// 棚の見た目（背景・枠）を配置ロジックから独立させたウィジェット。
+/// 将来のテーマ機能（背景画像選択）はここだけを差し替えれば対応できる。
+/// 固定のheightを指定しないため、列数変更でchildの高さが変わっても追従する。
+class _ShelfBackdrop extends StatelessWidget {
+  const _ShelfBackdrop({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: const Color(0xFFF3E7D3),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
+      ),
+      child: child,
+    );
+  }
+}
+
+class _ShelfSlot extends ConsumerWidget {
+  const _ShelfSlot({
+    required this.shelfId,
+    required this.slotIndex,
+    required this.shoe,
+    required this.brandNames,
+  });
+
+  final int shelfId;
+  final int slotIndex;
+  final Shoe? shoe;
+  final Map<int, String> brandNames;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return DragTarget<int>(
+      onWillAcceptWithDetails: (details) => details.data != shoe?.id,
+      onAcceptWithDetails: (details) async {
+        await ref
+            .read(shelfRepositoryProvider)
+            .moveShoeSlot(shelfId, details.data, slotIndex);
+        ref.invalidate(shelfItemsProvider(shelfId));
+      },
+      builder: (context, candidateData, rejectedData) {
+        final shoe = this.shoe;
+        if (shoe == null) {
+          return _EmptySlot(highlighted: candidateData.isNotEmpty);
+        }
+
+        final mainPhotoAsync = ref.watch(mainPhotoProvider(shoe.id!));
+        final imagePath = mainPhotoAsync.maybeWhen(
+          data: (photo) => photo?.cutoutPath ?? photo?.filePath,
+          orElse: () => null,
+        );
+        final card = ShoeCard(
+          brandName: brandNames[shoe.brandId] ?? 'Unknown',
+          modelName: shoe.displayTitle?.isNotEmpty == true
+              ? shoe.displayTitle!
+              : shoe.modelName,
+          size: shoe.size ?? '-',
+          color: shoe.color ?? '',
+          statusLabel: shoe.statusLabel,
+          imagePath: imagePath,
+          archiveNumber: null,
+          onTap: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => ShoeDetailScreen(shoeId: shoe.id!),
+              ),
+            );
+          },
+        );
+
+        return LongPressDraggable<int>(
+          data: shoe.id!,
+          feedback: Material(
+            color: Colors.transparent,
+            child: SizedBox(width: 130, height: 170, child: card),
+          ),
+          childWhenDragging: const _EmptySlot(highlighted: false),
+          child: card,
+        );
+      },
+    );
+  }
+}
+
+class _EmptySlot extends StatelessWidget {
+  const _EmptySlot({required this.highlighted});
+
+  final bool highlighted;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: highlighted
+            ? colors.primary.withValues(alpha: 0.15)
+            : Colors.black.withValues(alpha: 0.04),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: highlighted ? colors.primary : Colors.black.withValues(alpha: 0.08),
+        ),
+      ),
     );
   }
 }
