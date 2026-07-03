@@ -40,6 +40,14 @@ class CutoutResult {
 class BackgroundRemovalService {
   static const _mlkitMarkerFile = '.mlkit_ready';
 
+  /// ソフトマット用のランプ幅（ML Kitの確信度は0〜1）。
+  /// しきい値の前後この幅の範囲で、アルファをなだらかに0→255へ遷移させる。
+  static const _confidenceRampHalfWidth = 0.08;
+
+  /// フラッドフィル用のランプ幅の比率（しきい値に対する割合）。
+  /// 色距離はピクセル値のスケールなので、しきい値に比例させて幅を決める。
+  static const _floodFillRampRatio = 0.15;
+
   /// Android + ML Kit の初回実行でモデルDLが必要かどうかを返す
   Future<bool> needsModelDownload() async {
     if (!Platform.isAndroid) return false;
@@ -132,24 +140,25 @@ class BackgroundRemovalService {
       // 既存のスライダー値 (20-220) を確信度カットオフ (0.05-0.95) に変換
       // 低い値 → 前景を多く残す / 高い値 → より積極的に除去
       final cutoff = (threshold / 220.0).clamp(0.05, 0.95);
-      final visited = Uint8List(outW * outH);
 
+      // ソフトマット: 確信度を二値化せず、双線形補間でなめらかにサンプリングした上で
+      // しきい値付近をなだらかにアルファへ変換する（境界のギザギザを根本から防ぐ）。
       for (var y = 0; y < outH; y++) {
         for (var x = 0; x < outW; x++) {
-          // マスク座標を出力画像座標にスケール
-          final maskX = (x * maskW / outW).round().clamp(0, maskW - 1);
-          final maskY = (y * maskH / outH).round().clamp(0, maskH - 1);
-          final c = confidences[maskY * maskW + maskX];
-          if (c < cutoff) {
-            final pixel = image.getPixel(x, y);
-            image.setPixelRgba(x, y, pixel.r, pixel.g, pixel.b, 0);
-            visited[y * outW + x] = 1;
-          }
+          final fx = x * maskW / outW;
+          final fy = y * maskH / outH;
+          final confidence = _bilinearSample(
+            fx, fy, maskW, maskH,
+            (mx, my) => confidences[my * maskW + mx],
+          );
+          final alpha = _confidenceToAlpha(confidence, cutoff, _confidenceRampHalfWidth);
+          final pixel = image.getPixel(x, y);
+          image.setPixelRgba(x, y, pixel.r, pixel.g, pixel.b, alpha);
         }
       }
 
-      _applyAntialiasing(image, visited, antialiasing);
-      _smoothCutoutEdge(image, visited, smoothing);
+      _applyAntialiasing(image, antialiasing);
+      _smoothCutoutEdge(image, smoothing);
       final crop = _cropToOpaqueBounds(image);
       final cutoutPath = await _savePng(crop.image, shoeId);
       final maskPath = await _saveMaskPng(confidences, maskW, maskH, shoeId);
@@ -245,18 +254,17 @@ class BackgroundRemovalService {
     final queue = <int>[];
     var head = 0;
 
-    bool isBackground(int x, int y) {
+    double colorDistance(int x, int y) {
       final pixel = image.getPixel(x, y);
-      final distance = sqrt(
+      return sqrt(
         pow(pixel.r - r, 2) + pow(pixel.g - g, 2) + pow(pixel.b - b, 2),
       );
-      return distance < threshold;
     }
 
     void enqueue(int x, int y) {
       if (x < 0 || x >= width || y < 0 || y >= height) return;
       final index = y * width + x;
-      if (visited[index] != 0 || !isBackground(x, y)) return;
+      if (visited[index] != 0 || colorDistance(x, y) >= threshold) return;
       visited[index] = 1;
       queue.add(index);
     }
@@ -274,15 +282,29 @@ class BackgroundRemovalService {
       final index = queue[head++];
       final x = index % width;
       final y = index ~/ width;
-      final pixel = image.getPixel(x, y);
-      image.setPixelRgba(x, y, pixel.r, pixel.g, pixel.b, 0);
       enqueue(x - 1, y);
       enqueue(x + 1, y);
       enqueue(x, y - 1);
       enqueue(x, y + 1);
     }
-    _applyAntialiasing(image, visited, antialiasing);
-    _smoothCutoutEdge(image, visited, smoothing);
+
+    // ソフトマット: BFSで背景と確定した画素はアルファ0、それ以外は色距離を
+    // しきい値付近でなだらかにアルファへ変換する（境界のギザギザを根本から防ぐ）。
+    final rampHalfWidth = threshold * _floodFillRampRatio;
+    for (var y = 0; y < height; y++) {
+      for (var x = 0; x < width; x++) {
+        final index = y * width + x;
+        final pixel = image.getPixel(x, y);
+        if (visited[index] != 0) {
+          image.setPixelRgba(x, y, pixel.r, pixel.g, pixel.b, 0);
+          continue;
+        }
+        final alpha = _distanceToAlpha(colorDistance(x, y), threshold, rampHalfWidth);
+        image.setPixelRgba(x, y, pixel.r, pixel.g, pixel.b, alpha);
+      }
+    }
+    _applyAntialiasing(image, antialiasing);
+    _smoothCutoutEdge(image, smoothing);
     final crop = _cropToOpaqueBounds(image);
     return CutoutResult(
       cutoutPath: await _savePng(crop.image, shoeId),
@@ -355,89 +377,123 @@ class BackgroundRemovalService {
     return output;
   }
 
-  /// アンチエイリアス（3×3カーネル）- エッジの1ピクセル単位のギザギザを滑らかにする
-  void _applyAntialiasing(img.Image image, Uint8List backgroundMask, double strength) {
+  /// 双線形補間で(fx, fy)地点の値をサンプリングする（最近傍よりなめらか）。
+  double _bilinearSample(
+    double fx,
+    double fy,
+    int sourceW,
+    int sourceH,
+    double Function(int x, int y) getValue,
+  ) {
+    final x0 = fx.floor().clamp(0, sourceW - 1);
+    final y0 = fy.floor().clamp(0, sourceH - 1);
+    final x1 = (x0 + 1).clamp(0, sourceW - 1);
+    final y1 = (y0 + 1).clamp(0, sourceH - 1);
+    final tx = (fx - x0).clamp(0.0, 1.0);
+    final ty = (fy - y0).clamp(0.0, 1.0);
+    final c00 = getValue(x0, y0);
+    final c10 = getValue(x1, y0);
+    final c01 = getValue(x0, y1);
+    final c11 = getValue(x1, y1);
+    final top = c00 + (c10 - c00) * tx;
+    final bottom = c01 + (c11 - c01) * tx;
+    return top + (bottom - top) * ty;
+  }
+
+  /// 確信度(0〜1)を、しきい値(cutoff)付近でなだらかに0〜255へ変換する（ソフトマット）。
+  /// ハードな二値化を避け、モデルの確信度の勾配をそのままアルファ値に反映する。
+  int _confidenceToAlpha(double confidence, double cutoff, double rampHalfWidth) {
+    final lower = cutoff - rampHalfWidth;
+    final upper = cutoff + rampHalfWidth;
+    if (confidence <= lower) return 0;
+    if (confidence >= upper) return 255;
+    final t = (confidence - lower) / (upper - lower);
+    final smoothed = t * t * (3 - 2 * t); // smoothstep
+    return (smoothed * 255).round().clamp(0, 255);
+  }
+
+  /// 背景色との距離(小さいほど背景寄り)を、しきい値付近でなだらかにアルファへ変換する。
+  /// フラッドフィル用（distanceが大きいほど前景寄り＝アルファ高）。
+  int _distanceToAlpha(double distance, double threshold, double rampHalfWidth) {
+    final lower = threshold - rampHalfWidth;
+    final upper = threshold + rampHalfWidth;
+    if (distance <= lower) return 0;
+    if (distance >= upper) return 255;
+    final t = (distance - lower) / (upper - lower);
+    final smoothed = t * t * (3 - 2 * t); // smoothstep
+    return (smoothed * 255).round().clamp(0, 255);
+  }
+
+  /// アンチエイリアス（3×3カーネル）- ソフトマットの境界(0<アルファ<255)だけを対象に、
+  /// 周囲のアルファ値そのものとブレンドして1ピクセル単位の粗さをさらに整える。
+  void _applyAntialiasing(img.Image image, double strength) {
     if (strength <= 0) return;
     final t = (strength / 100.0).clamp(0.0, 1.0);
     const kernel = <int>[1, 2, 1];
     const fullWeight = 16;
     final width = image.width;
     final height = image.height;
-    final edgeAlpha = Uint8List(width * height);
-
+    final original = Uint8List(width * height);
     for (var y = 0; y < height; y++) {
       for (var x = 0; x < width; x++) {
-        final index = y * width + x;
-        if (backgroundMask[index] != 0) continue;
-        var foregroundWeight = 0;
-        for (var ky = -1; ky <= 1; ky++) {
-          final sampleY = y + ky;
-          if (sampleY < 0 || sampleY >= height) continue;
-          for (var kx = -1; kx <= 1; kx++) {
-            final sampleX = x + kx;
-            if (sampleX < 0 || sampleX >= width) continue;
-            if (backgroundMask[sampleY * width + sampleX] == 0) {
-              foregroundWeight += kernel[ky + 1] * kernel[kx + 1];
-            }
-          }
-        }
-        final smoothed = (foregroundWeight * 255 / fullWeight).round().clamp(0, 255);
-        edgeAlpha[index] = ((255 * (1 - t) + smoothed * t)).round().clamp(0, 255);
+        original[y * width + x] = image.getPixel(x, y).a.toInt();
       }
     }
 
     for (var y = 0; y < height; y++) {
       for (var x = 0; x < width; x++) {
         final index = y * width + x;
-        if (backgroundMask[index] != 0) continue;
-        final alpha = edgeAlpha[index];
-        if (alpha >= 255) continue;
+        final current = original[index];
+        if (current == 0 || current == 255) continue;
+        var weightedSum = 0;
+        for (var ky = -1; ky <= 1; ky++) {
+          final sampleY = (y + ky).clamp(0, height - 1);
+          for (var kx = -1; kx <= 1; kx++) {
+            final sampleX = (x + kx).clamp(0, width - 1);
+            weightedSum += original[sampleY * width + sampleX] * kernel[ky + 1] * kernel[kx + 1];
+          }
+        }
+        final blurred = (weightedSum / fullWeight).round().clamp(0, 255);
+        final blended = (current * (1 - t) + blurred * t).round().clamp(0, 255);
         final pixel = image.getPixel(x, y);
-        image.setPixelRgba(x, y, pixel.r.toInt(), pixel.g.toInt(), pixel.b.toInt(), alpha);
+        image.setPixelRgba(x, y, pixel.r.toInt(), pixel.g.toInt(), pixel.b.toInt(), blended);
       }
     }
   }
 
-  /// エッジスムージング（5×5 Binomial kernel）- 数ピクセル範囲のガタつきを整える
-  void _smoothCutoutEdge(img.Image image, Uint8List backgroundMask, double strength) {
+  /// エッジスムージング（5×5 Binomial kernel）- ソフトマットの境界だけを対象に、
+  /// より広い範囲のアルファ値とブレンドして数ピクセル範囲のガタつきを整える。
+  void _smoothCutoutEdge(img.Image image, double strength) {
     if (strength <= 0) return;
     final t = (strength / 100.0).clamp(0.0, 1.0);
     const kernel = <int>[1, 4, 6, 4, 1];
     const fullWeight = 256;
     final width = image.width;
     final height = image.height;
-    final edgeAlpha = Uint8List(width * height);
-
+    final original = Uint8List(width * height);
     for (var y = 0; y < height; y++) {
       for (var x = 0; x < width; x++) {
-        final index = y * width + x;
-        if (backgroundMask[index] != 0) continue;
-        var foregroundWeight = 0;
-        for (var ky = -2; ky <= 2; ky++) {
-          final sampleY = y + ky;
-          if (sampleY < 0 || sampleY >= height) continue;
-          for (var kx = -2; kx <= 2; kx++) {
-            final sampleX = x + kx;
-            if (sampleX < 0 || sampleX >= width) continue;
-            if (backgroundMask[sampleY * width + sampleX] == 0) {
-              foregroundWeight += kernel[ky + 2] * kernel[kx + 2];
-            }
-          }
-        }
-        final smoothed = ((foregroundWeight * 255) / fullWeight).round().clamp(0, 255);
-        final current = image.getPixel(x, y).a.toInt();
-        edgeAlpha[index] = ((current * (1 - t) + smoothed * t)).round().clamp(0, 255);
+        original[y * width + x] = image.getPixel(x, y).a.toInt();
       }
     }
 
     for (var y = 0; y < height; y++) {
       for (var x = 0; x < width; x++) {
         final index = y * width + x;
-        if (backgroundMask[index] != 0) continue;
-        final alpha = edgeAlpha[index];
-        if (alpha >= 255) continue;
+        final current = original[index];
+        if (current == 0 || current == 255) continue;
+        var weightedSum = 0;
+        for (var ky = -2; ky <= 2; ky++) {
+          final sampleY = (y + ky).clamp(0, height - 1);
+          for (var kx = -2; kx <= 2; kx++) {
+            final sampleX = (x + kx).clamp(0, width - 1);
+            weightedSum += original[sampleY * width + sampleX] * kernel[ky + 2] * kernel[kx + 2];
+          }
+        }
+        final blurred = (weightedSum / fullWeight).round().clamp(0, 255);
+        final blended = (current * (1 - t) + blurred * t).round().clamp(0, 255);
         final pixel = image.getPixel(x, y);
-        image.setPixelRgba(x, y, pixel.r.toInt(), pixel.g.toInt(), pixel.b.toInt(), alpha);
+        image.setPixelRgba(x, y, pixel.r.toInt(), pixel.g.toInt(), pixel.b.toInt(), blended);
       }
     }
   }
@@ -474,24 +530,26 @@ class BackgroundRemovalService {
 
     // threshold (20-220) → 確信度カットオフ (0.05-0.95) — _removeWithMlKit と同じ変換
     final cutoff = (threshold / 220.0).clamp(0.05, 0.95);
-    final visited = Uint8List(outW * outH);
 
+    // ソフトマット: 確信度を二値化せず、双線形補間でなめらかにサンプリングした上で
+    // しきい値付近をなだらかにアルファへ変換する（_removeWithMlKit と同じ考え方）。
     for (var y = 0; y < outH; y++) {
       for (var x = 0; x < outW; x++) {
-        final maskX = (x * maskW / outW).round().clamp(0, maskW - 1);
-        final maskY = (y * maskH / outH).round().clamp(0, maskH - 1);
+        final fx = x * maskW / outW;
+        final fy = y * maskH / outH;
         // マスクは R チャンネルに確信度 * 255 が格納されている
-        final confidence = maskImage.getPixel(maskX, maskY).r / 255.0;
-        if (confidence < cutoff) {
-          final pixel = image.getPixel(x, y);
-          image.setPixelRgba(x, y, pixel.r, pixel.g, pixel.b, 0);
-          visited[y * outW + x] = 1;
-        }
+        final confidence = _bilinearSample(
+          fx, fy, maskW, maskH,
+          (mx, my) => maskImage.getPixel(mx, my).r / 255.0,
+        );
+        final alpha = _confidenceToAlpha(confidence, cutoff, _confidenceRampHalfWidth);
+        final pixel = image.getPixel(x, y);
+        image.setPixelRgba(x, y, pixel.r, pixel.g, pixel.b, alpha);
       }
     }
 
-    _applyAntialiasing(image, visited, antialiasing);
-    _smoothCutoutEdge(image, visited, smoothing);
+    _applyAntialiasing(image, antialiasing);
+    _smoothCutoutEdge(image, smoothing);
 
     final crop = _cropToOpaqueBounds(image);
     return CutoutResult(
