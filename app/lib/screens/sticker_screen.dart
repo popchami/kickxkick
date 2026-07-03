@@ -256,7 +256,7 @@ class _StickerScreenState extends ConsumerState<StickerScreen> {
                             onDesign: (asset, item) =>
                                 _editSticker(asset, shoes, action: _StickerEditAction.design),
                             onToolAction: (asset, item, action) =>
-                                _handleStickerTool(asset, item, action),
+                                _handleStickerTool(asset, item, action, shoes),
                           ),
               ),
             ],
@@ -654,6 +654,7 @@ class _StickerScreenState extends ConsumerState<StickerScreen> {
     StickerAsset asset,
     StickerBoardItem item,
     _StickerToolAction action,
+    List<Shoe> shoes,
   ) async {
     final repository = ref.read(stickerRepositoryProvider);
     switch (action) {
@@ -693,6 +694,10 @@ class _StickerScreenState extends ConsumerState<StickerScreen> {
           ]..sort((a, b) => a.zIndex.compareTo(b.zIndex)));
         });
         repository.bringToFront(item);
+      case _StickerToolAction.editDesign:
+        await _editSticker(asset, shoes, action: _StickerEditAction.design);
+      case _StickerToolAction.editCutout:
+        await _editSticker(asset, shoes, action: _StickerEditAction.cutout);
     }
   }
 
@@ -730,7 +735,16 @@ enum _StickerBoardCommand { toggleEdit, cutout }
 
 enum _StickerEditAction { cutout, design }
 
-enum _StickerToolAction { paste, duplicate, delete, zoomIn, zoomOut, bringFront }
+enum _StickerToolAction {
+  paste,
+  duplicate,
+  delete,
+  zoomIn,
+  zoomOut,
+  bringFront,
+  editDesign,
+  editCutout,
+}
 
 class _StickerDesign {
   const _StickerDesign({
@@ -1008,7 +1022,7 @@ class _StickerBoardState extends State<_StickerBoard> {
                             if (widget.editMode && selectedItem != null)
                               Positioned(
                                 left: (selectedItem.x * constraints.maxWidth - 50)
-                                    .clamp(4, constraints.maxWidth - 252),
+                                    .clamp(4, constraints.maxWidth - 294),
                                 top: (selectedItem.y * constraints.maxHeight +
                                         96 * selectedItem.scale)
                                     .clamp(4, constraints.maxHeight - 48),
@@ -1119,17 +1133,32 @@ class _StickerSelectionToolbar extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 4),
         child: Row(
           mainAxisSize: MainAxisSize.min,
-          children: actions
-              .map(
-                (action) => IconButton(
-                  visualDensity: VisualDensity.compact,
-                  iconSize: 19,
-                  tooltip: action.$3,
-                  onPressed: () => onAction(action.$1),
-                  icon: Icon(action.$2),
+          children: [
+            ...actions.map(
+              (action) => IconButton(
+                visualDensity: VisualDensity.compact,
+                iconSize: 19,
+                tooltip: action.$3,
+                onPressed: () => onAction(action.$1),
+                icon: Icon(action.$2),
+              ),
+            ),
+            PopupMenuButton<_StickerToolAction>(
+              tooltip: '編集',
+              icon: const Icon(Icons.edit_outlined, size: 19),
+              onSelected: onAction,
+              itemBuilder: (context) => const [
+                PopupMenuItem(
+                  value: _StickerToolAction.editDesign,
+                  child: Text('デザインを編集'),
                 ),
-              )
-              .toList(),
+                PopupMenuItem(
+                  value: _StickerToolAction.editCutout,
+                  child: Text('切り抜きを編集'),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );
