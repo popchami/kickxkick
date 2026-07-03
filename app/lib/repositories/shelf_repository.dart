@@ -5,6 +5,14 @@ import '../models/shelf.dart';
 
 class ShelfRepository {
   static const slotCount = 25;
+  static const freeShelfLimit = 1;
+
+  /// 無料版で新しい棚を作れるかどうか。Premiumは無制限。
+  Future<bool> canCreateShelf({required bool isPremium}) async {
+    if (isPremium) return true;
+    final shelves = await getShelves();
+    return shelves.length < freeShelfLimit;
+  }
 
   Future<List<Shelf>> getShelves() async {
     final db = await AppDatabase.instance.database;

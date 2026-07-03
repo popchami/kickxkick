@@ -56,9 +56,31 @@ class CollectionScreen extends ConsumerStatefulWidget {
 }
 
 class _CollectionScreenState extends ConsumerState<CollectionScreen> {
+  static const _lastShelfIdKey = 'last_shelf_id';
+
   final _searchController = TextEditingController();
-  final _shareKey = GlobalKey();
+  final Map<int, GlobalKey> _shareKeys = {};
   String _searchText = '';
+  List<Shelf> _shelves = [];
+  int? _shelfId;
+
+  GlobalKey _shareKeyFor(int shelfId) =>
+      _shareKeys.putIfAbsent(shelfId, () => GlobalKey());
+
+  String get _currentShelfName {
+    final shelfId = _shelfId;
+    if (shelfId == null) return 'コレクション';
+    for (final shelf in _shelves) {
+      if (shelf.id == shelfId) return shelf.name;
+    }
+    return 'コレクション';
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _initShelves());
+  }
 
   @override
   void dispose() {
@@ -66,18 +88,160 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen> {
     super.dispose();
   }
 
+  Future<void> _initShelves() async {
+    final repository = ref.read(shelfRepositoryProvider);
+    var shelves = await repository.getShelves();
+    if (shelves.isEmpty) {
+      await repository.ensureDefaultShelf();
+      shelves = await repository.getShelves();
+    }
+    final savedIdText =
+        await ref.read(settingsRepositoryProvider).getValue(_lastShelfIdKey);
+    final savedId = savedIdText == null ? null : int.tryParse(savedIdText);
+    final initialShelf = shelves.firstWhere(
+      (shelf) => shelf.id == savedId,
+      orElse: () => shelves.first,
+    );
+    if (!mounted) return;
+    setState(() {
+      _shelves = shelves;
+      _shelfId = initialShelf.id;
+    });
+  }
+
+  Future<void> _switchShelf(Shelf shelf) async {
+    if (shelf.id == _shelfId) return;
+    await ref
+        .read(settingsRepositoryProvider)
+        .setValue(_lastShelfIdKey, shelf.id.toString());
+    if (mounted) {
+      setState(() => _shelfId = shelf.id);
+    }
+  }
+
+  /// 無料版で棚が既に上限(1枚)ある場合はPremium案内を表示してブロックする。
+  Future<bool> _checkShelfLimit() async {
+    final isPremium =
+        await ref.read(settingsRepositoryProvider).getValue('is_premium') ==
+            'true';
+    final canCreate = await ref
+        .read(shelfRepositoryProvider)
+        .canCreateShelf(isPremium: isPremium);
+    if (canCreate) return true;
+    if (!mounted) return false;
+    await showAppMessage(
+      context,
+      title: 'Premiumへのご案内',
+      message: '無料版では棚を1枚まで作成できます。複数の棚を作るにはPremiumへのアップグレードが必要です。',
+    );
+    return false;
+  }
+
+  Future<void> _createShelf(String name) async {
+    if (!await _checkShelfLimit()) return;
+    final repository = ref.read(shelfRepositoryProvider);
+    final id = await repository.createShelf(name);
+    final shelves = await repository.getShelves();
+    await ref
+        .read(settingsRepositoryProvider)
+        .setValue(_lastShelfIdKey, id.toString());
+    if (mounted) {
+      setState(() {
+        _shelves = shelves;
+        _shelfId = id;
+      });
+    }
+  }
+
+  void _showShelfPicker() {
+    showModalBottomSheet<void>(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (final shelf in _shelves)
+              ListTile(
+                leading: Icon(
+                  shelf.id == _shelfId
+                      ? Icons.check_circle
+                      : Icons.check_circle_outline,
+                  color: shelf.id == _shelfId
+                      ? Theme.of(context).colorScheme.primary
+                      : null,
+                ),
+                title: Text(shelf.name),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  _switchShelf(shelf);
+                },
+              ),
+            const Divider(height: 1),
+            ListTile(
+              leading: const Icon(Icons.add),
+              title: const Text('＋新しい棚'),
+              onTap: () {
+                Navigator.pop(ctx);
+                _showCreateShelfDialog();
+              },
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _showCreateShelfDialog() async {
+    final controller = TextEditingController();
+    final name = await showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('新しい棚'),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          decoration: const InputDecoration(labelText: '棚の名前'),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('キャンセル'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, controller.text.trim()),
+            child: const Text('作成'),
+          ),
+        ],
+      ),
+    );
+    if (name == null || name.isEmpty) return;
+    await _createShelf(name);
+  }
+
   @override
   Widget build(BuildContext context) {
     final shoesAsync = ref.watch(shoesProvider);
     final brandsAsync = ref.watch(brandsProvider);
     final collectionFilter = ref.watch(collectionFilterProvider);
-    final shelfId = ref.watch(defaultShelfIdProvider).value;
+    final shelfId = _shelfId;
     final shelfItems =
         shelfId == null ? null : ref.watch(shelfItemsProvider(shelfId)).value;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('コレクション'),
+        title: InkWell(
+          onTap: _shelves.isEmpty ? null : _showShelfPicker,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Flexible(
+                child: Text(_currentShelfName, overflow: TextOverflow.ellipsis),
+              ),
+              const Icon(Icons.arrow_drop_down),
+            ],
+          ),
+        ),
         actions: [
           IconButton(
             onPressed:
@@ -154,7 +318,7 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen> {
                       color: color,
                     );
               },
-              shareKey: _shareKey,
+              shareKey: _shareKeyFor(shelfId),
             ),
             loading: () => const Center(child: CircularProgressIndicator()),
             error: (_, __) => _CollectionContent(
@@ -196,7 +360,7 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen> {
                       color: color,
                     );
               },
-              shareKey: _shareKey,
+              shareKey: _shareKeyFor(shelfId),
             ),
           );
         },
@@ -207,8 +371,10 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen> {
   }
 
   Future<void> _shareCollection() async {
-    final boundary =
-        _shareKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
+    final shelfId = _shelfId;
+    if (shelfId == null) return;
+    final boundary = _shareKeys[shelfId]?.currentContext?.findRenderObject()
+        as RenderRepaintBoundary?;
     if (boundary == null) return;
     final image = await boundary.toImage(pixelRatio: 3);
     final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
