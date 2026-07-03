@@ -225,6 +225,9 @@ class _StickerScreenState extends ConsumerState<StickerScreen> {
     List<StickerAsset> visibleStickers,
     List<Shoe> shoes,
   ) {
+    if (visibleStickers.isEmpty) {
+      return const Center(child: Text('該当するステッカーがありません'));
+    }
     final items = _boardItemsCache[board.id];
     if (items == null) {
       _loadBoardItems(board.id);
@@ -435,24 +438,22 @@ class _StickerScreenState extends ConsumerState<StickerScreen> {
                 ),
               ),
               Expanded(
-                child: visibleStickers.isEmpty
-                    ? const Center(child: Text('該当するステッカーがありません'))
-                    : _boards.isEmpty
-                        ? const Center(child: CircularProgressIndicator())
-                        : PageView.builder(
-                            controller: _pageController,
-                            physics: _editMode
-                                ? const NeverScrollableScrollPhysics()
-                                : const PageScrollPhysics(),
-                            onPageChanged: _onBoardPageChanged,
-                            itemCount: _boards.length,
-                            itemBuilder: (context, index) => _buildBoardPage(
-                              _boards[index],
-                              stickers,
-                              visibleStickers,
-                              shoes,
-                            ),
-                          ),
+                child: _boards.isEmpty
+                    ? const Center(child: CircularProgressIndicator())
+                    : PageView.builder(
+                        controller: _pageController,
+                        physics: _editMode
+                            ? const NeverScrollableScrollPhysics()
+                            : const PageScrollPhysics(),
+                        onPageChanged: _onBoardPageChanged,
+                        itemCount: _boards.length,
+                        itemBuilder: (context, index) => _buildBoardPage(
+                          _boards[index],
+                          stickers,
+                          visibleStickers,
+                          shoes,
+                        ),
+                      ),
               ),
             ],
           );
