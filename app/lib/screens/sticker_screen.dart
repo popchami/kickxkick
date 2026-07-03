@@ -11,6 +11,7 @@ import 'package:share_plus/share_plus.dart';
 
 import '../models/shoe.dart';
 import '../models/sticker_asset.dart';
+import '../models/sticker_board.dart';
 import '../models/brand.dart';
 import '../providers/brand_provider.dart';
 import '../providers/photo_provider.dart';
@@ -31,7 +32,9 @@ class StickerScreen extends ConsumerStatefulWidget {
 }
 
 class _StickerScreenState extends ConsumerState<StickerScreen> {
-  final _boardKey = GlobalKey<_StickerBoardState>();
+  static const _lastBoardIdKey = 'last_board_id';
+
+  final Map<int, GlobalKey<_StickerBoardState>> _boardKeys = {};
   final _searchController = TextEditingController();
   String _searchText = '';
   int? _selectedBrandId;
@@ -41,8 +44,21 @@ class _StickerScreenState extends ConsumerState<StickerScreen> {
   int? _pasteStickerId;
   StickerAsset? _selectedSticker;
   StickerBoardItem? _selectedBoardItem;
+  List<StickerBoard> _boards = [];
   int? _boardId;
   List<StickerBoardItem> _boardItems = [];
+
+  GlobalKey<_StickerBoardState> _boardKeyFor(int boardId) =>
+      _boardKeys.putIfAbsent(boardId, () => GlobalKey<_StickerBoardState>());
+
+  String get _currentBoardName {
+    final boardId = _boardId;
+    if (boardId == null) return 'Sticker';
+    for (final board in _boards) {
+      if (board.id == boardId) return board.name;
+    }
+    return 'Sticker';
+  }
 
   @override
   void initState() {
@@ -58,9 +74,125 @@ class _StickerScreenState extends ConsumerState<StickerScreen> {
 
   Future<void> _initBoard() async {
     final repository = ref.read(stickerRepositoryProvider);
-    final boardId = await repository.ensureDefaultBoard();
-    final items = await repository.getBoardItems(boardId);
-    if (mounted) setState(() { _boardId = boardId; _boardItems = items; });
+    var boards = await repository.getBoards();
+    if (boards.isEmpty) {
+      await repository.ensureDefaultBoard();
+      boards = await repository.getBoards();
+    }
+    final savedIdText = await ref.read(settingsRepositoryProvider).getValue(_lastBoardIdKey);
+    final savedId = savedIdText == null ? null : int.tryParse(savedIdText);
+    final initialBoard = boards.firstWhere(
+      (board) => board.id == savedId,
+      orElse: () => boards.first,
+    );
+    final items = await repository.getBoardItems(initialBoard.id);
+    if (mounted) {
+      setState(() {
+        _boards = boards;
+        _boardId = initialBoard.id;
+        _boardItems = items;
+      });
+    }
+  }
+
+  Future<void> _switchBoard(StickerBoard board) async {
+    if (board.id == _boardId) return;
+    final repository = ref.read(stickerRepositoryProvider);
+    final items = await repository.getBoardItems(board.id);
+    await ref
+        .read(settingsRepositoryProvider)
+        .setValue(_lastBoardIdKey, board.id.toString());
+    if (mounted) {
+      setState(() {
+        _boardId = board.id;
+        _boardItems = items;
+        _selectedSticker = null;
+        _selectedBoardItem = null;
+      });
+    }
+  }
+
+  Future<void> _createBoard(String name) async {
+    final repository = ref.read(stickerRepositoryProvider);
+    final id = await repository.createBoard(name);
+    final boards = await repository.getBoards();
+    final items = await repository.getBoardItems(id);
+    await ref.read(settingsRepositoryProvider).setValue(_lastBoardIdKey, id.toString());
+    if (mounted) {
+      setState(() {
+        _boards = boards;
+        _boardId = id;
+        _boardItems = items;
+        _selectedSticker = null;
+        _selectedBoardItem = null;
+      });
+    }
+  }
+
+  void _showBoardPicker() {
+    showModalBottomSheet<void>(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (final board in _boards)
+              ListTile(
+                leading: Icon(
+                  board.id == _boardId
+                      ? Icons.check_circle
+                      : Icons.check_circle_outline,
+                  color: board.id == _boardId
+                      ? Theme.of(context).colorScheme.primary
+                      : null,
+                ),
+                title: Text(board.name),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  _switchBoard(board);
+                },
+              ),
+            const Divider(height: 1),
+            ListTile(
+              leading: const Icon(Icons.add),
+              title: const Text('＋新しいボード'),
+              onTap: () {
+                Navigator.pop(ctx);
+                _showCreateBoardDialog();
+              },
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _showCreateBoardDialog() async {
+    final controller = TextEditingController();
+    final name = await showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('新しいボード'),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          decoration: const InputDecoration(labelText: 'ボード名'),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('キャンセル'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, controller.text.trim()),
+            child: const Text('作成'),
+          ),
+        ],
+      ),
+    );
+    if (name == null || name.isEmpty) return;
+    await _createBoard(name);
   }
 
   @override
@@ -84,10 +216,21 @@ class _StickerScreenState extends ConsumerState<StickerScreen> {
             .length;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Sticker'),
+        title: InkWell(
+          onTap: _boards.isEmpty ? null : _showBoardPicker,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Flexible(child: Text(_currentBoardName, overflow: TextOverflow.ellipsis)),
+              const Icon(Icons.arrow_drop_down),
+            ],
+          ),
+        ),
         actions: [
           IconButton(
-            onPressed: () => _boardKey.currentState?.exportBoard(),
+            onPressed: _boardId == null
+                ? null
+                : () => _boardKeyFor(_boardId!).currentState?.exportBoard(),
             icon: const Icon(Icons.ios_share_outlined),
             tooltip: 'ボードを共有',
           ),
@@ -234,7 +377,7 @@ class _StickerScreenState extends ConsumerState<StickerScreen> {
                     : _boardId == null
                         ? const Center(child: CircularProgressIndicator())
                         : _StickerBoard(
-                            key: _boardKey,
+                            key: _boardKeyFor(_boardId!),
                             stickers: visibleStickers,
                             items: _boardItems,
                             editMode: _editMode,
@@ -487,7 +630,7 @@ class _StickerScreenState extends ConsumerState<StickerScreen> {
         cropWidthFrac: cropWidthFrac,
         cropHeightFrac: cropHeightFrac,
       );
-      final boardId = await repository.ensureDefaultBoard();
+      final boardId = _boardId ?? await repository.ensureDefaultBoard();
       final count = await repository.getBoardItemCount(boardId);
       final isPremium =
           await ref.read(settingsRepositoryProvider).getValue('is_premium') == 'true';

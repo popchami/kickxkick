@@ -9,6 +9,7 @@ import 'package:sqflite/sqflite.dart';
 
 import '../database/app_database.dart';
 import '../models/sticker_asset.dart';
+import '../models/sticker_board.dart';
 
 class StickerRepository {
   static const freeBoardItemLimit = 10;
@@ -211,12 +212,27 @@ class StickerRepository {
     );
   }
 
+  /// ボードが1つもない場合にのみ「MY BOARD」を作成する。既に1つ以上あれば何もしない。
   Future<int> ensureDefaultBoard() async {
     final db = await AppDatabase.instance.database;
     final existing = await db.query('sticker_boards', columns: ['id'], limit: 1);
     if (existing.isNotEmpty) return existing.first['id'] as int;
+    return createBoard('MY BOARD');
+  }
+
+  Future<List<StickerBoard>> getBoards() async {
+    final db = await AppDatabase.instance.database;
+    final rows = await db.query('sticker_boards', orderBy: 'created_at ASC');
+    return rows.map(StickerBoard.fromMap).toList();
+  }
+
+  Future<int> createBoard(String name) async {
+    final db = await AppDatabase.instance.database;
     final now = DateTime.now().toIso8601String();
-    return db.insert('sticker_boards', {'name': 'MY BOARD', 'aspect_ratio': 0.8, 'created_at': now, 'updated_at': now});
+    return db.insert(
+      'sticker_boards',
+      {'name': name, 'aspect_ratio': 0.8, 'created_at': now, 'updated_at': now},
+    );
   }
 
   Future<List<StickerBoardItem>> getBoardItems(int boardId) async {
