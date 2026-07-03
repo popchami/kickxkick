@@ -311,12 +311,15 @@ class _TopFiveImage extends StatelessWidget {
       );
     }
 
-    return Image.file(
-      File(path),
-      fit: BoxFit.cover,
-      errorBuilder: (_, __, ___) => ColoredBox(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest,
-        child: const Center(child: Icon(Icons.broken_image_outlined)),
+    return ColoredBox(
+      color: Theme.of(context).colorScheme.surfaceContainerHighest,
+      child: Image.file(
+        File(path),
+        fit: BoxFit.contain,
+        errorBuilder: (_, __, ___) => ColoredBox(
+          color: Theme.of(context).colorScheme.surfaceContainerHighest,
+          child: const Center(child: Icon(Icons.broken_image_outlined)),
+        ),
       ),
     );
   }

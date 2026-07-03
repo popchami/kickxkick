@@ -142,7 +142,7 @@ class _ShoeImage extends StatelessWidget {
 
     return Image.file(
       File(path),
-      fit: BoxFit.cover,
+      fit: BoxFit.contain,
       filterQuality: FilterQuality.high,
       errorBuilder: (_, __, ___) => _ImagePlaceholder(
         iconColor: Theme.of(context).colorScheme.outline,

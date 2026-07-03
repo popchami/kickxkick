@@ -522,14 +522,17 @@ class _MainPhotoSectionState extends ConsumerState<_MainPhotoSection> {
         else
           ClipRRect(
             borderRadius: BorderRadius.circular(24),
-            child: Image.file(
-              File(photo.cutoutPath ?? photo.filePath),
-              height: 220,
-              width: double.infinity,
-              fit: BoxFit.cover,
-              filterQuality: FilterQuality.high,
-              errorBuilder: (_, __, ___) => const _PhotoPlaceholder(
-                label: '写真ファイルが見つかりません',
+            child: ColoredBox(
+              color: Theme.of(context).colorScheme.surfaceContainerHighest,
+              child: Image.file(
+                File(photo.cutoutPath ?? photo.filePath),
+                height: 220,
+                width: double.infinity,
+                fit: BoxFit.contain,
+                filterQuality: FilterQuality.high,
+                errorBuilder: (_, __, ___) => const _PhotoPlaceholder(
+                  label: '写真ファイルが見つかりません',
+                ),
               ),
             ),
           ),
@@ -660,7 +663,7 @@ class _PhotoGallery extends StatelessWidget {
                               child: Image.file(
                                 File(photo.cutoutPath ?? photo.filePath),
                                 width: double.infinity,
-                                fit: BoxFit.cover,
+                                fit: BoxFit.contain,
                               ),
                             ),
                     ),
