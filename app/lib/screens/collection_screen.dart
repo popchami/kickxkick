@@ -162,6 +162,52 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen> {
     });
   }
 
+  Future<void> _deleteShelf(Shelf shelf) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('棚を削除しますか？'),
+        content: Text(
+          '「${shelf.name}」を削除します。この操作は取り消せません。\n'
+          '棚に置いた靴のデータ自体は削除されません。',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('キャンセル'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('削除', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+    final repository = ref.read(shelfRepositoryProvider);
+    await repository.deleteShelf(shelf.id);
+    ref.invalidate(shelfItemsProvider(shelf.id));
+    final shelves = await repository.getShelves();
+    if (!mounted) return;
+    final wasActive = shelf.id == _shelfId;
+    setState(() {
+      _shelves = shelves;
+      _shareKeys.remove(shelf.id);
+    });
+    final targetShelf = wasActive
+        ? shelves.first
+        : shelves.firstWhere((s) => s.id == _shelfId, orElse: () => shelves.first);
+    final targetIndex = shelves.indexOf(targetShelf);
+    if (wasActive) {
+      await _onShelfPageChanged(targetIndex);
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && _pageController.hasClients) {
+        _pageController.jumpToPage(targetIndex);
+      }
+    });
+  }
+
   void _showShelfPicker() {
     showModalBottomSheet<void>(
       context: context,
@@ -180,6 +226,16 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen> {
                       : null,
                 ),
                 title: Text(shelf.name),
+                trailing: _shelves.length > 1
+                    ? IconButton(
+                        icon: const Icon(Icons.delete_outline),
+                        tooltip: '削除',
+                        onPressed: () {
+                          Navigator.pop(ctx);
+                          _deleteShelf(shelf);
+                        },
+                      )
+                    : null,
                 onTap: () {
                   Navigator.pop(ctx);
                   final index = _shelves.indexOf(shelf);

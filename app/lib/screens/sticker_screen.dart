@@ -151,6 +151,52 @@ class _StickerScreenState extends ConsumerState<StickerScreen> {
     });
   }
 
+  Future<void> _deleteBoard(StickerBoard board) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('ボードを削除しますか？'),
+        content: Text(
+          '「${board.name}」を削除します。この操作は取り消せません。\n'
+          'ボードに貼り付けたステッカー自体は削除されません。',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('キャンセル'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('削除', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+    final repository = ref.read(stickerRepositoryProvider);
+    await repository.deleteBoard(board.id);
+    final boards = await repository.getBoards();
+    if (!mounted) return;
+    final wasActive = board.id == _boardId;
+    setState(() {
+      _boards = boards;
+      _boardItemsCache.remove(board.id);
+      _boardKeys.remove(board.id);
+    });
+    final targetBoard = wasActive
+        ? boards.first
+        : boards.firstWhere((b) => b.id == _boardId, orElse: () => boards.first);
+    final targetIndex = boards.indexOf(targetBoard);
+    if (wasActive) {
+      await _onBoardPageChanged(targetIndex);
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && _pageController.hasClients) {
+        _pageController.jumpToPage(targetIndex);
+      }
+    });
+  }
+
   void _showBoardPicker() {
     showModalBottomSheet<void>(
       context: context,
@@ -169,6 +215,16 @@ class _StickerScreenState extends ConsumerState<StickerScreen> {
                       : null,
                 ),
                 title: Text(board.name),
+                trailing: _boards.length > 1
+                    ? IconButton(
+                        icon: const Icon(Icons.delete_outline),
+                        tooltip: '削除',
+                        onPressed: () {
+                          Navigator.pop(ctx);
+                          _deleteBoard(board);
+                        },
+                      )
+                    : null,
                 onTap: () {
                   Navigator.pop(ctx);
                   final index = _boards.indexOf(board);
@@ -1470,11 +1526,21 @@ class _StickerArtworkState extends State<_StickerArtwork> {
                           (textY + details.delta.dy / height).clamp(minY, maxY),
                         ));
                       },
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    _stickerText(text, Color(asset.textColor), PaintingStyle.fill, 0, size, asset.textScale),
-                  ],
+                // デザイン編集画面(onTextPositionChangedあり)でのみ、
+                // ステッカー本体の選択枠と同じオレンジ枠線で移動可能な範囲を示す。
+                child: DecoratedBox(
+                  decoration: widget.onTextPositionChanged == null
+                      ? const BoxDecoration()
+                      : BoxDecoration(
+                          border: Border.all(color: Colors.orange, width: 2),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      _stickerText(text, Color(asset.textColor), PaintingStyle.fill, 0, size, asset.textScale),
+                    ],
+                  ),
                 ),
               ),
             ),

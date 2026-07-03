@@ -37,6 +37,13 @@ class ShelfRepository {
     return createShelf('MY SHELF');
   }
 
+  /// 棚を削除する。shelf_itemsはON DELETE CASCADEで一緒に削除されるが、
+  /// 靴のデータ自体は削除されない。
+  Future<void> deleteShelf(int shelfId) async {
+    final db = await AppDatabase.instance.database;
+    await db.delete('shelves', where: 'id = ?', whereArgs: [shelfId]);
+  }
+
   Future<List<ShelfItem>> getShelfItems(int shelfId) async {
     final db = await AppDatabase.instance.database;
     final rows = await db.query(

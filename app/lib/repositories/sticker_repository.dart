@@ -226,6 +226,13 @@ class StickerRepository {
     return rows.map(StickerBoard.fromMap).toList();
   }
 
+  /// ボードを削除する。sticker_board_itemsはON DELETE CASCADEで一緒に削除されるが、
+  /// stickers本体（ステッカー画像・靴のデータ）は削除されない。
+  Future<void> deleteBoard(int boardId) async {
+    final db = await AppDatabase.instance.database;
+    await db.delete('sticker_boards', where: 'id = ?', whereArgs: [boardId]);
+  }
+
   Future<int> createBoard(String name) async {
     final db = await AppDatabase.instance.database;
     final now = DateTime.now().toIso8601String();
