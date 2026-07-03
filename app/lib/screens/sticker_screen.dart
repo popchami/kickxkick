@@ -1218,10 +1218,17 @@ class _StickerBoardState extends State<_StickerBoard> {
                               ),
                             if (widget.editMode && selectedItem != null)
                               Positioned(
-                                left: (selectedItem.x * constraints.maxWidth - 50)
+                                // ステッカーは中心(x*maxWidth+75, y*maxHeight+43.2)を
+                                // 基準に拡大縮小されるため、はみ出す量のうち固定部分(75/43.2)
+                                // と拡大率に応じて変わる部分(scale倍)を分けて計算する。
+                                left: (selectedItem.x * constraints.maxWidth +
+                                        75 -
+                                        147)
                                     .clamp(4, constraints.maxWidth - 294),
                                 top: (selectedItem.y * constraints.maxHeight +
-                                        96 * selectedItem.scale)
+                                        43.2 +
+                                        43.2 * selectedItem.scale +
+                                        8)
                                     .clamp(4, constraints.maxHeight - 48),
                                 child: _StickerSelectionToolbar(
                                   onAction: (action) {
@@ -1445,6 +1452,7 @@ class _StickerArtworkState extends State<_StickerArtwork> {
                 shadowEnabled: asset.shadowEnabled,
                 outerBorderColor: Color(asset.outerBorderColor),
                 innerBorderColor: Color(asset.innerBorderColor),
+                artworkSize: size,
               ),
             ),
           if (text.isNotEmpty)
@@ -1507,12 +1515,14 @@ class _StickerArtworkPainter extends CustomPainter {
     required this.shadowEnabled,
     required this.outerBorderColor,
     required this.innerBorderColor,
+    required this.artworkSize,
   });
 
   final ui.Image image;
   final bool shadowEnabled;
   final Color outerBorderColor;
   final Color innerBorderColor;
+  final double artworkSize;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -1531,6 +1541,12 @@ class _StickerArtworkPainter extends CustomPainter {
     final drawY = (imgAreaH - drawH) / 2;
     final srcRect = Rect.fromLTWH(0, 0, imgW, imgH);
 
+    // フチの太さはsize=120基準(元の固定値6px/3px)の比率を保ったまま
+    // artworkSizeに比例させる。デザイン編集画面など大きいsizeで表示した時も
+    // 文字サイズ(size * 0.0288)と同じようにフチが太くなり、見た目の比率が崩れない。
+    final outerBorderWidth = artworkSize * 0.05;
+    final innerBorderWidth = artworkSize * 0.025;
+
     // 1. シャドウ（MaskFilter.blur でガウスぼかし）
     if (shadowEnabled) {
       final shadowPaint = Paint()
@@ -1546,7 +1562,7 @@ class _StickerArtworkPainter extends CustomPainter {
       );
     }
 
-    // 2. 外枠: radius=6 で 8 方向に描画
+    // 2. 外枠: radius=outerBorderWidth で 8 方向に描画
     final outerPaint = Paint()
       ..colorFilter = ColorFilter.mode(outerBorderColor, BlendMode.srcIn);
     for (var i = 0; i < 8; i++) {
@@ -1554,15 +1570,15 @@ class _StickerArtworkPainter extends CustomPainter {
       canvas.drawImageRect(
         image, srcRect,
         Rect.fromLTWH(
-          drawX + 6 * math.cos(angle),
-          drawY + 6 * math.sin(angle),
+          drawX + outerBorderWidth * math.cos(angle),
+          drawY + outerBorderWidth * math.sin(angle),
           drawW, drawH,
         ),
         outerPaint,
       );
     }
 
-    // 3. 内枠: radius=3 で 4 方向に描画
+    // 3. 内枠: radius=innerBorderWidth で 4 方向に描画
     final innerPaint = Paint()
       ..colorFilter = ColorFilter.mode(innerBorderColor, BlendMode.srcIn);
     for (var i = 0; i < 4; i++) {
@@ -1570,8 +1586,8 @@ class _StickerArtworkPainter extends CustomPainter {
       canvas.drawImageRect(
         image, srcRect,
         Rect.fromLTWH(
-          drawX + 3 * math.cos(angle),
-          drawY + 3 * math.sin(angle),
+          drawX + innerBorderWidth * math.cos(angle),
+          drawY + innerBorderWidth * math.sin(angle),
           drawW, drawH,
         ),
         innerPaint,
@@ -1587,7 +1603,8 @@ class _StickerArtworkPainter extends CustomPainter {
       old.image != image ||
       old.shadowEnabled != shadowEnabled ||
       old.outerBorderColor != outerBorderColor ||
-      old.innerBorderColor != innerBorderColor;
+      old.innerBorderColor != innerBorderColor ||
+      old.artworkSize != artworkSize;
 }
 
 class _StickerDesignerPage extends StatefulWidget {
