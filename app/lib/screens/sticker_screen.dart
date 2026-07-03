@@ -1206,7 +1206,7 @@ class _StickerArtworkState extends State<_StickerArtwork> {
 
   Future<void> _loadImage() async {
     final bytes = await File(widget.asset.displayPath).readAsBytes();
-    final codec = await ui.instantiateImageCodec(bytes, targetWidth: 300);
+    final codec = await ui.instantiateImageCodec(bytes, targetWidth: 800);
     final frame = await codec.getNextFrame();
     if (mounted) {
       _image?.dispose();
