@@ -1,4 +1,4 @@
-# Kick×Kick Task Board v2.3
+# Kick×Kick Task Board v2.4
 
 ## 目的
 
@@ -14,9 +14,9 @@ Kick×Kick開発の現在地を管理する。
 ブランド・モデル・検索基盤はMVPリリース可能ライン。
 Tier S / Tier A はPASS。
 Tier BはHOKA / Saucony / SALOMON / MERRELL / BROOKSを追加し、Alias / searchKeywords までPASS化済み。
-Tier Cはブランド名先行登録済み。SKECHERSはv0.5.2でモデル追加を開始。
+Tier Cはブランド名先行登録済み。SKECHERSはv0.5.3で8モデルまで拡張。
 ABC-MARTなど国内流通リファレンスを基準に、今後もデータ資産を継続育成する。
-data/models.json・aliases.json・search_keywords.json と app/assets/data 側は v0.5.2 として同期済み。
+data/models.json・aliases.json・search_keywords.json と app/assets/data 側は v0.5.3 として同期済み。
 次はSearch MVPテスト、TOP5・着用履歴・詳細確認を進める。
 ```
 
@@ -60,7 +60,7 @@ docs/HANDOFF_BRAND_MODEL_SEARCH.md
 状態:
 
 ```text
-ACTIVE / MVP DATA PASS / MARKET REFERENCE GROWTH / DATA v0.5.2 SYNCED
+ACTIVE / MVP DATA PASS / MARKET REFERENCE GROWTH / DATA v0.5.3 SYNCED
 ```
 
 - [x] BRAND_MASTER.md 作成
@@ -128,6 +128,13 @@ ACTIVE / MVP DATA PASS / MARKET REFERENCE GROWTH / DATA v0.5.2 SYNCED
 - [x] data/README.md v0.5.2反映
 - [x] data/validation_rules.md v1.4反映
 - [x] MODEL_MASTER_COVERAGE v1.9反映
+- [x] SKECHERSモデル追加: 4件追加 / 累計8件
+- [x] SKECHERS Alias追加 v0.5.3
+- [x] SKECHERS searchKeywords追加 v0.5.3
+- [x] app/assets/data/*.json v0.5.3 同期
+- [x] data/README.md v0.5.3反映
+- [x] data/validation_rules.md v1.5反映
+- [x] MODEL_MASTER_COVERAGE v2.0反映
 
 保留:
 
@@ -175,7 +182,7 @@ IN PROGRESS / RUNTIME CHECK STARTED
 状態:
 
 ```text
-IMPLEMENTED / PHOTO SAVE CHECKED / DATA v0.5.2 SYNCED
+IMPLEMENTED / PHOTO SAVE CHECKED / DATA v0.5.3 SYNCED
 ```
 
 - [x] Load app/assets/data/brands.json

@@ -4,6 +4,45 @@
 
 ---
 
+## 2026-07-03 v0.5.3
+
+### Added / Updated
+
+- `data/models.json` を v0.5.3 に更新
+  - SKECHERS: `BOBS` / `Court & Classics` / `SKECHERS Street` / `GO GOLF` を追加
+  - SKECHERS累計: `D'Lites` / `Uno` / `GO WALK` / `GO RUN` / `BOBS` / `Court & Classics` / `SKECHERS Street` / `GO GOLF`
+- `app/assets/data/models.json` を v0.5.3 に同期更新
+- `data/aliases.json` を v0.5.3 に更新
+  - SKECHERS: `SkechersBOBS` / `CourtClassics` / `SkechersStreet` / `GoGolf` を追加
+- `app/assets/data/aliases.json` を v0.5.3 に同期更新
+- `data/search_keywords.json` を v0.5.3 に更新
+  - SKECHERS: `SkechersBOBS` / `CourtClassics` / `コートクラシックス` / `SkechersStreet` / `スケッチャーズストリート` / `GoGolf` / `ゴーゴルフ` を追加
+- `app/assets/data/search_keywords.json` を v0.5.3 に同期更新
+- `data/README.md` を v0.5.3 状態に更新
+- `data/validation_rules.md` を v1.5 に更新
+- `specs/MODEL_MASTER_COVERAGE.md` を v2.0 に更新
+- `specs/KICKXKICK_TASK_BOARD.md` を v2.4 に更新
+
+### Audited
+
+- SKECHERS公式サイトのCollectionsに `BOBS` / `Court & Classics` / `SKECHERS Street` / `GO GOLF` が掲載されていることを確認
+- `skechers` は `brands.json` に既存登録済み
+- `models.json.brandId -> brands.json.brandId` の参照を確認
+- `aliases.json.modelId -> models.json.id` の追加分参照を確認
+- `search_keywords.json.modelId -> models.json.id` の追加分参照を確認
+- `BOBS` / `Court` / `Street` / `Golf` など広すぎる単語単体はAlias/searchKeywordsに追加なし
+- 色名、商品説明文、商品画像、在庫情報、コラボ名は追加なし
+
+### Remaining
+
+- Search MVPテストケース実施
+- data/*.json と app/assets/data/*.json の同期自動化
+- Tier S / A / B のABC-MART差分監査
+- Tier Cブランドのモデル追加継続
+- SKECHERSの国内流通差分監査継続
+
+---
+
 ## 2026-07-02 v0.5.2
 
 ### Added / Updated

@@ -1,6 +1,6 @@
 {
-  "version": "0.5.2",
-  "updatedAt": "2026-07-02",
+  "version": "0.5.3",
+  "updatedAt": "2026-07-03",
   "items": [
     {"modelId":"nike_air_force_1","keyword":"エアフォース"},
     {"modelId":"nike_air_force_1","keyword":"エアフォース1"},
@@ -23,7 +23,6 @@
     {"modelId":"nike_zoom_vomero_5","keyword":"ボメロ5"},
     {"modelId":"nike_pegasus","keyword":"ペガサス"},
     {"modelId":"nike_tc_7900","keyword":"7900"},
-
     {"modelId":"air_jordan_11","keyword":"11"},
     {"modelId":"air_jordan_12","keyword":"12"},
     {"modelId":"air_jordan_13","keyword":"13"},
@@ -48,7 +47,6 @@
     {"modelId":"air_jordan_12","keyword":"ジョーダン12"},
     {"modelId":"air_jordan_13","keyword":"ジョーダン13"},
     {"modelId":"air_jordan_14","keyword":"ジョーダン14"},
-
     {"modelId":"adidas_samba","keyword":"サンバ"},
     {"modelId":"adidas_gazelle","keyword":"ガゼル"},
     {"modelId":"adidas_campus_00s","keyword":"Campus00s"},
@@ -64,7 +62,6 @@
     {"modelId":"adidas_adimatic","keyword":"アディマティック"},
     {"modelId":"adidas_ultraboost","keyword":"ウルトラブースト"},
     {"modelId":"adidas_yeezy_350","keyword":"350"},
-
     {"modelId":"new_balance_530","keyword":"530"},
     {"modelId":"new_balance_550","keyword":"550"},
     {"modelId":"new_balance_574","keyword":"574"},
@@ -93,7 +90,6 @@
     {"modelId":"new_balance_991","keyword":"991"},
     {"modelId":"new_balance_992","keyword":"992"},
     {"modelId":"new_balance_993","keyword":"993"},
-
     {"modelId":"asics_gt_2160","keyword":"2160"},
     {"modelId":"asics_gt_2160","keyword":"ジーティー2160"},
     {"modelId":"asics_gel_1130","keyword":"1130"},
@@ -114,27 +110,23 @@
     {"modelId":"asics_superblast","keyword":"スーパーブラスト"},
     {"modelId":"asics_ex89","keyword":"EX89"},
     {"modelId":"asics_japan_s","keyword":"JapanS"},
-
     {"modelId":"puma_suede","keyword":"スウェード"},
     {"modelId":"puma_palermo","keyword":"パレルモ"},
     {"modelId":"puma_speedcat","keyword":"スピードキャット"},
     {"modelId":"puma_rs_x","keyword":"RSX"},
     {"modelId":"puma_rs_x","keyword":"アールエスエックス"},
-
     {"modelId":"converse_chuck_taylor_all_star","keyword":"チャックテイラー"},
     {"modelId":"converse_chuck_taylor_all_star","keyword":"オールスター"},
     {"modelId":"converse_chuck_70","keyword":"チャック70"},
     {"modelId":"converse_one_star","keyword":"ワンスター"},
     {"modelId":"converse_jack_purcell","keyword":"ジャックパーセル"},
     {"modelId":"converse_run_star_hike","keyword":"ランスターハイク"},
-
     {"modelId":"vans_old_skool","keyword":"オールドスクール"},
     {"modelId":"vans_classic_slip_on","keyword":"スリッポン"},
     {"modelId":"vans_sk8_hi","keyword":"Sk8Hi"},
     {"modelId":"vans_sk8_hi","keyword":"スケートハイ"},
     {"modelId":"vans_knu_skool","keyword":"KnuSkool"},
     {"modelId":"vans_knu_skool","keyword":"ニュースクール"},
-
     {"modelId":"reebok_club_c","keyword":"ClubC"},
     {"modelId":"reebok_club_c","keyword":"クラブC"},
     {"modelId":"reebok_classic_leather","keyword":"クラシックレザー"},
@@ -142,7 +134,6 @@
     {"modelId":"reebok_instapump_fury","keyword":"ポンプフューリー"},
     {"modelId":"reebok_workout_plus","keyword":"WorkoutPlus"},
     {"modelId":"reebok_freestyle","keyword":"フリースタイル"},
-
     {"modelId":"hoka_bondi_9","keyword":"Bondi9"},
     {"modelId":"hoka_bondi_9","keyword":"ボンダイ9"},
     {"modelId":"hoka_clifton_10","keyword":"Clifton10"},
@@ -155,7 +146,6 @@
     {"modelId":"hoka_transport_2","keyword":"トランスポート2"},
     {"modelId":"hoka_challenger_8","keyword":"Challenger8"},
     {"modelId":"hoka_challenger_8","keyword":"チャレンジャー8"},
-
     {"modelId":"saucony_ride_19","keyword":"Ride19"},
     {"modelId":"saucony_ride_19","keyword":"ライド19"},
     {"modelId":"saucony_triumph_24","keyword":"Triumph24"},
@@ -168,7 +158,6 @@
     {"modelId":"saucony_progrid_omni_9","keyword":"プログリッドオムニ9"},
     {"modelId":"saucony_progrid_guide_7","keyword":"ProGridGuide7"},
     {"modelId":"saucony_progrid_guide_7","keyword":"プログリッドガイド7"},
-
     {"modelId":"salomon_xt_6","keyword":"XT6"},
     {"modelId":"salomon_xt_6","keyword":"エックスティー6"},
     {"modelId":"salomon_xt_whisper","keyword":"XTWhisper"},
@@ -180,7 +169,6 @@
     {"modelId":"salomon_x_ultra","keyword":"エックスウルトラ"},
     {"modelId":"salomon_xt_4","keyword":"XT4"},
     {"modelId":"salomon_xt_4","keyword":"エックスティー4"},
-
     {"modelId":"merrell_agility_peak_6","keyword":"AgilityPeak6"},
     {"modelId":"merrell_agility_peak_6","keyword":"アジリティピーク6"},
     {"modelId":"merrell_agility_peak_6_gore_tex","keyword":"AgilityPeak6GTX"},
@@ -192,7 +180,6 @@
     {"modelId":"merrell_trail_glove_8","keyword":"トレイルグローブ8"},
     {"modelId":"merrell_jungle_trek_moc","keyword":"JungleTrekMoc"},
     {"modelId":"merrell_jungle_trek_moc","keyword":"ジャングルトレックモック"},
-
     {"modelId":"brooks_ghost_18","keyword":"Ghost18"},
     {"modelId":"brooks_ghost_18","keyword":"ゴースト18"},
     {"modelId":"brooks_ghost_trail","keyword":"GhostTrail"},
@@ -206,7 +193,6 @@
     {"modelId":"brooks_revel_max","keyword":"RevelMax"},
     {"modelId":"brooks_revel_max","keyword":"レベルマックス"},
     {"modelId":"brooks_vanguard","keyword":"ヴァンガード"},
-
     {"modelId":"skechers_d_lites","keyword":"DLites"},
     {"modelId":"skechers_d_lites","keyword":"ディーライツ"},
     {"modelId":"skechers_uno","keyword":"SkechersUno"},
@@ -214,6 +200,13 @@
     {"modelId":"skechers_go_walk","keyword":"GoWalk"},
     {"modelId":"skechers_go_walk","keyword":"ゴーウォーク"},
     {"modelId":"skechers_go_run","keyword":"GoRun"},
-    {"modelId":"skechers_go_run","keyword":"ゴーラン"}
+    {"modelId":"skechers_go_run","keyword":"ゴーラン"},
+    {"modelId":"skechers_bobs","keyword":"SkechersBOBS"},
+    {"modelId":"skechers_court_classics","keyword":"CourtClassics"},
+    {"modelId":"skechers_court_classics","keyword":"コートクラシックス"},
+    {"modelId":"skechers_skechers_street","keyword":"SkechersStreet"},
+    {"modelId":"skechers_skechers_street","keyword":"スケッチャーズストリート"},
+    {"modelId":"skechers_go_golf","keyword":"GoGolf"},
+    {"modelId":"skechers_go_golf","keyword":"ゴーゴルフ"}
   ]
 }

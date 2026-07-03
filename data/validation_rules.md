@@ -1,4 +1,4 @@
-# Kick×Kick Data Validation Rules v1.4
+# Kick×Kick Data Validation Rules v1.5
 
 ## Purpose
 
@@ -67,6 +67,10 @@ D'Lites
 Uno
 GO WALK
 GO RUN
+BOBS
+Court & Classics
+SKECHERS Street
+GO GOLF
 ```
 
 ### NG
@@ -89,6 +93,10 @@ CascadiaElite
 DLites
 GoWalk
 GoRun
+SkechersBOBS
+CourtClassics
+SkechersStreet
+GoGolf
 ```
 
 ---
@@ -120,6 +128,8 @@ merrell_agility_peak_6
 brooks_ghost_18
 skechers_d_lites
 skechers_go_walk
+skechers_court_classics
+skechers_go_golf
 ```
 
 ### NG
@@ -134,6 +144,7 @@ XT6
 AgilityPeak6
 Ghost18
 GoWalk
+SkechersStreet
 ```
 
 ---
@@ -212,6 +223,10 @@ D-Lites
 SkechersUno
 GoWalk
 GoRun
+SkechersBOBS
+CourtClassics
+SkechersStreet
+GoGolf
 ```
 
 ### Aliasに入れないもの
@@ -238,6 +253,10 @@ Trail
 Uno
 Walk
 Run
+BOBS
+Court
+Street
+Golf
 ```
 
 理由:
@@ -276,6 +295,13 @@ AirMax95
 スケッチャーズウノ
 ゴーウォーク
 ゴーラン
+SkechersBOBS
+CourtClassics
+コートクラシックス
+SkechersStreet
+スケッチャーズストリート
+GoGolf
+ゴーゴルフ
 ```
 
 ### searchKeywordsに入れないもの
@@ -303,6 +329,10 @@ Trail
 Uno
 Walk
 Run
+BOBS
+Court
+Street
+Golf
 ```
 
 理由:

@@ -1,6 +1,6 @@
 {
-  "version": "0.5.2",
-  "updatedAt": "2026-07-02",
+  "version": "0.5.3",
+  "updatedAt": "2026-07-03",
   "items": [
     {"modelId":"nike_air_force_1","keyword":"エアフォース"},
     {"modelId":"nike_air_force_1","keyword":"エアフォース1"},
@@ -214,6 +214,13 @@
     {"modelId":"skechers_go_walk","keyword":"GoWalk"},
     {"modelId":"skechers_go_walk","keyword":"ゴーウォーク"},
     {"modelId":"skechers_go_run","keyword":"GoRun"},
-    {"modelId":"skechers_go_run","keyword":"ゴーラン"}
+    {"modelId":"skechers_go_run","keyword":"ゴーラン"},
+    {"modelId":"skechers_bobs","keyword":"SkechersBOBS"},
+    {"modelId":"skechers_court_classics","keyword":"CourtClassics"},
+    {"modelId":"skechers_court_classics","keyword":"コートクラシックス"},
+    {"modelId":"skechers_skechers_street","keyword":"SkechersStreet"},
+    {"modelId":"skechers_skechers_street","keyword":"スケッチャーズストリート"},
+    {"modelId":"skechers_go_golf","keyword":"GoGolf"},
+    {"modelId":"skechers_go_golf","keyword":"ゴーゴルフ"}
   ]
 }
