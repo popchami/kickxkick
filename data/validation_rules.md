@@ -1,4 +1,4 @@
-# Kick×Kick Data Validation Rules v1.5
+# Kick×Kick Data Validation Rules v1.6
 
 ## Purpose
 
@@ -71,6 +71,10 @@ BOBS
 Court & Classics
 SKECHERS Street
 GO GOLF
+Classic Clog
+Crocband Clog
+Classic Bae Clog
+Echo Clog
 ```
 
 ### NG
@@ -97,6 +101,10 @@ SkechersBOBS
 CourtClassics
 SkechersStreet
 GoGolf
+ClassicClog
+CrocbandClog
+ClassicBaeClog
+EchoClog
 ```
 
 ---
@@ -130,6 +138,10 @@ skechers_d_lites
 skechers_go_walk
 skechers_court_classics
 skechers_go_golf
+crocs_classic_clog
+crocs_crocband_clog
+crocs_classic_bae_clog
+crocs_echo_clog
 ```
 
 ### NG
@@ -145,6 +157,8 @@ AgilityPeak6
 Ghost18
 GoWalk
 SkechersStreet
+ClassicClog
+EchoClog
 ```
 
 ---
@@ -168,6 +182,7 @@ brandId: salomon
 brandId: merrell
 brandId: brooks
 brandId: skechers
+brandId: crocs
 ```
 
 ### NG
@@ -180,6 +195,7 @@ brandId: converse_all_star
 brandId: salomon_sportstyle
 brandId: brooks_running
 brandId: skechers_usa
+brandId: crocs_japan
 ```
 
 ---
@@ -227,6 +243,11 @@ SkechersBOBS
 CourtClassics
 SkechersStreet
 GoGolf
+ClassicClog
+CrocsClassicClog
+CrocbandClog
+ClassicBaeClog
+EchoClog
 ```
 
 ### Aliasに入れないもの
@@ -257,6 +278,9 @@ BOBS
 Court
 Street
 Golf
+Clog
+Bae
+Echo
 ```
 
 理由:
@@ -302,6 +326,14 @@ SkechersStreet
 スケッチャーズストリート
 GoGolf
 ゴーゴルフ
+ClassicClog
+クラシッククロッグ
+CrocbandClog
+クロックバンドクロッグ
+ClassicBaeClog
+クラシックベイクロッグ
+EchoClog
+エコークロッグ
 ```
 
 ### searchKeywordsに入れないもの
@@ -333,6 +365,9 @@ BOBS
 Court
 Street
 Golf
+Clog
+Bae
+Echo
 ```
 
 理由:
@@ -361,80 +396,10 @@ Golf
 ### NG
 
 ```text
-9 -> ProGrid Omni 9
-6 -> XT-6
-1 -> Air Jordan 1
-7 -> VAPOR GLOVE 7
-8 -> TRAIL GLOVE 8
-18 -> Ghost 18
+1
+4
+6
+7
+8
+9
 ```
-
-ただし、`AJ1` や `XT6`、`Ghost18` のようにブランド内で明確なAliasとして成立する場合は `aliases.json` に入れてよい。
-
----
-
-## 7. Duplicate Rule
-
-同一モデルを複数IDで登録しない。
-
-### NG
-
-```text
-asics_gt2160
-asics_gt_2160
-salomon_xt6
-salomon_xt_6
-brooks_ghost18
-brooks_ghost_18
-skechers_gowalk
-skechers_go_walk
-```
-
-### OK
-
-```text
-models.json
-id: asics_gt_2160
-modelName: GT-2160
-
-aliases.json
-modelId: asics_gt_2160
-alias: GT2160
-```
-
----
-
-## 8. Cross File Reference Rule
-
-以下を必ず満たすこと。
-
-```text
-models.json.brandId -> brands.json.brandId に存在する
-aliases.json.modelId -> models.json.id に存在する
-search_keywords.json.modelId -> models.json.id に存在する
-```
-
-参照先が存在しないデータを追加してはいけない。
-
----
-
-## 9. Asset Sync Rule
-
-`data/*.json` を更新した場合、Flutterが読む `app/assets/data/*.json` へ同期する。
-
-```text
-data/brands.json -> app/assets/data/brands.json
-data/models.json -> app/assets/data/models.json
-data/aliases.json -> app/assets/data/aliases.json
-data/search_keywords.json -> app/assets/data/search_keywords.json
-```
-
-同期できなかった場合は、`data/CHANGELOG.md` と `specs/KICKXKICK_TASK_BOARD.md` に残課題として明記する。
-
----
-
-## 10. Free Input Rule
-
-アプリでは候補にないモデルでも自由入力で登録できる。
-
-ただし、自由入力値をマスターデータに追加する場合は、このValidation Rulesを通す。
