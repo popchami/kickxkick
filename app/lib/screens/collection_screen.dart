@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
+import '../models/background_theme.dart';
 import '../models/brand.dart';
 import '../models/shelf.dart';
 import '../models/shoe.dart';
@@ -20,6 +21,7 @@ import '../repositories/shelf_repository.dart';
 import '../widgets/app_dialogs.dart';
 import '../widgets/empty_state.dart';
 import '../widgets/shoe_card.dart';
+import '../widgets/themed_background.dart';
 import 'shoe_detail_screen.dart';
 import 'shoe_form_screen.dart';
 
@@ -672,6 +674,7 @@ class _CollectionContent extends ConsumerWidget {
                           filteredShoes: filteredShoes,
                           allShoes: shoes,
                           brandNames: brandNames,
+                          backgroundTheme: shelf.backgroundTheme,
                           onDragStarted: onDragStarted,
                           onDragEnd: onDragEnd,
                         ),
@@ -862,6 +865,7 @@ class _ShelfGrid extends ConsumerWidget {
   final List<Shoe> filteredShoes;
   final List<Shoe> allShoes;
   final Map<int, String> brandNames;
+  final BackgroundTheme backgroundTheme;
   final VoidCallback onDragStarted;
   final VoidCallback onDragEnd;
 
@@ -871,6 +875,7 @@ class _ShelfGrid extends ConsumerWidget {
     required this.filteredShoes,
     required this.allShoes,
     required this.brandNames,
+    required this.backgroundTheme,
     required this.onDragStarted,
     required this.onDragEnd,
   });
@@ -934,6 +939,7 @@ class _ShelfGrid extends ConsumerWidget {
               return SingleChildScrollView(
                 padding: const EdgeInsets.all(12),
                 child: _ShelfBackdrop(
+                  backgroundTheme: backgroundTheme,
                   child: Padding(
                     padding: const EdgeInsets.all(12),
                     child: GridView.builder(
@@ -973,22 +979,28 @@ class _ShelfGrid extends ConsumerWidget {
 }
 
 /// 棚の見た目（背景・枠）を配置ロジックから独立させたウィジェット。
-/// 将来のテーマ機能（背景画像選択）はここだけを差し替えれば対応できる。
+/// 背景テーマ（背景画像選択）はここだけを差し替えれば対応できる。
 /// 固定のheightを指定しないため、列数変更でchildの高さが変わっても追従する。
 class _ShelfBackdrop extends StatelessWidget {
-  const _ShelfBackdrop({required this.child});
+  const _ShelfBackdrop({required this.backgroundTheme, required this.child});
 
+  final BackgroundTheme backgroundTheme;
   final Widget child;
 
   @override
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: const Color(0xFFF3E7D3),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
       ),
-      child: child,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: ThemedBackground(
+          theme: backgroundTheme,
+          child: child,
+        ),
+      ),
     );
   }
 }

@@ -1,6 +1,7 @@
 import 'package:sqflite/sqflite.dart';
 
 import '../database/app_database.dart';
+import '../models/background_theme.dart';
 import '../models/shelf.dart';
 
 class ShelfRepository {
@@ -35,6 +36,16 @@ class ShelfRepository {
     final existing = await db.query('shelves', columns: ['id'], limit: 1);
     if (existing.isNotEmpty) return existing.first['id'] as int;
     return createShelf('MY SHELF');
+  }
+
+  Future<void> updateShelfTheme(int shelfId, BackgroundTheme theme) async {
+    final db = await AppDatabase.instance.database;
+    await db.update(
+      'shelves',
+      {'background_theme': theme.key},
+      where: 'id = ?',
+      whereArgs: [shelfId],
+    );
   }
 
   /// 棚を削除する。shelf_itemsはON DELETE CASCADEで一緒に削除されるが、

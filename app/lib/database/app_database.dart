@@ -21,7 +21,7 @@ class AppDatabase {
 
     return openDatabase(
       path,
-      version: 19,
+      version: 20,
       onConfigure: (db) async {
         await db.execute('PRAGMA foreign_keys = ON');
       },
@@ -186,6 +186,35 @@ class AppDatabase {
     if (oldVersion < 19) {
       await _createShelfTables(db);
     }
+    if (oldVersion < 20) {
+      // shelvesはoldVersion<19の分岐で今まさに作られたばかりの場合があり、
+      // その場合はCREATE TABLE側で既にbackground_themeを持っているため、
+      // 二重追加を避けるためPRAGMAで存在確認してから追加する。
+      await _addColumnIfMissing(
+        db,
+        table: 'sticker_boards',
+        column: 'background_theme',
+        definition: "TEXT NOT NULL DEFAULT 'orange'",
+      );
+      await _addColumnIfMissing(
+        db,
+        table: 'shelves',
+        column: 'background_theme',
+        definition: "TEXT NOT NULL DEFAULT 'orange'",
+      );
+    }
+  }
+
+  Future<void> _addColumnIfMissing(
+    Database db, {
+    required String table,
+    required String column,
+    required String definition,
+  }) async {
+    final columns = await db.rawQuery('PRAGMA table_info($table)');
+    final names = columns.map((row) => row['name'] as String).toSet();
+    if (names.contains(column)) return;
+    await db.execute('ALTER TABLE $table ADD COLUMN $column $definition');
   }
 
   Future<void> _createShoeIndexes(Database db) async {
@@ -337,6 +366,7 @@ class AppDatabase {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
         aspect_ratio REAL NOT NULL DEFAULT 0.8,
+        background_theme TEXT NOT NULL DEFAULT 'orange',
         created_at TEXT NOT NULL,
         updated_at TEXT NOT NULL
       )
@@ -371,6 +401,7 @@ class AppDatabase {
       CREATE TABLE IF NOT EXISTS shelves (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
+        background_theme TEXT NOT NULL DEFAULT 'orange',
         created_at TEXT NOT NULL,
         updated_at TEXT NOT NULL
       )

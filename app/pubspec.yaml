@@ -51,3 +51,4 @@ flutter:
     - assets/data/models.json
     - assets/data/aliases.json
     - assets/data/search_keywords.json
+    - assets/backgrounds/

@@ -1,8 +1,11 @@
+import 'background_theme.dart';
+
 class StickerBoard {
   const StickerBoard({
     required this.id,
     required this.name,
     required this.aspectRatio,
+    required this.backgroundTheme,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -10,6 +13,7 @@ class StickerBoard {
   final int id;
   final String name;
   final double aspectRatio;
+  final BackgroundTheme backgroundTheme;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -17,6 +21,8 @@ class StickerBoard {
         id: map['id'] as int,
         name: map['name'] as String,
         aspectRatio: (map['aspect_ratio'] as num).toDouble(),
+        backgroundTheme:
+            BackgroundTheme.fromKey(map['background_theme'] as String?),
         createdAt: DateTime.parse(map['created_at'] as String),
         updatedAt: DateTime.parse(map['updated_at'] as String),
       );

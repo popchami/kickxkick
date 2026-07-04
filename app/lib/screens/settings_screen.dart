@@ -10,10 +10,12 @@ import '../features/search/screens/search_demo_screen.dart';
 import '../providers/backup_provider.dart';
 import '../providers/brand_provider.dart';
 import '../providers/photo_provider.dart';
+import '../providers/settings_provider.dart';
 import '../providers/shoe_provider.dart';
 import '../providers/theme_provider.dart';
 import '../providers/wear_log_provider.dart';
 import '../widgets/app_dialogs.dart';
+import '../widgets/themed_background.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -94,12 +96,17 @@ class SettingsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final themeMode = ref.watch(themeModeProvider);
+    final backgroundTheme = ref.watch(appBackgroundThemeProvider).value;
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('設定'),
       ),
-      body: ListView(
+      body: backgroundTheme == null
+          ? const Center(child: CircularProgressIndicator())
+          : ThemedBackground(
+              theme: backgroundTheme,
+              child: ListView(
         children: [
           const _SectionTitle(title: '表示'),
           ListTile(
@@ -169,7 +176,8 @@ class SettingsScreen extends ConsumerWidget {
             subtitle: Text('Sneaker Sticker Collection App'),
           ),
         ],
-      ),
+              ),
+            ),
     );
   }
 }

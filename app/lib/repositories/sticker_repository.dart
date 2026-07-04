@@ -8,6 +8,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 
 import '../database/app_database.dart';
+import '../models/background_theme.dart';
 import '../models/sticker_asset.dart';
 import '../models/sticker_board.dart';
 
@@ -239,6 +240,16 @@ class StickerRepository {
     return db.insert(
       'sticker_boards',
       {'name': name, 'aspect_ratio': 0.8, 'created_at': now, 'updated_at': now},
+    );
+  }
+
+  Future<void> updateBoardTheme(int boardId, BackgroundTheme theme) async {
+    final db = await AppDatabase.instance.database;
+    await db.update(
+      'sticker_boards',
+      {'background_theme': theme.key},
+      where: 'id = ?',
+      whereArgs: [boardId],
     );
   }
 

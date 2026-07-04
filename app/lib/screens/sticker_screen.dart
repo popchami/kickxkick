@@ -9,6 +9,7 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../models/background_theme.dart';
 import '../models/shoe.dart';
 import '../models/sticker_asset.dart';
 import '../models/sticker_board.dart';
@@ -23,6 +24,7 @@ import '../services/background_removal_service.dart'
     show BackgroundRemovalService, CutoutResult;
 import '../widgets/app_dialogs.dart';
 import '../widgets/empty_state.dart';
+import '../widgets/themed_background.dart';
 import 'cutout_adjustment_screen.dart';
 
 class StickerScreen extends ConsumerStatefulWidget {
@@ -296,6 +298,7 @@ class _StickerScreenState extends ConsumerState<StickerScreen> {
       items: items,
       editMode: _editMode,
       selectedItemId: board.id == _boardId ? _selectedBoardItem?.id : null,
+      backgroundTheme: board.backgroundTheme,
       onPaste: (position) => _pasteStickerAt(board.id, stickers, position),
       onChanged: (item) {
         final current = _boardItemsCache[board.id] ?? const <StickerBoardItem>[];
@@ -1050,6 +1053,7 @@ class _StickerBoard extends StatefulWidget {
     required this.items,
     required this.editMode,
     required this.selectedItemId,
+    required this.backgroundTheme,
     required this.onPaste,
     required this.onChanged,
     required this.onEdit,
@@ -1060,6 +1064,7 @@ class _StickerBoard extends StatefulWidget {
   final List<StickerBoardItem> items;
   final bool editMode;
   final int? selectedItemId;
+  final BackgroundTheme backgroundTheme;
   final ValueChanged<Offset> onPaste;
   final ValueChanged<StickerBoardItem> onChanged;
   final void Function(StickerAsset asset, StickerBoardItem item) onEdit;
@@ -1125,12 +1130,15 @@ class _StickerBoardState extends State<_StickerBoard> {
                           : null,
                       child: DecoratedBox(
                         decoration: BoxDecoration(
-                          color: const Color(0xFFF3E7D3),
                           borderRadius: BorderRadius.circular(20),
                           border: Border.all(
                               color: Theme.of(context).colorScheme.outlineVariant),
                         ),
-                        child: Stack(
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(20),
+                          child: ThemedBackground(
+                            theme: widget.backgroundTheme,
+                            child: Stack(
                           clipBehavior: Clip.hardEdge,
                           children: [
                             ..._items.map((item) {
@@ -1299,6 +1307,8 @@ class _StickerBoardState extends State<_StickerBoard> {
                                 ),
                               ),
                           ],
+                            ),
+                          ),
                         ),
                       ),
                     ),
@@ -1787,7 +1797,8 @@ class _StickerDesignerPageState extends State<_StickerDesignerPage> {
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(previewPadding),
-                  color: const Color(0xFFF3E7D3),
+                  // デザイン編集画面は背景テーマの影響を受けない固定のグレー。
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
                   alignment: Alignment.center,
                   child: _StickerArtwork(
                     asset: preview,
