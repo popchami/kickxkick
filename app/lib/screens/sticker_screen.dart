@@ -1612,6 +1612,8 @@ class _StickerArtworkPainter extends CustomPainter {
     // 文字サイズ(size * 0.0288)と同じようにフチが太くなり、見た目の比率が崩れない。
     final outerBorderWidth = artworkSize * 0.05;
     final innerBorderWidth = artworkSize * 0.025;
+    // フチのギザギザを抑えるための弱いぼかし。色・太さがはっきり分かる程度に留める。
+    final borderBlurSigma = artworkSize * 0.012;
 
     // 1. シャドウ（MaskFilter.blur でガウスぼかし）
     if (shadowEnabled) {
@@ -1628,11 +1630,13 @@ class _StickerArtworkPainter extends CustomPainter {
       );
     }
 
-    // 2. 外枠: radius=outerBorderWidth で 8 方向に描画
+    // 2. 外枠: radius=outerBorderWidth で 16 方向に重ねて描画し、
+    // 弱いぼかしを加えることで輪郭のギザギザ・多角形的なカクつきを抑える。
     final outerPaint = Paint()
-      ..colorFilter = ColorFilter.mode(outerBorderColor, BlendMode.srcIn);
-    for (var i = 0; i < 8; i++) {
-      final angle = i * 2 * math.pi / 8;
+      ..colorFilter = ColorFilter.mode(outerBorderColor, BlendMode.srcIn)
+      ..maskFilter = MaskFilter.blur(BlurStyle.normal, borderBlurSigma);
+    for (var i = 0; i < 16; i++) {
+      final angle = i * 2 * math.pi / 16;
       canvas.drawImageRect(
         image, srcRect,
         Rect.fromLTWH(
@@ -1644,11 +1648,12 @@ class _StickerArtworkPainter extends CustomPainter {
       );
     }
 
-    // 3. 内枠: radius=innerBorderWidth で 4 方向に描画
+    // 3. 内枠: radius=innerBorderWidth で 8 方向に重ねて描画し、外枠と同様に弱いぼかしを加える。
     final innerPaint = Paint()
-      ..colorFilter = ColorFilter.mode(innerBorderColor, BlendMode.srcIn);
-    for (var i = 0; i < 4; i++) {
-      final angle = i * 2 * math.pi / 4;
+      ..colorFilter = ColorFilter.mode(innerBorderColor, BlendMode.srcIn)
+      ..maskFilter = MaskFilter.blur(BlurStyle.normal, borderBlurSigma);
+    for (var i = 0; i < 8; i++) {
+      final angle = i * 2 * math.pi / 8;
       canvas.drawImageRect(
         image, srcRect,
         Rect.fromLTWH(
