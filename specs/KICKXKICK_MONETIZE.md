@@ -25,6 +25,7 @@ Freeで利用できる内容:
 - スニーカー登録: 5足まで
 - Collection: 1棚
 - Sticker Board: 1枚
+- Sticker Board内のステッカー配置数: 1ボードにつき10枚まで（Board自体の枚数制限とは別軸の上限）
 - 1足につき1ステッカー
 - Freeテーマのみ
 - Freeフォントのみ
@@ -36,6 +37,7 @@ Premiumで解放される内容:
 - スニーカー無制限
 - Collection無制限
 - Sticker Board無制限
+- Sticker Board内のステッカー配置数: 1ボードにつき30枚まで（Board自体は無制限だが、1枚あたりの配置数には上限がある）
 - 複数ステッカー作成
 - PNG出力
 - バックアップ
