@@ -48,6 +48,10 @@ class BackgroundRemovalService {
   /// 色距離はピクセル値のスケールなので、しきい値に比例させて幅を決める。
   static const _floodFillRampRatio = 0.15;
 
+  /// 囲み切り抜きモードで、しきい値を靴寄り/背景寄りにずらす比率。
+  /// 「背景を消す」は+30%（背景寄りに広く判定）、「靴を戻す」は-30%（靴寄りに狭く判定）。
+  static const _enclosedBiasRatio = 0.3;
+
   /// Android + ML Kit の初回実行でモデルDLが必要かどうかを返す
   Future<bool> needsModelDownload() async {
     if (!Platform.isAndroid) return false;
@@ -599,7 +603,14 @@ class BackgroundRemovalService {
         croppedSource.width == cutout.width && croppedSource.height == cutout.height
             ? croppedSource
             : img.copyResize(croppedSource, width: cutout.width, height: cutout.height);
+    // 囲み切り抜きモードの背景色サンプリングは、使う時だけ計算する（複数ストロークで使い回す）。
+    ({double r, double g, double b})? enclosedBackgroundRef;
     for (final stroke in strokes) {
+      if (stroke.enclosedRejudge && stroke.points.length >= 3) {
+        enclosedBackgroundRef ??= _estimateBackgroundColor(original);
+        _rejudgeEnclosedArea(cutout, original, stroke, enclosedBackgroundRef);
+        continue;
+      }
       final radius = (stroke.size * cutout.width).round().clamp(1, 200);
       if (stroke.fill && stroke.points.length >= 3) {
         _fillEnclosedArea(cutout, original, stroke);
@@ -649,6 +660,82 @@ class BackgroundRemovalService {
     }
     await File(cutoutPath)
         .writeAsBytes(Uint8List.fromList(img.encodePng(cutout)));
+  }
+
+  /// 画像の端（枠）の色の中央値から、背景色の目安を推定する。
+  /// _removeWithFloodFill と同じサンプリング方法を、ブラシ編集時の
+  /// 「元の写真」（原則、切り抜き範囲の端は背景寄りになっている）に適用する。
+  ({double r, double g, double b}) _estimateBackgroundColor(img.Image image) {
+    final borderPixels = <img.Pixel>[];
+    final xStep = (image.width ~/ 60).clamp(1, 24);
+    final yStep = (image.height ~/ 60).clamp(1, 24);
+    for (var x = 0; x < image.width; x += xStep) {
+      borderPixels.add(image.getPixel(x, 0));
+      borderPixels.add(image.getPixel(x, image.height - 1));
+    }
+    for (var y = 0; y < image.height; y += yStep) {
+      borderPixels.add(image.getPixel(0, y));
+      borderPixels.add(image.getPixel(image.width - 1, y));
+    }
+    double median(List<num> values) {
+      values.sort((a, b) => a.compareTo(b));
+      return values[values.length ~/ 2].toDouble();
+    }
+    return (
+      r: median(borderPixels.map((pixel) => pixel.r).toList()),
+      g: median(borderPixels.map((pixel) => pixel.g).toList()),
+      b: median(borderPixels.map((pixel) => pixel.b).toList()),
+    );
+  }
+
+  /// 囲み切り抜きモード: なぞった輪の内側だけ、元の写真の色を背景色と比較して
+  /// 靴か背景かを判定し直す。しきい値をerase/restoreの方向にずらすことで、
+  /// 「背景を消す」は背景寄りに、「靴を戻す」は靴寄りに判定を倒す。
+  void _rejudgeEnclosedArea(
+    img.Image cutout,
+    img.Image original,
+    CutoutBrushStroke stroke,
+    ({double r, double g, double b}) backgroundRef,
+  ) {
+    final xs = stroke.points.map((point) => point.x);
+    final ys = stroke.points.map((point) => point.y);
+    final minX =
+        (xs.reduce(min) * cutout.width).floor().clamp(0, cutout.width - 1);
+    final maxX =
+        (xs.reduce(max) * cutout.width).ceil().clamp(0, cutout.width - 1);
+    final minY =
+        (ys.reduce(min) * cutout.height).floor().clamp(0, cutout.height - 1);
+    final maxY =
+        (ys.reduce(max) * cutout.height).ceil().clamp(0, cutout.height - 1);
+    final biasedThreshold = stroke.erase
+        ? stroke.threshold * (1 + _enclosedBiasRatio)
+        : stroke.threshold * (1 - _enclosedBiasRatio);
+    final rampHalfWidth = biasedThreshold * _floodFillRampRatio;
+    for (var y = minY; y <= maxY; y++) {
+      for (var x = minX; x <= maxX; x++) {
+        final px = (x + .5) / cutout.width;
+        final py = (y + .5) / cutout.height;
+        var inside = false;
+        for (var i = 0, j = stroke.points.length - 1;
+            i < stroke.points.length;
+            j = i++) {
+          final a = stroke.points[i];
+          final b = stroke.points[j];
+          final crosses = (a.y > py) != (b.y > py) &&
+              px < (b.x - a.x) * (py - a.y) / (b.y - a.y) + a.x;
+          if (crosses) inside = !inside;
+        }
+        if (!inside) continue;
+        final pixel = original.getPixel(x, y);
+        final distance = sqrt(
+          pow(pixel.r - backgroundRef.r, 2) +
+              pow(pixel.g - backgroundRef.g, 2) +
+              pow(pixel.b - backgroundRef.b, 2),
+        );
+        final alpha = _distanceToAlpha(distance, biasedThreshold, rampHalfWidth);
+        cutout.setPixelRgba(x, y, pixel.r, pixel.g, pixel.b, alpha);
+      }
+    }
   }
 
   void _fillEnclosedArea(
@@ -707,9 +794,18 @@ class CutoutBrushStroke {
     required this.size,
     required this.points,
     this.fill = false,
+    this.enclosedRejudge = false,
+    this.threshold = 90,
   });
   final bool erase;
   final double size;
   final List<CutoutBrushPoint> points;
   final bool fill;
+
+  /// true の場合、なぞった輪の内側を単純に塗るのではなく、元の写真の色を
+  /// 背景色と比較して靴か背景かを判定し直す「囲み切り抜きモード」として扱う。
+  final bool enclosedRejudge;
+
+  /// 囲み切り抜きモードで判定の基準にするしきい値（生成時のスライダー値）。
+  final double threshold;
 }

@@ -52,6 +52,9 @@ class _CutoutAdjustmentScreenState extends State<CutoutAdjustmentScreen> {
   bool _processing = false;
   _EditMode _mode = _EditMode.move;
   double _brushSize = 0.012;
+  // 囲み切り抜きモード（デフォルトON）。背景を消す/靴を戻すそれぞれで個別に切り替えられる。
+  bool _enclosedModeErase = true;
+  bool _enclosedModeRestore = true;
   final List<CutoutBrushStroke> _strokes = [];
   final List<CutoutBrushStroke> _redo = [];
   List<CutoutBrushPoint>? _activePoints;
@@ -66,6 +69,10 @@ class _CutoutAdjustmentScreenState extends State<CutoutAdjustmentScreen> {
 
   // −/+ボタンの長押し連続増減用タイマー
   Timer? _stepTimer;
+
+  // 囲み切り抜きモードとして扱う最小サイズ（ブラシの太さの何倍以上か）。
+  // これより小さい輪は「囲み」と呼べないため、通常モードにフォールバックする。
+  static const _enclosedMinSizeFactor = 3.0;
 
   @override
   void dispose() {
@@ -356,12 +363,40 @@ class _CutoutAdjustmentScreenState extends State<CutoutAdjustmentScreen> {
                                                             points.last,
                                                           ) <
                                                           _brushSize * 2.5;
-                                                  final stroke = CutoutBrushStroke(
-                                                    erase: _mode == _EditMode.erase,
-                                                    size: _brushSize,
-                                                    points: points,
-                                                    fill: closesShape && _mode == _EditMode.erase,
-                                                  );
+                                                  final enclosedToggleOn =
+                                                      _mode == _EditMode.erase
+                                                          ? _enclosedModeErase
+                                                          : _enclosedModeRestore;
+                                                  final closedPoints =
+                                                      _closePolygon(points);
+                                                  final bbox =
+                                                      _boundingBoxSize(closedPoints);
+                                                  final bigEnough = math.min(
+                                                          bbox.$1, bbox.$2) >=
+                                                      _brushSize *
+                                                          _enclosedMinSizeFactor;
+                                                  final useEnclosedMode =
+                                                      enclosedToggleOn &&
+                                                          bigEnough &&
+                                                          closedPoints.length >= 3;
+                                                  final stroke = useEnclosedMode
+                                                      ? CutoutBrushStroke(
+                                                          erase: _mode ==
+                                                              _EditMode.erase,
+                                                          size: _brushSize,
+                                                          points: closedPoints,
+                                                          enclosedRejudge: true,
+                                                          threshold: _threshold,
+                                                        )
+                                                      : CutoutBrushStroke(
+                                                          erase: _mode ==
+                                                              _EditMode.erase,
+                                                          size: _brushSize,
+                                                          points: points,
+                                                          fill: closesShape &&
+                                                              _mode ==
+                                                                  _EditMode.erase,
+                                                        );
                                                   setState(() {
                                                     _strokes.add(stroke);
                                                     _activePoints = null;
@@ -483,6 +518,27 @@ class _CutoutAdjustmentScreenState extends State<CutoutAdjustmentScreen> {
                         max: 0.08,
                         onChanged: (value) => setState(() => _brushSize = value),
                       ),
+                    ),
+                  ],
+                ),
+              ),
+            if (_adjusting && _mode != _EditMode.move)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  children: [
+                    const Text('囲み切り抜き'),
+                    Switch(
+                      value: _mode == _EditMode.erase
+                          ? _enclosedModeErase
+                          : _enclosedModeRestore,
+                      onChanged: (value) => setState(() {
+                        if (_mode == _EditMode.erase) {
+                          _enclosedModeErase = value;
+                        } else {
+                          _enclosedModeRestore = value;
+                        }
+                      }),
                     ),
                   ],
                 ),
@@ -638,6 +694,28 @@ class _CutoutAdjustmentScreenState extends State<CutoutAdjustmentScreen> {
     final dx = a.x - b.x;
     final dy = a.y - b.y;
     return math.sqrt(dx * dx + dy * dy);
+  }
+
+  /// 始点と終点が離れている場合、始点を末尾に追加して輪っことして閉じる。
+  List<CutoutBrushPoint> _closePolygon(List<CutoutBrushPoint> points) {
+    if (points.length < 2) return points;
+    final first = points.first;
+    final last = points.last;
+    if (_pointDistance(first, last) < 0.001) return points;
+    return [...points, first];
+  }
+
+  /// 点群の外接する四角形の幅・高さ（正規化座標系、0〜1）を返す。
+  (double, double) _boundingBoxSize(List<CutoutBrushPoint> points) {
+    var minX = double.infinity, maxX = -double.infinity;
+    var minY = double.infinity, maxY = -double.infinity;
+    for (final point in points) {
+      if (point.x < minX) minX = point.x;
+      if (point.x > maxX) maxX = point.x;
+      if (point.y < minY) minY = point.y;
+      if (point.y > maxY) maxY = point.y;
+    }
+    return (maxX - minX, maxY - minY);
   }
 
   Future<void> _restoreOutlineAt(Offset position, BoxConstraints constraints) async {
