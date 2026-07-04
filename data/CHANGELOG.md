@@ -4,6 +4,57 @@
 
 ---
 
+## 2026-07-05 v0.5.4 audit
+
+### Audited
+
+- `data/models.json` と `app/assets/data/models.json` の blob SHA が一致していることを確認
+- `data/aliases.json` と `app/assets/data/aliases.json` の blob SHA が一致していることを確認
+- `data/search_keywords.json` と `app/assets/data/search_keywords.json` の blob SHA が一致していることを確認
+- `brands.json` に `dr_martens` が Tier C brand-only として登録済みであることを確認
+- Dr.Martens の次回追加候補として、信頼できる公開情報で `1460` / `1461` を確認
+- `1460` / `1461` は数字だけでも識別性が高いため、次回モデル追加時の searchKeywords 候補にできる
+
+### Not Added
+
+- 今回は `models.json` / `aliases.json` / `search_keywords.json` 本体への新規追加は行わない
+- 理由: 現在のJSONは1行圧縮形式で、差分追記時に巨大ファイル全体を安全に扱いづらい
+- 低確度モデルや広すぎるAlias/searchKeywordsを避けるため、Dr.Martensは次回にまとめてモデル・Alias・searchKeywords・app/assets同期まで実施する
+
+### Next Candidate
+
+```text
+Brand: Dr.Martens
+Candidate models:
+- 1460
+- 1461
+
+Safe alias/searchKeywords candidates:
+- 1460
+- 1461
+- DrMartens1460
+- DrMartens1461
+- ドクターマーチン1460
+- ドクターマーチン1461
+
+Do not add as standalone broad aliases:
+- Docs
+- DMs
+- Boot
+- Shoe
+- Martens
+```
+
+### Remaining
+
+- Dr.Martens のモデル追加前に `data/*.json` と `app/assets/data/*.json` の安全な同期更新を実施
+- JSON同期の自動化または整形済みJSONへの移行
+- Search MVPテストケース実施
+- Tier S / A / B のABC-MART差分監査
+- Tier Cブランドのモデル追加継続
+
+---
+
 ## 2026-07-04 v0.5.4
 
 ### Added / Updated
