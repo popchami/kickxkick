@@ -1,4 +1,4 @@
-# Kick×Kick Task Board v2.4
+# Kick×Kick Task Board v2.5
 
 ## 目的
 
@@ -14,9 +14,9 @@ Kick×Kick開発の現在地を管理する。
 ブランド・モデル・検索基盤はMVPリリース可能ライン。
 Tier S / Tier A はPASS。
 Tier BはHOKA / Saucony / SALOMON / MERRELL / BROOKSを追加し、Alias / searchKeywords までPASS化済み。
-Tier Cはブランド名先行登録済み。SKECHERSはv0.5.3で8モデルまで拡張。
+Tier Cはブランド名先行登録済み。SKECHERSはv0.5.3で8モデルまで拡張。crocsはv0.5.4で4モデル追加開始。
 ABC-MARTなど国内流通リファレンスを基準に、今後もデータ資産を継続育成する。
-data/models.json・aliases.json・search_keywords.json と app/assets/data 側は v0.5.3 として同期済み。
+data/models.json・aliases.json・search_keywords.json と app/assets/data 側は v0.5.4 として同期済み。
 次はSearch MVPテスト、TOP5・着用履歴・詳細確認を進める。
 ```
 
@@ -60,7 +60,7 @@ docs/HANDOFF_BRAND_MODEL_SEARCH.md
 状態:
 
 ```text
-ACTIVE / MVP DATA PASS / MARKET REFERENCE GROWTH / DATA v0.5.3 SYNCED
+ACTIVE / MVP DATA PASS / MARKET REFERENCE GROWTH / DATA v0.5.4 SYNCED
 ```
 
 - [x] BRAND_MASTER.md 作成
@@ -135,6 +135,13 @@ ACTIVE / MVP DATA PASS / MARKET REFERENCE GROWTH / DATA v0.5.3 SYNCED
 - [x] data/README.md v0.5.3反映
 - [x] data/validation_rules.md v1.5反映
 - [x] MODEL_MASTER_COVERAGE v2.0反映
+- [x] Tier Cモデル追加開始: crocs 4件
+- [x] crocs Alias追加 v0.5.4
+- [x] crocs searchKeywords追加 v0.5.4
+- [x] app/assets/data/*.json v0.5.4 同期
+- [x] data/README.md v0.5.4反映
+- [x] data/validation_rules.md v1.6反映
+- [x] MODEL_MASTER_COVERAGE v2.1反映
 
 保留:
 
@@ -142,7 +149,7 @@ ACTIVE / MVP DATA PASS / MARKET REFERENCE GROWTH / DATA v0.5.3 SYNCED
 - [ ] data/*.json と app/assets/data/*.json の同期自動化
 - [ ] Tier S / A / B のABC-MART差分監査
 - [ ] Tier Cブランドのモデル追加継続
-- [ ] SKECHERSの国内流通差分監査継続
+- [ ] SKECHERS / crocs の国内流通差分監査継続
 
 ---
 
@@ -182,7 +189,7 @@ IN PROGRESS / RUNTIME CHECK STARTED
 状態:
 
 ```text
-IMPLEMENTED / PHOTO SAVE CHECKED / DATA v0.5.3 SYNCED
+IMPLEMENTED / PHOTO SAVE CHECKED / DATA v0.5.4 SYNCED
 ```
 
 - [x] Load app/assets/data/brands.json
@@ -218,110 +225,4 @@ MODEL_MASTER_DATA_SPEC.md
 REGISTRATION_FLOW_SPEC.md
 REGISTRATION_VALIDATION_SPEC.md
 SEARCH_MVP_TEST_SPEC.md
-BRAND_MASTER.md
-MODEL_MASTER/README.md
-../data/brands.json
-../data/models.json
-../data/aliases.json
-../data/search_keywords.json
-../docs/KICKXKICK_RELEASE_PRIORITY.md
-../docs/HANDOFF_BRAND_MODEL_SEARCH.md
 ```
-
-### Photo
-
-- [x] 写真登録
-- [x] 写真表示
-- [ ] 写真削除
-
-### TOP5
-
-- [ ] TOP5 Provider
-- [ ] TOP5 UI
-- [ ] TOP5登録
-- [ ] TOP5入替
-
-### Wear History
-
-- [ ] 今日履いた
-- [ ] 過去日追加
-- [ ] 回数集計
-
-### Home
-
-- [ ] TOP5表示
-- [ ] 最近追加したスニーカー
-- [ ] Statistics簡易版
-
----
-
-# Sprint2
-
-状態:
-
-```text
-WAITING
-```
-
-目的:
-
-Collection
-
-## Sprint2 Tasks
-
-- [ ] Collection Model
-- [ ] Collection Repository
-- [ ] Collection Provider
-- [ ] Shelf List
-- [ ] Shelf Create
-- [ ] Shelf Delete
-- [ ] Theme Select
-- [ ] Slot Layout
-- [ ] Zoom 2-5
-- [ ] Box Display
-
----
-
-# Sprint3
-
-状態:
-
-```text
-WAITING
-```
-
-目的:
-
-Sticker / Board
-
-## Sprint3 Tasks
-
-- [ ] Sticker Model
-- [ ] Sticker Repository
-- [ ] Sticker Board
-- [ ] Sticker Search
-- [ ] Sticker Edit Mode
-- [ ] Cutout Flow
-- [ ] Board Export
-
----
-
-# Sprint4
-
-状態:
-
-```text
-WAITING
-```
-
-目的:
-
-Settings / Premium / Backup
-
-## Sprint4 Tasks
-
-- [ ] Theme unlock
-- [ ] Premium gate
-- [ ] Backup export
-- [ ] Backup import
-- [ ] App information
