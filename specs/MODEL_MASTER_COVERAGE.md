@@ -1,4 +1,4 @@
-# Kick×Kick Model Master Coverage v2.0
+# Kick×Kick Model Master Coverage v2.1
 
 ## Purpose
 
@@ -84,6 +84,7 @@ TODO
 | Brand | Model Coverage | Alias | searchKeywords | Canonical Name | Status | Notes |
 |---|---|---|---|---|---|---|
 | SKECHERS | PARTIAL | PASS | PASS | PASS | MODEL_STARTED | 公式Collections確認ベースで8件追加。`Uno` / `Walk` / `Run` / `BOBS` / `Street` / `Golf` 単体は未追加。 |
+| crocs | PARTIAL | PASS | PASS | PASS | MODEL_STARTED | 日本公式クロッグページ確認ベースで4件追加。`Classic` / `Clog` / `Bae` / `Echo` 単体は未追加。 |
 
 ---
 
@@ -92,7 +93,7 @@ TODO
 Tier Cは、国内流通リファレンスに掲載されるブランド名を先行登録した状態。
 
 ```text
-HAWKINS / FILA / byA / ABC SELECT / NUOVO / Danner / STEFANO ROSSI / Timberland / SPERRY TOPSIDER / le coq sportif / DESCENTE / COLE HAAN / ROCKPORT / SYUNSOKU / Dr.Martens / PATRICK / TEVA / crocs / UNDER ARMOUR / HUNTER / JOLI ENCORE / IFME / G.C.MORELLI / HARUTA / SUPERGA / JEWEL / RED WING / A+ / AIGLE / AKTR / AMBITIOUS / BENTER / BIRKENSTOCK / BLUNDSTONE / BUNKER / BUTTERFLYTWISTS / CHAMPION / CLARKS / COLUMBUS / CORSO NAPOLEONE / COXX BORBA / EVE / FLUCHOS / FRED PERRY / FOOTJOY / GAVIC / GENTILE / GIANNI SIMONE / HARRIS / HI-TEC / HOME COLLECT / HOME EXE / HYPER JUMPER / Ipanema / K-SWISS / LACOSTE / LIBERTY HOUSE / MINNETONKA / molten / MONTRRE / MOONSTAR / NEW ERA / PANSY / PEACEPARK / PEDAG / POLO R.LAUREN / POLSA / REGETA / SKA / SHAKA / STANCE SOCKS / STILMODA / TEXCY / UMBRO / zamst
+HAWKINS / FILA / byA / ABC SELECT / NUOVO / Danner / STEFANO ROSSI / Timberland / SPERRY TOPSIDER / le coq sportif / DESCENTE / COLE HAAN / ROCKPORT / SYUNSOKU / Dr.Martens / PATRICK / TEVA / UNDER ARMOUR / HUNTER / JOLI ENCORE / IFME / G.C.MORELLI / HARUTA / SUPERGA / JEWEL / RED WING / A+ / AIGLE / AKTR / AMBITIOUS / BENTER / BIRKENSTOCK / BLUNDSTONE / BUNKER / BUTTERFLYTWISTS / CHAMPION / CLARKS / COLUMBUS / CORSO NAPOLEONE / COXX BORBA / EVE / FLUCHOS / FRED PERRY / FOOTJOY / GAVIC / GENTILE / GIANNI SIMONE / HARRIS / HI-TEC / HOME COLLECT / HOME EXE / HYPER JUMPER / Ipanema / K-SWISS / LACOSTE / LIBERTY HOUSE / MINNETONKA / molten / MONTRRE / MOONSTAR / NEW ERA / PANSY / PEACEPARK / PEDAG / POLO R.LAUREN / POLSA / REGETA / SKA / SHAKA / STANCE SOCKS / STILMODA / TEXCY / UMBRO / zamst
 ```
 
 状態:
@@ -140,6 +141,10 @@ searchKeywords: TODO
 2026-07-03 v0.5.3
 - SKECHERSを8モデルまで拡張
 - data/models・aliases・search_keywords と app/assets/data 側を同期
+
+2026-07-04 v0.5.4
+- crocsを4モデル追加開始
+- data/models・aliases・search_keywords と app/assets/data 側を同期
 ```
 
 ---
@@ -148,7 +153,7 @@ searchKeywords: TODO
 
 ```text
 1. Tier Cブランドのモデル追加を優先度順に進める
-2. SKECHERSの国内流通差分監査を継続
+2. SKECHERS / crocs の国内流通差分監査を継続
 3. Tier S / A / B のABC-MART差分監査を継続
 4. Search MVPテストケースを実機またはFlutterテストで実施
 5. data/*.json と app/assets/data/*.json の同期自動化
