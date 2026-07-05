@@ -31,10 +31,9 @@ class ShoeDetailScreen extends ConsumerWidget {
     Shoe shoe,
   ) async {
     final shouldSelect = shoe.topOrder == null;
-    final updated = await ref.read(shoeRepositoryProvider).setTopFive(
-          shoe.id!,
-          shouldSelect,
-        );
+    final updated = await ref
+        .read(shoeRepositoryProvider)
+        .setTopFive(shoe.id!, shouldSelect);
 
     if (updated) {
       ref.invalidate(shoesProvider);
@@ -52,7 +51,9 @@ class ShoeDetailScreen extends ConsumerWidget {
     Shoe shoe,
     PhotoType photoType,
   ) async {
-    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+    final pickedFile = await ImagePicker().pickImage(
+      source: ImageSource.gallery,
+    );
     if (pickedFile == null) {
       return;
     }
@@ -69,12 +70,16 @@ class ShoeDetailScreen extends ConsumerWidget {
     if (result == null) return;
 
     try {
-      final filePath = await ref.read(photoStorageServiceProvider).savePhoto(
+      final filePath = await ref
+          .read(photoStorageServiceProvider)
+          .savePhoto(
             sourceFile: File(pickedFile.path),
             shoeId: shoe.id!,
             photoType: photoType,
           );
-      final previousPhotos = await ref.read(photoRepositoryProvider).replacePhoto(
+      final previousPhotos = await ref
+          .read(photoRepositoryProvider)
+          .replacePhoto(
             Photo.create(
               shoeId: shoe.id!,
               photoType: photoType,
@@ -114,7 +119,9 @@ class ShoeDetailScreen extends ConsumerWidget {
     Shoe shoe,
     List<Photo> photos,
   ) async {
-    final candidates = photos.where((photo) => photo.photoType != PhotoType.main).toList();
+    final candidates = photos
+        .where((photo) => photo.photoType != PhotoType.main)
+        .toList();
     if (candidates.isEmpty) {
       await showAppMessage(context, title: '先に他の写真を登録してください');
       return;
@@ -134,7 +141,10 @@ class ShoeDetailScreen extends ConsumerWidget {
           itemCount: candidates.length,
           itemBuilder: (context, index) => InkWell(
             onTap: () => Navigator.pop(context, candidates[index]),
-            child: Image.file(File(candidates[index].filePath), fit: BoxFit.cover),
+            child: Image.file(
+              File(candidates[index].filePath),
+              fit: BoxFit.cover,
+            ),
           ),
         ),
       ),
@@ -157,7 +167,11 @@ class ShoeDetailScreen extends ConsumerWidget {
           .addShoeToShelf(shelfId, shoe.id!);
       if (!context.mounted) return;
       if (result == null) {
-        await showAppMessage(context, title: '棚がいっぱいです', message: '棚には25足まで置けます。');
+        await showAppMessage(
+          context,
+          title: '棚がいっぱいです',
+          message: '棚には25足まで置けます。',
+        );
         return;
       }
       ref.invalidate(shelfItemsProvider(shelfId));
@@ -198,7 +212,9 @@ class ShoeDetailScreen extends ConsumerWidget {
       return;
     }
 
-    final deletedCount = await ref.read(shoeRepositoryProvider).deleteShoe(shoe.id!);
+    final deletedCount = await ref
+        .read(shoeRepositoryProvider)
+        .deleteShoe(shoe.id!);
     ref.invalidate(shoesProvider);
     ref.invalidate(shoeByIdProvider(shoe.id!));
     ref.invalidate(photosByShoeIdProvider(shoe.id!));
@@ -223,9 +239,7 @@ class ShoeDetailScreen extends ConsumerWidget {
     return shoeAsync.when(
       data: (shoe) {
         if (shoe == null) {
-          return const Scaffold(
-            body: Center(child: Text('スニーカーが見つかりません')),
-          );
+          return const Scaffold(body: Center(child: Text('スニーカーが見つかりません')));
         }
 
         return Scaffold(
@@ -295,8 +309,10 @@ class ShoeDetailScreen extends ConsumerWidget {
           ),
         );
       },
-      loading: () => const Scaffold(body: Center(child: CircularProgressIndicator())),
-      error: (_, __) => const Scaffold(body: Center(child: Text('読み込みに失敗しました'))),
+      loading: () =>
+          const Scaffold(body: Center(child: CircularProgressIndicator())),
+      error: (_, __) =>
+          const Scaffold(body: Center(child: Text('読み込みに失敗しました'))),
     );
   }
 
@@ -339,10 +355,7 @@ class _DetailBody extends ConsumerWidget {
       ),
       children: [
         mainPhotoAsync.when(
-          data: (photo) => _MainPhotoSection(
-            photo: photo,
-            shoeId: shoe.id!,
-          ),
+          data: (photo) => _MainPhotoSection(photo: photo, shoeId: shoe.id!),
           loading: () => const _PhotoPlaceholder(label: '写真を読み込み中'),
           error: (_, __) => const _PhotoPlaceholder(label: '写真を読み込めませんでした'),
         ),
@@ -362,7 +375,9 @@ class _DetailBody extends ConsumerWidget {
             leading: const Icon(Icons.emoji_events_outlined),
             title: Text(shoe.topOrder == null ? 'MY TOP 5に追加' : 'MY TOP 5登録済み'),
             subtitle: Text(
-              shoe.topOrder == null ? 'Home上部に表示する5足へ登録します' : 'No. ${shoe.topOrder}',
+              shoe.topOrder == null
+                  ? 'Home上部に表示する5足へ登録します'
+                  : 'No. ${shoe.topOrder}',
             ),
             trailing: const Icon(Icons.chevron_right),
             onTap: onToggleTopFive,
@@ -422,7 +437,8 @@ class _MainPhotoSectionState extends ConsumerState<_MainPhotoSection> {
     final photo = widget.photo;
     if (photo == null || photo.cutoutPath == null) return;
 
-    final hasMask = photo.cutoutMaskPath != null &&
+    final hasMask =
+        photo.cutoutMaskPath != null &&
         await File(photo.cutoutMaskPath!).exists();
 
     setState(() {
@@ -453,30 +469,34 @@ class _MainPhotoSectionState extends ConsumerState<_MainPhotoSection> {
         );
       }
 
-      await ref.read(photoRepositoryProvider).updatePhoto(
-        photo.copyWith(
-          cutoutPath: result.cutoutPath,
-          cutoutMaskPath: result.maskPath ?? photo.cutoutMaskPath,
-          cutoutThreshold: result.threshold,
-          cutoutEngine: result.engine,
-          cutoutSmoothing: result.smoothing,
-          cutoutAntialiasing: result.antialiasing,
-          cropOffsetXFrac: result.offsetXFrac,
-          cropOffsetYFrac: result.offsetYFrac,
-          cropWidthFrac: result.widthFrac,
-          cropHeightFrac: result.heightFrac,
-        ),
-      );
+      await ref
+          .read(photoRepositoryProvider)
+          .updatePhoto(
+            photo.copyWith(
+              cutoutPath: result.cutoutPath,
+              cutoutMaskPath: result.maskPath ?? photo.cutoutMaskPath,
+              cutoutThreshold: result.threshold,
+              cutoutEngine: result.engine,
+              cutoutSmoothing: result.smoothing,
+              cutoutAntialiasing: result.antialiasing,
+              cropOffsetXFrac: result.offsetXFrac,
+              cropOffsetYFrac: result.offsetYFrac,
+              cropWidthFrac: result.widthFrac,
+              cropHeightFrac: result.heightFrac,
+            ),
+          );
 
-      await ref.read(stickerRepositoryProvider).updateStickerCutout(
-        shoeId: widget.shoeId,
-        sourcePath: photo.filePath,
-        stickerPath: result.cutoutPath,
-        cropOffsetXFrac: result.offsetXFrac,
-        cropOffsetYFrac: result.offsetYFrac,
-        cropWidthFrac: result.widthFrac,
-        cropHeightFrac: result.heightFrac,
-      );
+      await ref
+          .read(stickerRepositoryProvider)
+          .updateStickerCutout(
+            shoeId: widget.shoeId,
+            sourcePath: photo.filePath,
+            stickerPath: result.cutoutPath,
+            cropOffsetXFrac: result.offsetXFrac,
+            cropOffsetYFrac: result.offsetYFrac,
+            cropWidthFrac: result.widthFrac,
+            cropHeightFrac: result.heightFrac,
+          );
 
       ref.invalidate(mainPhotoProvider(widget.shoeId));
       ref.invalidate(photosByShoeIdProvider(widget.shoeId));
@@ -529,10 +549,11 @@ class _MainPhotoSectionState extends ConsumerState<_MainPhotoSection> {
                 height: 220,
                 width: double.infinity,
                 fit: BoxFit.contain,
-                filterQuality: FilterQuality.high,
-                errorBuilder: (_, __, ___) => const _PhotoPlaceholder(
-                  label: '写真ファイルが見つかりません',
-                ),
+                // FilterQuality.highのミップマップ縮小は、切り抜き境界の半透明ピクセルを
+                // 平均化する際に明るい縁が滲んで見えることがあるため、あえて品質を落とす。
+                filterQuality: FilterQuality.medium,
+                errorBuilder: (_, __, ___) =>
+                    const _PhotoPlaceholder(label: '写真ファイルが見つかりません'),
               ),
             ),
           ),
@@ -549,10 +570,7 @@ class _MainPhotoSectionState extends ConsumerState<_MainPhotoSection> {
                 ),
                 if (_isSlow) ...[
                   const SizedBox(width: 8),
-                  Text(
-                    '処理中...',
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
+                  Text('処理中...', style: Theme.of(context).textTheme.bodySmall),
                 ],
               ],
             )
@@ -627,18 +645,15 @@ class _PhotoGallery extends StatelessWidget {
               child: Ink(
                 decoration: BoxDecoration(
                   color: photo == null
-                      ? Theme.of(context)
-                          .colorScheme
-                          .surfaceContainerHighest
-                          .withValues(alpha: 0.35)
+                      ? Theme.of(context).colorScheme.surfaceContainerHighest
+                            .withValues(alpha: 0.35)
                       : Theme.of(context).colorScheme.surfaceContainerHighest,
                   borderRadius: BorderRadius.circular(12),
                   border: photo == null
                       ? Border.all(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .outlineVariant
-                              .withValues(alpha: 0.45),
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.outlineVariant.withValues(alpha: 0.45),
                         )
                       : null,
                 ),
@@ -650,10 +665,9 @@ class _PhotoGallery extends StatelessWidget {
                               child: Icon(
                                 Icons.add_photo_alternate_outlined,
                                 size: 22,
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .outline
-                                    .withValues(alpha: 0.65),
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.outline.withValues(alpha: 0.65),
                               ),
                             )
                           : ClipRRect(
@@ -672,10 +686,10 @@ class _PhotoGallery extends StatelessWidget {
                       child: Text(
                         slot.$2,
                         style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                              color: photo == null
-                                  ? Theme.of(context).colorScheme.outline
-                                  : null,
-                            ),
+                          color: photo == null
+                              ? Theme.of(context).colorScheme.outline
+                              : null,
+                        ),
                       ),
                     ),
                   ],

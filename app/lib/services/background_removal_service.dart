@@ -73,16 +73,20 @@ class BackgroundRemovalService {
     if (Platform.isAndroid) {
       try {
         return await _removeWithMlKit(
-          sourcePath, shoeId,
+          sourcePath,
+          shoeId,
           threshold: threshold,
           smoothing: smoothing,
           antialiasing: antialiasing,
         );
       } catch (e, stackTrace) {
-        debugPrint('[BackgroundRemovalService] ML Kit failed, falling back to floodfill: $e');
+        debugPrint(
+          '[BackgroundRemovalService] ML Kit failed, falling back to floodfill: $e',
+        );
         debugPrintStack(stackTrace: stackTrace);
         return await _removeWithFloodFill(
-          sourcePath, shoeId,
+          sourcePath,
+          shoeId,
           threshold: threshold,
           smoothing: smoothing,
           antialiasing: antialiasing,
@@ -90,7 +94,8 @@ class BackgroundRemovalService {
       }
     }
     return _removeWithFloodFill(
-      sourcePath, shoeId,
+      sourcePath,
+      shoeId,
       threshold: threshold,
       smoothing: smoothing,
       antialiasing: antialiasing,
@@ -129,8 +134,9 @@ class BackgroundRemovalService {
       final bytes = await File(sourcePath).readAsBytes();
       final decoded = img.decodeImage(bytes);
       if (decoded == null) throw StateError('画像を読み込めませんでした');
-      final resized =
-          decoded.width > 1400 ? img.copyResize(decoded, width: 1400) : decoded;
+      final resized = decoded.width > 1400
+          ? img.copyResize(decoded, width: 1400)
+          : decoded;
       final image = resized.convert(numChannels: 4);
 
       // 0.0.3 API: foregroundConfidenceMask は List<double>（幅・高さなし）
@@ -152,10 +158,17 @@ class BackgroundRemovalService {
           final fx = x * maskW / outW;
           final fy = y * maskH / outH;
           final confidence = _bilinearSample(
-            fx, fy, maskW, maskH,
+            fx,
+            fy,
+            maskW,
+            maskH,
             (mx, my) => confidences[my * maskW + mx],
           );
-          final alpha = _confidenceToAlpha(confidence, cutoff, _confidenceRampHalfWidth);
+          final alpha = _confidenceToAlpha(
+            confidence,
+            cutoff,
+            _confidenceRampHalfWidth,
+          );
           final pixel = image.getPixel(x, y);
           image.setPixelRgba(x, y, pixel.r, pixel.g, pixel.b, alpha);
         }
@@ -163,6 +176,7 @@ class BackgroundRemovalService {
 
       _applyAntialiasing(image, antialiasing);
       _smoothCutoutEdge(image, smoothing);
+      _decontaminateEdgeColors(image);
       final crop = _cropToOpaqueBounds(image);
       final cutoutPath = await _savePng(crop.image, shoeId);
       final maskPath = await _saveMaskPng(confidences, maskW, maskH, shoeId);
@@ -204,7 +218,9 @@ class BackgroundRemovalService {
         maskImage.setPixelRgba(x, y, v, v, v, 255);
       }
     }
-    await File(output).writeAsBytes(Uint8List.fromList(img.encodePng(maskImage)));
+    await File(
+      output,
+    ).writeAsBytes(Uint8List.fromList(img.encodePng(maskImage)));
     return output;
   }
 
@@ -231,8 +247,9 @@ class BackgroundRemovalService {
     final bytes = await File(sourcePath).readAsBytes();
     final decoded = img.decodeImage(bytes);
     if (decoded == null) throw StateError('画像を読み込めませんでした');
-    final resized =
-        decoded.width > 1400 ? img.copyResize(decoded, width: 1400) : decoded;
+    final resized = decoded.width > 1400
+        ? img.copyResize(decoded, width: 1400)
+        : decoded;
     final image = resized.convert(numChannels: 4);
     final borderPixels = <img.Pixel>[];
     final xStep = (image.width ~/ 60).clamp(1, 24);
@@ -249,6 +266,7 @@ class BackgroundRemovalService {
       values.sort((a, b) => a.compareTo(b));
       return values[values.length ~/ 2].toDouble();
     }
+
     final r = median(borderPixels.map((pixel) => pixel.r).toList());
     final g = median(borderPixels.map((pixel) => pixel.g).toList());
     final b = median(borderPixels.map((pixel) => pixel.b).toList());
@@ -303,12 +321,17 @@ class BackgroundRemovalService {
           image.setPixelRgba(x, y, pixel.r, pixel.g, pixel.b, 0);
           continue;
         }
-        final alpha = _distanceToAlpha(colorDistance(x, y), threshold, rampHalfWidth);
+        final alpha = _distanceToAlpha(
+          colorDistance(x, y),
+          threshold,
+          rampHalfWidth,
+        );
         image.setPixelRgba(x, y, pixel.r, pixel.g, pixel.b, alpha);
       }
     }
     _applyAntialiasing(image, antialiasing);
     _smoothCutoutEdge(image, smoothing);
+    _decontaminateEdgeColors(image);
     final crop = _cropToOpaqueBounds(image);
     return CutoutResult(
       cutoutPath: await _savePng(crop.image, shoeId),
@@ -331,8 +354,14 @@ class BackgroundRemovalService {
   /// 不透明ピクセル（アルファ値 > 0）の外接矩形を計算し、各辺に8%のマージンを
   /// 加えてクロップする。画像端を超える場合はクランプする。
   /// 不透明ピクセルが1つもなければクロップせず (0, 0, 1, 1) を返す。
-  ({img.Image image, double offsetXFrac, double offsetYFrac, double widthFrac, double heightFrac})
-      _cropToOpaqueBounds(img.Image image) {
+  ({
+    img.Image image,
+    double offsetXFrac,
+    double offsetYFrac,
+    double widthFrac,
+    double heightFrac,
+  })
+  _cropToOpaqueBounds(img.Image image) {
     final width = image.width;
     final height = image.height;
     var minX = width, minY = height, maxX = -1, maxY = -1;
@@ -347,19 +376,32 @@ class BackgroundRemovalService {
       }
     }
     if (maxX < minX || maxY < minY) {
-      return (image: image, offsetXFrac: 0, offsetYFrac: 0, widthFrac: 1, heightFrac: 1);
+      return (
+        image: image,
+        offsetXFrac: 0,
+        offsetYFrac: 0,
+        widthFrac: 1,
+        heightFrac: 1,
+      );
     }
     final boxW = maxX - minX + 1;
     final boxH = maxY - minY + 1;
-    final marginX = (boxW * 0.08).round();
-    final marginY = (boxH * 0.08).round();
+    // ステッカーテキストを置く余白を確保するため8%から広げている。
+    final marginX = (boxW * 0.15).round();
+    final marginY = (boxH * 0.15).round();
     final left = (minX - marginX).clamp(0, width - 1);
     final top = (minY - marginY).clamp(0, height - 1);
     final right = (maxX + marginX).clamp(0, width - 1);
     final bottom = (maxY + marginY).clamp(0, height - 1);
     final cropW = right - left + 1;
     final cropH = bottom - top + 1;
-    final cropped = img.copyCrop(image, x: left, y: top, width: cropW, height: cropH);
+    final cropped = img.copyCrop(
+      image,
+      x: left,
+      y: top,
+      width: cropW,
+      height: cropH,
+    );
     return (
       image: cropped,
       offsetXFrac: left / width,
@@ -406,7 +448,11 @@ class BackgroundRemovalService {
 
   /// 確信度(0〜1)を、しきい値(cutoff)付近でなだらかに0〜255へ変換する（ソフトマット）。
   /// ハードな二値化を避け、モデルの確信度の勾配をそのままアルファ値に反映する。
-  int _confidenceToAlpha(double confidence, double cutoff, double rampHalfWidth) {
+  int _confidenceToAlpha(
+    double confidence,
+    double cutoff,
+    double rampHalfWidth,
+  ) {
     final lower = cutoff - rampHalfWidth;
     final upper = cutoff + rampHalfWidth;
     if (confidence <= lower) return 0;
@@ -418,7 +464,11 @@ class BackgroundRemovalService {
 
   /// 背景色との距離(小さいほど背景寄り)を、しきい値付近でなだらかにアルファへ変換する。
   /// フラッドフィル用（distanceが大きいほど前景寄り＝アルファ高）。
-  int _distanceToAlpha(double distance, double threshold, double rampHalfWidth) {
+  int _distanceToAlpha(
+    double distance,
+    double threshold,
+    double rampHalfWidth,
+  ) {
     final lower = threshold - rampHalfWidth;
     final upper = threshold + rampHalfWidth;
     if (distance <= lower) return 0;
@@ -426,6 +476,112 @@ class BackgroundRemovalService {
     final t = (distance - lower) / (upper - lower);
     final smoothed = t * t * (3 - 2 * t); // smoothstep
     return (smoothed * 255).round().clamp(0, 255);
+  }
+
+  /// 境界付近のピクセル（アルファの値に関わらず、輪郭から一定距離以内）は、
+  /// AIのセグメンテーションが背景の白を誤って不透明な前景と判定していることがあり、
+  /// 元写真の白背景が混ざった/そのままの色になっている場合がある。暗い背景に置いたとき
+  /// 白っぽい縁取りとして目立ってしまうため、「輪郭から離れた明確に確信度の高い内側」
+  /// だけを信頼できる色のソースとし、境界付近はそこから一番近いソースの色で塗り替える
+  /// （赤→白→黒のように色が変わる境界でも、場所ごとに合った色になる）。
+  void _decontaminateEdgeColors(img.Image image) {
+    const opaqueThreshold = 200;
+    final width = image.width;
+    final height = image.height;
+    final rawOpaque = Uint8List(width * height);
+    for (var y = 0; y < height; y++) {
+      for (var x = 0; x < width; x++) {
+        if (image.getPixel(x, y).a >= opaqueThreshold) {
+          rawOpaque[y * width + x] = 1;
+        }
+      }
+    }
+    // 輪郭誤判定は数pxのごく薄い帯であることが多いため、その帯を確実に覆える
+    // マージンだけ内側を「信頼できる核」とする。
+    final margin = (width * 0.008).round().clamp(3, 12);
+    final core = _erodeMask(rawOpaque, width, height, margin);
+
+    final colorSource = Int32List(width * height)
+      ..fillRange(0, width * height, -1);
+    final queue = <int>[];
+    var head = 0;
+    for (var i = 0; i < core.length; i++) {
+      if (core[i] == 1) {
+        colorSource[i] = i;
+        queue.add(i);
+      }
+    }
+    if (queue.isEmpty) return;
+    void visit(int nx, int ny, int sourceIndex) {
+      if (nx < 0 || nx >= width || ny < 0 || ny >= height) return;
+      final index = ny * width + nx;
+      if (colorSource[index] != -1) return;
+      if (image.getPixel(nx, ny).a <= 0) return;
+      colorSource[index] = sourceIndex;
+      queue.add(index);
+    }
+
+    while (head < queue.length) {
+      final current = queue[head++];
+      final cx = current % width;
+      final cy = current ~/ width;
+      final sourceIndex = colorSource[current];
+      visit(cx - 1, cy, sourceIndex);
+      visit(cx + 1, cy, sourceIndex);
+      visit(cx, cy - 1, sourceIndex);
+      visit(cx, cy + 1, sourceIndex);
+    }
+
+    for (var y = 0; y < height; y++) {
+      for (var x = 0; x < width; x++) {
+        final index = y * width + x;
+        final source = colorSource[index];
+        // 核そのもの（塗り替え不要）と、色のソースが見つからなかったピクセルはスキップ。
+        if (source == -1 || source == index) continue;
+        final alpha = image.getPixel(x, y).a;
+        final sourcePixel = image.getPixel(source % width, source ~/ width);
+        image.setPixelRgba(
+          x,
+          y,
+          sourcePixel.r,
+          sourcePixel.g,
+          sourcePixel.b,
+          alpha,
+        );
+      }
+    }
+  }
+
+  /// [mask]（1=不透明, 0=それ以外）を[margin]pxだけ収縮させる。
+  /// 水平・垂直の分離パスで、周囲margin px以内に0が1つでもあれば0にする
+  /// （チェビシェフ距離ベースの収縮）。
+  Uint8List _erodeMask(Uint8List mask, int width, int height, int margin) {
+    final horiz = Uint8List(width * height);
+    for (var y = 0; y < height; y++) {
+      final row = y * width;
+      final prefix = List<int>.filled(width + 1, 0);
+      for (var x = 0; x < width; x++) {
+        prefix[x + 1] = prefix[x] + (mask[row + x] == 0 ? 1 : 0);
+      }
+      for (var x = 0; x < width; x++) {
+        final lo = (x - margin).clamp(0, width - 1);
+        final hi = (x + margin).clamp(0, width - 1);
+        horiz[row + x] = (prefix[hi + 1] - prefix[lo]) == 0 ? 1 : 0;
+      }
+    }
+    final result = Uint8List(width * height);
+    for (var x = 0; x < width; x++) {
+      final prefix = List<int>.filled(height + 1, 0);
+      for (var y = 0; y < height; y++) {
+        prefix[y + 1] = prefix[y] + (horiz[y * width + x] == 0 ? 1 : 0);
+      }
+      for (var y = 0; y < height; y++) {
+        final lo = (y - margin).clamp(0, height - 1);
+        final hi = (y + margin).clamp(0, height - 1);
+        result[y * width + x] = (prefix[hi + 1] - prefix[lo]) == 0 ? 1 : 0;
+      }
+    }
+    return result;
   }
 
   /// アンチエイリアス（3×3カーネル）- ソフトマットの境界(0<アルファ<255)だけを対象に、
@@ -454,13 +610,23 @@ class BackgroundRemovalService {
           final sampleY = (y + ky).clamp(0, height - 1);
           for (var kx = -1; kx <= 1; kx++) {
             final sampleX = (x + kx).clamp(0, width - 1);
-            weightedSum += original[sampleY * width + sampleX] * kernel[ky + 1] * kernel[kx + 1];
+            weightedSum +=
+                original[sampleY * width + sampleX] *
+                kernel[ky + 1] *
+                kernel[kx + 1];
           }
         }
         final blurred = (weightedSum / fullWeight).round().clamp(0, 255);
         final blended = (current * (1 - t) + blurred * t).round().clamp(0, 255);
         final pixel = image.getPixel(x, y);
-        image.setPixelRgba(x, y, pixel.r.toInt(), pixel.g.toInt(), pixel.b.toInt(), blended);
+        image.setPixelRgba(
+          x,
+          y,
+          pixel.r.toInt(),
+          pixel.g.toInt(),
+          pixel.b.toInt(),
+          blended,
+        );
       }
     }
   }
@@ -491,13 +657,23 @@ class BackgroundRemovalService {
           final sampleY = (y + ky).clamp(0, height - 1);
           for (var kx = -2; kx <= 2; kx++) {
             final sampleX = (x + kx).clamp(0, width - 1);
-            weightedSum += original[sampleY * width + sampleX] * kernel[ky + 2] * kernel[kx + 2];
+            weightedSum +=
+                original[sampleY * width + sampleX] *
+                kernel[ky + 2] *
+                kernel[kx + 2];
           }
         }
         final blurred = (weightedSum / fullWeight).round().clamp(0, 255);
         final blended = (current * (1 - t) + blurred * t).round().clamp(0, 255);
         final pixel = image.getPixel(x, y);
-        image.setPixelRgba(x, y, pixel.r.toInt(), pixel.g.toInt(), pixel.b.toInt(), blended);
+        image.setPixelRgba(
+          x,
+          y,
+          pixel.r.toInt(),
+          pixel.g.toInt(),
+          pixel.b.toInt(),
+          blended,
+        );
       }
     }
   }
@@ -519,8 +695,9 @@ class BackgroundRemovalService {
     final bytes = await File(sourcePath).readAsBytes();
     final decoded = img.decodeImage(bytes);
     if (decoded == null) throw StateError('元画像を読み込めませんでした');
-    final resized =
-        decoded.width > 1400 ? img.copyResize(decoded, width: 1400) : decoded;
+    final resized = decoded.width > 1400
+        ? img.copyResize(decoded, width: 1400)
+        : decoded;
     final image = resized.convert(numChannels: 4);
 
     final maskBytes = await File(maskPath).readAsBytes();
@@ -543,10 +720,17 @@ class BackgroundRemovalService {
         final fy = y * maskH / outH;
         // マスクは R チャンネルに確信度 * 255 が格納されている
         final confidence = _bilinearSample(
-          fx, fy, maskW, maskH,
+          fx,
+          fy,
+          maskW,
+          maskH,
           (mx, my) => maskImage.getPixel(mx, my).r / 255.0,
         );
-        final alpha = _confidenceToAlpha(confidence, cutoff, _confidenceRampHalfWidth);
+        final alpha = _confidenceToAlpha(
+          confidence,
+          cutoff,
+          _confidenceRampHalfWidth,
+        );
         final pixel = image.getPixel(x, y);
         image.setPixelRgba(x, y, pixel.r, pixel.g, pixel.b, alpha);
       }
@@ -554,6 +738,7 @@ class BackgroundRemovalService {
 
     _applyAntialiasing(image, antialiasing);
     _smoothCutoutEdge(image, smoothing);
+    _decontaminateEdgeColors(image);
 
     final crop = _cropToOpaqueBounds(image);
     return CutoutResult(
@@ -591,18 +776,43 @@ class BackgroundRemovalService {
     // クロップ（元画像のうちcutoutに対応する範囲を切り出す）→ リサイズ の2段階で
     // originalをcutoutと同じピクセルグリッドに揃える。offsetXFrac等が未指定（0,0,1,1）
     // なら従来通りクロップなしでリサイズのみになる。
-    final cropX = (offsetXFrac * source.width).round().clamp(0, source.width - 1);
-    final cropY = (offsetYFrac * source.height).round().clamp(0, source.height - 1);
-    final cropW = (widthFrac * source.width).round().clamp(1, source.width - cropX);
-    final cropH = (heightFrac * source.height).round().clamp(1, source.height - cropY);
+    final cropX = (offsetXFrac * source.width).round().clamp(
+      0,
+      source.width - 1,
+    );
+    final cropY = (offsetYFrac * source.height).round().clamp(
+      0,
+      source.height - 1,
+    );
+    final cropW = (widthFrac * source.width).round().clamp(
+      1,
+      source.width - cropX,
+    );
+    final cropH = (heightFrac * source.height).round().clamp(
+      1,
+      source.height - cropY,
+    );
     final croppedSource =
-        (cropX == 0 && cropY == 0 && cropW == source.width && cropH == source.height)
-            ? source
-            : img.copyCrop(source, x: cropX, y: cropY, width: cropW, height: cropH);
+        (cropX == 0 &&
+            cropY == 0 &&
+            cropW == source.width &&
+            cropH == source.height)
+        ? source
+        : img.copyCrop(source, x: cropX, y: cropY, width: cropW, height: cropH);
     final original =
-        croppedSource.width == cutout.width && croppedSource.height == cutout.height
-            ? croppedSource
-            : img.copyResize(croppedSource, width: cutout.width, height: cutout.height);
+        croppedSource.width == cutout.width &&
+            croppedSource.height == cutout.height
+        ? croppedSource
+        : img.copyResize(
+            croppedSource,
+            width: cutout.width,
+            height: cutout.height,
+          );
+    // 「靴を戻す」は、AIが最初に切り抜いた時点の不透明領域から一定マージン内でのみ
+    // 有効にする。マージン外（＝確実に背景）まで無条件に塗り戻すと、なぞった範囲の
+    // 背景がそのまま不透明な白として復元されてしまう（実写真は白背景が多いため）。
+    final restoreMargin = (cutout.width * 0.045).round().clamp(24, 100);
+    final restoreMask = _dilatedOpaqueMask(cutout, restoreMargin);
     // 囲み切り抜きモードの背景色サンプリングは、使う時だけ計算する（複数ストロークで使い回す）。
     ({double r, double g, double b})? enclosedBackgroundRef;
     for (final stroke in strokes) {
@@ -613,7 +823,7 @@ class BackgroundRemovalService {
       }
       final radius = (stroke.size * cutout.width).round().clamp(1, 200);
       if (stroke.fill && stroke.points.length >= 3) {
-        _fillEnclosedArea(cutout, original, stroke);
+        _fillEnclosedArea(cutout, original, stroke, restoreMask);
       }
       final points = <CutoutBrushPoint>[];
       for (var index = 0; index < stroke.points.length; index++) {
@@ -629,10 +839,12 @@ class BackgroundRemovalService {
         final steps = (distance / max(1, radius * .45)).ceil();
         for (var step = 1; step <= steps; step++) {
           final t = step / steps;
-          points.add(CutoutBrushPoint(
-            previous.x + (point.x - previous.x) * t,
-            previous.y + (point.y - previous.y) * t,
-          ));
+          points.add(
+            CutoutBrushPoint(
+              previous.x + (point.x - previous.x) * t,
+              previous.y + (point.y - previous.y) * t,
+            ),
+          );
         }
       }
       for (final point in points) {
@@ -645,6 +857,9 @@ class BackgroundRemovalService {
             final dx = x - cx;
             final dy = y - cy;
             if (dx * dx + dy * dy > radius * radius) continue;
+            if (!stroke.erase && restoreMask[y * cutout.width + x] == 0) {
+              continue;
+            }
             final pixel = original.getPixel(x, y);
             cutout.setPixelRgba(
               x,
@@ -658,8 +873,9 @@ class BackgroundRemovalService {
         }
       }
     }
-    await File(cutoutPath)
-        .writeAsBytes(Uint8List.fromList(img.encodePng(cutout)));
+    await File(
+      cutoutPath,
+    ).writeAsBytes(Uint8List.fromList(img.encodePng(cutout)));
   }
 
   /// 画像の端（枠）の色の中央値から、背景色の目安を推定する。
@@ -681,6 +897,7 @@ class BackgroundRemovalService {
       values.sort((a, b) => a.compareTo(b));
       return values[values.length ~/ 2].toDouble();
     }
+
     return (
       r: median(borderPixels.map((pixel) => pixel.r).toList()),
       g: median(borderPixels.map((pixel) => pixel.g).toList()),
@@ -699,14 +916,22 @@ class BackgroundRemovalService {
   ) {
     final xs = stroke.points.map((point) => point.x);
     final ys = stroke.points.map((point) => point.y);
-    final minX =
-        (xs.reduce(min) * cutout.width).floor().clamp(0, cutout.width - 1);
-    final maxX =
-        (xs.reduce(max) * cutout.width).ceil().clamp(0, cutout.width - 1);
-    final minY =
-        (ys.reduce(min) * cutout.height).floor().clamp(0, cutout.height - 1);
-    final maxY =
-        (ys.reduce(max) * cutout.height).ceil().clamp(0, cutout.height - 1);
+    final minX = (xs.reduce(min) * cutout.width).floor().clamp(
+      0,
+      cutout.width - 1,
+    );
+    final maxX = (xs.reduce(max) * cutout.width).ceil().clamp(
+      0,
+      cutout.width - 1,
+    );
+    final minY = (ys.reduce(min) * cutout.height).floor().clamp(
+      0,
+      cutout.height - 1,
+    );
+    final maxY = (ys.reduce(max) * cutout.height).ceil().clamp(
+      0,
+      cutout.height - 1,
+    );
     final biasedThreshold = stroke.erase
         ? stroke.threshold * (1 + _enclosedBiasRatio)
         : stroke.threshold * (1 - _enclosedBiasRatio);
@@ -716,12 +941,15 @@ class BackgroundRemovalService {
         final px = (x + .5) / cutout.width;
         final py = (y + .5) / cutout.height;
         var inside = false;
-        for (var i = 0, j = stroke.points.length - 1;
-            i < stroke.points.length;
-            j = i++) {
+        for (
+          var i = 0, j = stroke.points.length - 1;
+          i < stroke.points.length;
+          j = i++
+        ) {
           final a = stroke.points[i];
           final b = stroke.points[j];
-          final crosses = (a.y > py) != (b.y > py) &&
+          final crosses =
+              (a.y > py) != (b.y > py) &&
               px < (b.x - a.x) * (py - a.y) / (b.y - a.y) + a.x;
           if (crosses) inside = !inside;
         }
@@ -732,7 +960,11 @@ class BackgroundRemovalService {
               pow(pixel.g - backgroundRef.g, 2) +
               pow(pixel.b - backgroundRef.b, 2),
         );
-        final alpha = _distanceToAlpha(distance, biasedThreshold, rampHalfWidth);
+        final alpha = _distanceToAlpha(
+          distance,
+          biasedThreshold,
+          rampHalfWidth,
+        );
         cutout.setPixelRgba(x, y, pixel.r, pixel.g, pixel.b, alpha);
       }
     }
@@ -742,32 +974,45 @@ class BackgroundRemovalService {
     img.Image cutout,
     img.Image original,
     CutoutBrushStroke stroke,
+    Uint8List restoreMask,
   ) {
     final xs = stroke.points.map((point) => point.x);
     final ys = stroke.points.map((point) => point.y);
-    final minX =
-        (xs.reduce(min) * cutout.width).floor().clamp(0, cutout.width - 1);
-    final maxX =
-        (xs.reduce(max) * cutout.width).ceil().clamp(0, cutout.width - 1);
-    final minY =
-        (ys.reduce(min) * cutout.height).floor().clamp(0, cutout.height - 1);
-    final maxY =
-        (ys.reduce(max) * cutout.height).ceil().clamp(0, cutout.height - 1);
+    final minX = (xs.reduce(min) * cutout.width).floor().clamp(
+      0,
+      cutout.width - 1,
+    );
+    final maxX = (xs.reduce(max) * cutout.width).ceil().clamp(
+      0,
+      cutout.width - 1,
+    );
+    final minY = (ys.reduce(min) * cutout.height).floor().clamp(
+      0,
+      cutout.height - 1,
+    );
+    final maxY = (ys.reduce(max) * cutout.height).ceil().clamp(
+      0,
+      cutout.height - 1,
+    );
     for (var y = minY; y <= maxY; y++) {
       for (var x = minX; x <= maxX; x++) {
         final px = (x + .5) / cutout.width;
         final py = (y + .5) / cutout.height;
         var inside = false;
-        for (var i = 0, j = stroke.points.length - 1;
-            i < stroke.points.length;
-            j = i++) {
+        for (
+          var i = 0, j = stroke.points.length - 1;
+          i < stroke.points.length;
+          j = i++
+        ) {
           final a = stroke.points[i];
           final b = stroke.points[j];
-          final crosses = (a.y > py) != (b.y > py) &&
+          final crosses =
+              (a.y > py) != (b.y > py) &&
               px < (b.x - a.x) * (py - a.y) / (b.y - a.y) + a.x;
           if (crosses) inside = !inside;
         }
         if (!inside) continue;
+        if (!stroke.erase && restoreMask[y * cutout.width + x] == 0) continue;
         final pixel = original.getPixel(x, y);
         cutout.setPixelRgba(
           x,
@@ -779,6 +1024,41 @@ class BackgroundRemovalService {
         );
       }
     }
+  }
+
+  /// [image]の不透明ピクセル（アルファ>10）から[margin]px以内を1、それ以外を0とする
+  /// マスクを返す。水平・垂直方向の分離パスによるチェビシェフ距離の膨張（dilate）。
+  Uint8List _dilatedOpaqueMask(img.Image image, int margin) {
+    final w = image.width;
+    final h = image.height;
+    final horizontal = Uint8List(w * h);
+    for (var y = 0; y < h; y++) {
+      final row = y * w;
+      var lastOpaque = -1 - margin;
+      for (var x = 0; x < w; x++) {
+        if (image.getPixel(x, y).a > 10) lastOpaque = x;
+        if (x - lastOpaque <= margin) horizontal[row + x] = 1;
+      }
+      lastOpaque = w + margin;
+      for (var x = w - 1; x >= 0; x--) {
+        if (image.getPixel(x, y).a > 10) lastOpaque = x;
+        if (lastOpaque - x <= margin) horizontal[row + x] = 1;
+      }
+    }
+    final result = Uint8List(w * h);
+    for (var x = 0; x < w; x++) {
+      var lastOpaque = -1 - margin;
+      for (var y = 0; y < h; y++) {
+        if (horizontal[y * w + x] == 1) lastOpaque = y;
+        if (y - lastOpaque <= margin) result[y * w + x] = 1;
+      }
+      lastOpaque = h + margin;
+      for (var y = h - 1; y >= 0; y--) {
+        if (horizontal[y * w + x] == 1) lastOpaque = y;
+        if (lastOpaque - y <= margin) result[y * w + x] = 1;
+      }
+    }
+    return result;
   }
 }
 

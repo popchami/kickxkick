@@ -138,6 +138,37 @@ class _ShoeFormScreenState extends ConsumerState<ShoeFormScreen> {
     }
   }
 
+  /// 写真は選び直さず、同じ元画像のまま切り抜き調整画面に戻る。
+  /// これまでの切り抜き結果（あれば）を引き継いで再編集できるようにする。
+  Future<void> _reopenCutoutScreen({
+    required String sourcePath,
+    String? initialCutoutPath,
+    double initialCropOffsetXFrac = 0,
+    double initialCropOffsetYFrac = 0,
+    double initialCropWidthFrac = 1,
+    double initialCropHeightFrac = 1,
+  }) async {
+    final result = await Navigator.of(context).push<CutoutResult>(
+      MaterialPageRoute(
+        builder: (_) => CutoutAdjustmentScreen(
+          sourcePath: sourcePath,
+          shoeId: widget.shoe?.id ?? 0,
+          initialCutoutPath: initialCutoutPath,
+          initialCropOffsetXFrac: initialCropOffsetXFrac,
+          initialCropOffsetYFrac: initialCropOffsetYFrac,
+          initialCropWidthFrac: initialCropWidthFrac,
+          initialCropHeightFrac: initialCropHeightFrac,
+        ),
+      ),
+    );
+    if (result != null && mounted) {
+      setState(() {
+        _pendingMainPhoto ??= XFile(sourcePath);
+        _pendingCutoutResult = result;
+      });
+    }
+  }
+
   Future<void> _save() async {
     final modelName = _modelController.text.trim();
     if (!_formKey.currentState!.validate() ||
@@ -153,7 +184,8 @@ class _ShoeFormScreenState extends ConsumerState<ShoeFormScreen> {
     final price = priceText.isEmpty ? null : int.tryParse(priceText);
 
     try {
-      final resolvedBrandId = _brandId ??
+      final resolvedBrandId =
+          _brandId ??
           (await brandRepository.findOrCreateByName(_brandText.trim())).id!;
 
       late final int shoeId;
@@ -226,7 +258,8 @@ class _ShoeFormScreenState extends ConsumerState<ShoeFormScreen> {
       shoeId: shoeId,
       photoType: PhotoType.main,
     );
-    final result = _pendingCutoutResult ??
+    final result =
+        _pendingCutoutResult ??
         await BackgroundRemovalService().removeEdgeBackground(filePath, shoeId);
     final repository = ref.read(photoRepositoryProvider);
     final previousPhotos = await repository.replaceMainPhoto(
@@ -327,13 +360,12 @@ class _ShoeFormScreenState extends ConsumerState<ShoeFormScreen> {
   @override
   Widget build(BuildContext context) {
     final brandsAsync = ref.watch(brandsProvider);
-    final existingMainPhotoPath = _isEditing
-        ? ref.watch(mainPhotoProvider(widget.shoe!.id!)).value?.filePath
+    final existingMainPhoto = _isEditing
+        ? ref.watch(mainPhotoProvider(widget.shoe!.id!)).value
         : null;
+    final existingMainPhotoPath = existingMainPhoto?.filePath;
     return Scaffold(
-      appBar: AppBar(
-        title: Text(_isEditing ? 'スニーカー編集' : 'スニーカーを登録'),
-      ),
+      appBar: AppBar(title: Text(_isEditing ? 'スニーカー編集' : 'スニーカーを登録')),
       body: brandsAsync.when(
         data: (brands) => Form(
           key: _formKey,
@@ -350,11 +382,41 @@ class _ShoeFormScreenState extends ConsumerState<ShoeFormScreen> {
               _PhotoPickerCard(
                 pickedFile: _pendingMainPhoto,
                 existingPath: existingMainPhotoPath,
+                cutoutPath:
+                    _pendingCutoutResult?.cutoutPath ??
+                    existingMainPhoto?.cutoutPath,
                 onTap: _pickMainPhoto,
                 onRemove: () => setState(() {
                   _pendingMainPhoto = null;
                   _pendingCutoutResult = null;
                 }),
+                onBackToCutout: () {
+                  final sourcePath =
+                      _pendingMainPhoto?.path ?? existingMainPhotoPath;
+                  if (sourcePath == null) return;
+                  _reopenCutoutScreen(
+                    sourcePath: sourcePath,
+                    initialCutoutPath:
+                        _pendingCutoutResult?.cutoutPath ??
+                        existingMainPhoto?.cutoutPath,
+                    initialCropOffsetXFrac:
+                        _pendingCutoutResult?.offsetXFrac ??
+                        existingMainPhoto?.cropOffsetXFrac ??
+                        0,
+                    initialCropOffsetYFrac:
+                        _pendingCutoutResult?.offsetYFrac ??
+                        existingMainPhoto?.cropOffsetYFrac ??
+                        0,
+                    initialCropWidthFrac:
+                        _pendingCutoutResult?.widthFrac ??
+                        existingMainPhoto?.cropWidthFrac ??
+                        1,
+                    initialCropHeightFrac:
+                        _pendingCutoutResult?.heightFrac ??
+                        existingMainPhoto?.cropHeightFrac ??
+                        1,
+                  );
+                },
               ),
               const SizedBox(height: 28),
               Text('基本情報', style: Theme.of(context).textTheme.titleLarge),
@@ -373,7 +435,13 @@ class _ShoeFormScreenState extends ConsumerState<ShoeFormScreen> {
                 onPressed: _saving ? null : _save,
                 child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 14),
-                  child: Text(_saving ? '保存中…' : _isEditing ? '変更を保存' : '登録する'),
+                  child: Text(
+                    _saving
+                        ? '保存中…'
+                        : _isEditing
+                        ? '変更を保存'
+                        : '登録する',
+                  ),
                 ),
               ),
               const SizedBox(height: 24),
@@ -457,10 +525,7 @@ class _ShoeFormScreenState extends ConsumerState<ShoeFormScreen> {
       children: [
         DropdownButtonFormField<String>(
           initialValue: _selectedSize,
-          decoration: const InputDecoration(
-            labelText: 'サイズ',
-            suffixText: 'cm',
-          ),
+          decoration: const InputDecoration(labelText: 'サイズ', suffixText: 'cm'),
           items: sizes
               .map(
                 (size) =>
@@ -591,19 +656,23 @@ class _ShoeFormScreenState extends ConsumerState<ShoeFormScreen> {
 class _PhotoPickerCard extends StatelessWidget {
   final XFile? pickedFile;
   final String? existingPath;
+  final String? cutoutPath;
   final VoidCallback onTap;
   final VoidCallback onRemove;
+  final VoidCallback onBackToCutout;
 
   const _PhotoPickerCard({
     required this.pickedFile,
     this.existingPath,
+    this.cutoutPath,
     required this.onTap,
     required this.onRemove,
+    required this.onBackToCutout,
   });
 
   @override
   Widget build(BuildContext context) {
-    final imagePath = pickedFile?.path ?? existingPath;
+    final imagePath = cutoutPath ?? pickedFile?.path ?? existingPath;
     if (imagePath == null || imagePath.isEmpty) {
       return InkWell(
         onTap: onTap,
@@ -632,11 +701,14 @@ class _PhotoPickerCard extends StatelessWidget {
       children: [
         ClipRRect(
           borderRadius: BorderRadius.circular(20),
-          child: Image.file(
-            File(imagePath),
+          child: Container(
             height: 220,
             width: double.infinity,
-            fit: BoxFit.cover,
+            color: Theme.of(context).colorScheme.surfaceContainerHighest,
+            // 切り抜き画像は靴のシルエットぎりぎりまでクロップされているため、
+            // cover で拡大すると靴がカードからはみ出してしまう。
+            // containで全体が収まるようにする。
+            child: Image.file(File(imagePath), fit: BoxFit.contain),
           ),
         ),
         if (pickedFile != null)
@@ -652,9 +724,9 @@ class _PhotoPickerCard extends StatelessWidget {
           right: 8,
           bottom: 8,
           child: FilledButton.icon(
-            onPressed: onTap,
-            icon: const Icon(Icons.photo_library_outlined),
-            label: const Text('選び直す'),
+            onPressed: onBackToCutout,
+            icon: const Icon(Icons.crop_outlined),
+            label: const Text('切り抜きの画面に戻る'),
           ),
         ),
       ],
