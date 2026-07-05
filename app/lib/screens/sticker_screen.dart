@@ -1492,9 +1492,24 @@ class _StickerArtworkState extends State<_StickerArtwork> {
     final height = size * .72;
     final width = size * 1.25;
     final fontSize = size * 0.0288 * asset.textScale;
-    final estimatedTextWidth =
-        (text.runes.length * fontSize * .72).clamp(fontSize, width * .92);
-    final textHeight = fontSize * 1.35;
+    // 文字数×係数の近似値ではなく、TextPainterで実際に描画される幅・高さを
+    // 正確に測定する。プレビュー(大きいsize)とボード(小さいsize)で
+    // 見た目の位置が微妙にズレる問題の原因だったため、実測に統一する。
+    final textPainter = TextPainter(
+      text: TextSpan(
+        text: text,
+        style: TextStyle(
+          fontFamily: 'NotoSansJP',
+          fontSize: fontSize,
+          fontWeight: FontWeight.w900,
+          height: 1,
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+      maxLines: 1,
+    )..layout();
+    final estimatedTextWidth = textPainter.width.clamp(fontSize, width * .92);
+    final textHeight = textPainter.height;
     final minX = estimatedTextWidth / 2 / width;
     final maxX = 1 - minX;
     final minY = textHeight / 2 / height;
@@ -1624,6 +1639,9 @@ class _StickerArtworkPainter extends CustomPainter {
     final innerBorderWidth = artworkSize * 0.025;
     // フチのギザギザを抑えるための弱いぼかし。色・太さがはっきり分かる程度に留める。
     final borderBlurSigma = artworkSize * 0.012;
+    // シャドウの縦オフセットもsize=120基準(元の固定値7px)の比率を保ったまま
+    // artworkSizeに比例させる。
+    final shadowOffsetY = artworkSize * (7 / 120);
 
     // 1. シャドウ（MaskFilter.blur でガウスぼかし）
     if (shadowEnabled) {
@@ -1635,7 +1653,7 @@ class _StickerArtworkPainter extends CustomPainter {
         ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4);
       canvas.drawImageRect(
         image, srcRect,
-        Rect.fromLTWH(drawX, drawY + 7, drawW, drawH),
+        Rect.fromLTWH(drawX, drawY + shadowOffsetY, drawW, drawH),
         shadowPaint,
       );
     }
