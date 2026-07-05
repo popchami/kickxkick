@@ -1,0 +1,77 @@
+{
+  "version": "0.5.5-staging",
+  "updatedAt": "2026-07-06",
+  "brandId": "dr_martens",
+  "brandName": "Dr.Martens",
+  "status": "staging_only",
+  "purpose": "High-confidence Dr.Martens model data staged before merging into compressed root JSON masters.",
+  "models": [
+    {
+      "id": "dr_martens_1460",
+      "brandId": "dr_martens",
+      "modelName": "1460",
+      "category": "boots",
+      "source": "master"
+    },
+    {
+      "id": "dr_martens_1461",
+      "brandId": "dr_martens",
+      "modelName": "1461",
+      "category": "shoes",
+      "source": "master"
+    }
+  ],
+  "aliases": [
+    {
+      "modelId": "dr_martens_1460",
+      "alias": "DrMartens1460"
+    },
+    {
+      "modelId": "dr_martens_1460",
+      "alias": "DocMartens1460"
+    },
+    {
+      "modelId": "dr_martens_1461",
+      "alias": "DrMartens1461"
+    },
+    {
+      "modelId": "dr_martens_1461",
+      "alias": "DocMartens1461"
+    }
+  ],
+  "searchKeywords": [
+    {
+      "modelId": "dr_martens_1460",
+      "keyword": "1460"
+    },
+    {
+      "modelId": "dr_martens_1460",
+      "keyword": "ドクターマーチン1460"
+    },
+    {
+      "modelId": "dr_martens_1461",
+      "keyword": "1461"
+    },
+    {
+      "modelId": "dr_martens_1461",
+      "keyword": "ドクターマーチン1461"
+    }
+  ],
+  "excludedBroadTerms": [
+    "Docs",
+    "DMs",
+    "Boot",
+    "Shoe",
+    "Martens",
+    "Dr.Martens",
+    "Doc Martens"
+  ],
+  "audit": {
+    "addedToRootJson": false,
+    "reason": "Root data JSON files are currently compressed into single-line masters. This staging file avoids damaging existing app assets until a safe formatter or sync script is used.",
+    "sourceNotes": [
+      "1460 and 1461 are high-confidence classic Dr. Martens model numbers.",
+      "Standalone broad brand nicknames are intentionally excluded from aliases/searchKeywords."
+    ]
+  }
+}
