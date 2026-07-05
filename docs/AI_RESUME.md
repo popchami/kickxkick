@@ -1,5 +1,6 @@
 Next:
-- スタンプボード/デザイン画面の重さ対策（ボード単位絞り込み取得への変更）は未実装（作業はstash dropで破棄済み）。必要なら再実装の要否から判断する。
+- flutter analyzeの警告6件（未使用import 2件、未使用メソッド3件、BuildContext across async gaps 1件）は未修正
+- 実機にインストール済みのdebug APKの起動・動作確認はまだ実施していない
 
 Blocked:
 - なし
