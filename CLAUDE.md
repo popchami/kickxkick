@@ -1,24 +1,51 @@
-# solemuseum 開発ルール
+# Kick×Kick Claude Code Rules
 
-## 操作の自動承認・要確認ルール
+## Start of every session
 
-### 自動で進める（確認不要）
-- コード修正・ファイル編集
-- 調査・コード読み込み・検索
-- git commit
+1. Read this file first.
+2. Read `docs/AI_RESUME.md` next.
+3. Only open large spec files when `docs/AI_RESUME.md` says they are needed.
 
-### 確認必須 ＋ Discord通知
+## Source of truth
 
-以下に該当する場合は、**まず Discord に「承認待ち」通知を送り、その後チャットで確認を求める**。
-承認されてから実行する。（Webhook URL はグローバル設定に保存済み）
+Current product specs are under:
 
-- **DBマイグレーション**（スキーマ変更・ALTER TABLE等）
-- **git push**
-- **大きな設計変更**（アーキテクチャ・データ構造に関わる判断）
-- **削除系の操作**（ファイル削除・データ削除・DROP TABLE等）
-- **仕様の解釈に迷う場面**
+```text
+specs/KICKXKICK_*
+```
 
-#### 手順（必ずこの順で）
-1. Discord に通知（「承認待ち」の内容）
-2. チャットで確認を求める
-3. ユーザーが承認したら実行
+Do not treat old SoleMuseum documents as current specs.
+
+## Token saving rule
+
+Do not summarize the whole project every time.
+Use this split:
+
+- Code = current implementation state
+- `specs/KICKXKICK_*` = fixed product decisions
+- `docs/AI_RESUME.md` = only the latest resume point
+
+## Work rules
+
+### Can proceed without confirmation
+
+- Read files
+- Search code
+- Edit code
+- Create small supporting files
+- Run local checks
+- Commit changes
+
+### Must ask before doing
+
+- Git push
+- DB schema or migration changes
+- File deletion
+- Large architecture changes
+- Changing fixed product specs
+- Any unclear product decision
+
+## Before ending a session
+
+Update only `docs/AI_RESUME.md` with the smallest useful handoff.
+Do not create a long report unless the user asks for it.
