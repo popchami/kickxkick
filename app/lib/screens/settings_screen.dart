@@ -7,6 +7,7 @@ import 'package:share_plus/share_plus.dart';
 
 import '../app_build_info.dart';
 import '../features/search/screens/search_demo_screen.dart';
+import '../models/background_theme.dart';
 import '../providers/backup_provider.dart';
 import '../providers/brand_provider.dart';
 import '../providers/photo_provider.dart';
@@ -15,7 +16,6 @@ import '../providers/shoe_provider.dart';
 import '../providers/theme_provider.dart';
 import '../providers/wear_log_provider.dart';
 import '../widgets/app_dialogs.dart';
-import '../widgets/themed_background.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -96,17 +96,16 @@ class SettingsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final themeMode = ref.watch(themeModeProvider);
-    final backgroundTheme = ref.watch(appBackgroundThemeProvider).value;
+    final backgroundTheme = ref.watch(appBackgroundThemeProvider).value ??
+        BackgroundTheme.defaultTheme;
 
     return Scaffold(
+      // 共通の背景はmain.dart側で敷くため、自身の背景は透明にして透かす。
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         title: const Text('設定'),
       ),
-      body: backgroundTheme == null
-          ? const Center(child: CircularProgressIndicator())
-          : ThemedBackground(
-              theme: backgroundTheme,
-              child: ListView(
+      body: ListView(
         children: [
           const _SectionTitle(title: '表示'),
           ListTile(
@@ -136,6 +135,23 @@ class SettingsScreen extends ConsumerWidget {
                   value: ThemeMode.system,
                   child: Text('システム設定'),
                 ),
+              ],
+            ),
+          ),
+          ListTile(
+            title: const Text('背景'),
+            subtitle: Text(_backgroundThemeLabel(backgroundTheme)),
+            trailing: PopupMenuButton<BackgroundTheme>(
+              initialValue: backgroundTheme,
+              onSelected: (value) {
+                ref.read(appBackgroundThemeProvider.notifier).setTheme(value);
+              },
+              itemBuilder: (_) => [
+                for (final theme in BackgroundTheme.values)
+                  PopupMenuItem(
+                    value: theme,
+                    child: Text(_backgroundThemeLabel(theme)),
+                  ),
               ],
             ),
           ),
@@ -176,9 +192,17 @@ class SettingsScreen extends ConsumerWidget {
             subtitle: Text('Sneaker Sticker Collection App'),
           ),
         ],
-              ),
-            ),
+      ),
     );
+  }
+}
+
+String _backgroundThemeLabel(BackgroundTheme theme) {
+  switch (theme) {
+    case BackgroundTheme.orange:
+      return 'オレンジ';
+    case BackgroundTheme.street:
+      return 'ストリート';
   }
 }
 
