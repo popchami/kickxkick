@@ -4,13 +4,11 @@ import '../models/brand.dart';
 import '../models/shoe.dart';
 import '../providers/brand_provider.dart';
 import '../providers/photo_provider.dart';
-import '../providers/settings_provider.dart';
 import '../providers/shoe_provider.dart';
 import '../widgets/brand_summary_section.dart';
 import '../widgets/empty_state.dart';
 import '../widgets/recent_worn_section.dart';
 import '../widgets/shoe_card.dart';
-import '../widgets/themed_background.dart';
 import '../widgets/top_five_section.dart';
 import '../widgets/today_worn_action.dart';
 import 'shoe_detail_screen.dart';
@@ -23,9 +21,10 @@ class HomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final shoesAsync = ref.watch(shoesProvider);
     final brandsAsync = ref.watch(brandsProvider);
-    final backgroundTheme = ref.watch(appBackgroundThemeProvider).value;
 
     return Scaffold(
+      // 共通の背景はmain.dart側で敷くため、自身の背景は透明にして透かす。
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -38,20 +37,15 @@ class HomeScreen extends ConsumerWidget {
           ],
         ),
       ),
-      body: backgroundTheme == null
-          ? const Center(child: CircularProgressIndicator())
-          : ThemedBackground(
-              theme: backgroundTheme,
-              child: shoesAsync.when(
-                data: (shoes) => brandsAsync.when(
-                  data: (brands) => _HomeContent(shoes: shoes, brands: brands),
-                  loading: () => const Center(child: CircularProgressIndicator()),
-                  error: (_, __) => _HomeContent(shoes: shoes, brands: const []),
-                ),
-                loading: () => const Center(child: CircularProgressIndicator()),
-                error: (_, __) => const Center(child: Text('読み込みに失敗しました')),
-              ),
-            ),
+      body: shoesAsync.when(
+        data: (shoes) => brandsAsync.when(
+          data: (brands) => _HomeContent(shoes: shoes, brands: brands),
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (_, __) => _HomeContent(shoes: shoes, brands: const []),
+        ),
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (_, __) => const Center(child: Text('読み込みに失敗しました')),
+      ),
     );
   }
 }

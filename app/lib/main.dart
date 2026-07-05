@@ -3,11 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'theme/app_theme.dart';
 import 'providers/theme_provider.dart';
 import 'providers/navigation_provider.dart';
+import 'providers/settings_provider.dart';
 import 'screens/home_screen.dart';
 import 'screens/collection_screen.dart';
 import 'screens/sticker_screen.dart';
 import 'screens/settings_screen.dart';
 import 'screens/shoe_form_screen.dart';
+import 'widgets/themed_background.dart';
 
 void main() {
   runApp(const ProviderScope(child: KickxKickApp()));
@@ -47,7 +49,15 @@ class KickxKickHome extends ConsumerWidget {
     ];
 
     return Scaffold(
-      body: screens[currentIndex],
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          // HOME・設定画面にだけ共通の背景を敷く。Sticker Board・棚は
+          // 将来個別にテーマ(背景)を選べるようにする予定のため対象外。
+          if (currentIndex == 0 || currentIndex == 4) const _AppBackground(),
+          screens[currentIndex],
+        ],
+      ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: currentIndex,
         onDestinationSelected: (index) {
@@ -87,6 +97,27 @@ class KickxKickHome extends ConsumerWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// HOME・設定画面が共通で透かして見せる背景レイヤー。読み込み中に画面全体を
+/// スピナーで止めないよう、ThemedBackgroundと同じフォールバック色を
+/// 即座に表示し、テーマ読み込み後に画像へ切り替える。
+class _AppBackground extends ConsumerWidget {
+  const _AppBackground();
+
+  static const _fallbackColor = Color(0xFFF3E7D3);
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final backgroundTheme = ref.watch(appBackgroundThemeProvider).value;
+    if (backgroundTheme == null) {
+      return const ColoredBox(color: _fallbackColor);
+    }
+    return ThemedBackground(
+      theme: backgroundTheme,
+      child: const SizedBox.shrink(),
     );
   }
 }
