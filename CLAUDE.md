@@ -1,51 +1,52 @@
-# Kick×Kick Claude Code Rules
+# Claude Code Rules
 
-## Start of every session
+## Session Start
 
-1. Read this file first.
-2. Read `docs/AI_RESUME.md` next.
-3. Only open large spec files when `docs/AI_RESUME.md` says they are needed.
+1. Read this file.
+2. Read `docs/AI_RESUME.md`.
+3. Check the latest repository code.
+4. Read only the specs required for the current task.
 
-## Source of truth
+## Source of Truth (Priority)
 
-Current product specs are under:
+1. User instructions
+2. `specs/KICKXKICK_*`
+3. Repository source code
+4. `docs/AI_RESUME.md`
+
+Ignore legacy SoleMuseum documents unless explicitly requested.
+
+## Working Rules
+
+Proceed without confirmation:
+- Read/search files
+- Edit code
+- Create supporting files
+- Run local checks
+- Commit
+
+Ask before:
+- Push
+- DB schema or migration changes
+- File or data deletion
+- Architecture changes
+- Specification changes
+- Unclear requirements
+
+## Token Saving
+
+Do not summarize the project unless requested.
+Use the repository as the implementation source and `docs/AI_RESUME.md` only as the resume point.
+
+## Session End
+
+Update only `docs/AI_RESUME.md`.
+
+Format:
 
 ```text
-specs/KICKXKICK_*
+Next:
+Blocked:
 ```
 
-Do not treat old SoleMuseum documents as current specs.
-
-## Token saving rule
-
-Do not summarize the whole project every time.
-Use this split:
-
-- Code = current implementation state
-- `specs/KICKXKICK_*` = fixed product decisions
-- `docs/AI_RESUME.md` = only the latest resume point
-
-## Work rules
-
-### Can proceed without confirmation
-
-- Read files
-- Search code
-- Edit code
-- Create small supporting files
-- Run local checks
-- Commit changes
-
-### Must ask before doing
-
-- Git push
-- DB schema or migration changes
-- File deletion
-- Large architecture changes
-- Changing fixed product specs
-- Any unclear product decision
-
-## Before ending a session
-
-Update only `docs/AI_RESUME.md` with the smallest useful handoff.
-Do not create a long report unless the user asks for it.
+Do not write long handoff reports.
