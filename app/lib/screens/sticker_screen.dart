@@ -80,11 +80,14 @@ class _StickerScreenState extends ConsumerState<StickerScreen> {
 
   /// 指定ボードのアイテムをキャッシュになければ取得する（多重取得は防止）。
   Future<void> _loadBoardItems(int boardId) async {
-    if (_boardItemsCache.containsKey(boardId) || _loadingBoardIds.contains(boardId)) {
+    if (_boardItemsCache.containsKey(boardId) ||
+        _loadingBoardIds.contains(boardId)) {
       return;
     }
     _loadingBoardIds.add(boardId);
-    final items = await ref.read(stickerRepositoryProvider).getBoardItems(boardId);
+    final items = await ref
+        .read(stickerRepositoryProvider)
+        .getBoardItems(boardId);
     _loadingBoardIds.remove(boardId);
     if (mounted) {
       setState(() => _boardItemsCache[boardId] = items);
@@ -98,7 +101,9 @@ class _StickerScreenState extends ConsumerState<StickerScreen> {
       await repository.ensureDefaultBoard();
       boards = await repository.getBoards();
     }
-    final savedIdText = await ref.read(settingsRepositoryProvider).getValue(_lastBoardIdKey);
+    final savedIdText = await ref
+        .read(settingsRepositoryProvider)
+        .getValue(_lastBoardIdKey);
     final savedId = savedIdText == null ? null : int.tryParse(savedIdText);
     final initialBoard = boards.firstWhere(
       (board) => board.id == savedId,
@@ -187,7 +192,10 @@ class _StickerScreenState extends ConsumerState<StickerScreen> {
     });
     final targetBoard = wasActive
         ? boards.first
-        : boards.firstWhere((b) => b.id == _boardId, orElse: () => boards.first);
+        : boards.firstWhere(
+            (b) => b.id == _boardId,
+            orElse: () => boards.first,
+          );
     final targetIndex = boards.indexOf(targetBoard);
     if (wasActive) {
       await _onBoardPageChanged(targetIndex);
@@ -301,7 +309,8 @@ class _StickerScreenState extends ConsumerState<StickerScreen> {
       backgroundTheme: board.backgroundTheme,
       onPaste: (position) => _pasteStickerAt(board.id, stickers, position),
       onChanged: (item) {
-        final current = _boardItemsCache[board.id] ?? const <StickerBoardItem>[];
+        final current =
+            _boardItemsCache[board.id] ?? const <StickerBoardItem>[];
         final idx = current.indexWhere((i) => i.id == item.id);
         if (idx != -1) {
           _boardItemsCache[board.id] = [
@@ -336,10 +345,11 @@ class _StickerScreenState extends ConsumerState<StickerScreen> {
         .where((color) => color.isNotEmpty)
         .toSet()
         .toList();
-    final activeFilterCount =
-        [_selectedBrandId, _selectedStatus, _selectedColor]
-            .where((value) => value != null)
-            .length;
+    final activeFilterCount = [
+      _selectedBrandId,
+      _selectedStatus,
+      _selectedColor,
+    ].where((value) => value != null).length;
     return Scaffold(
       appBar: AppBar(
         title: InkWell(
@@ -347,7 +357,9 @@ class _StickerScreenState extends ConsumerState<StickerScreen> {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Flexible(child: Text(_currentBoardName, overflow: TextOverflow.ellipsis)),
+              Flexible(
+                child: Text(_currentBoardName, overflow: TextOverflow.ellipsis),
+              ),
               const Icon(Icons.arrow_drop_down),
             ],
           ),
@@ -392,9 +404,7 @@ class _StickerScreenState extends ConsumerState<StickerScreen> {
                   contentPadding: EdgeInsets.zero,
                   leading: Icon(_editMode ? Icons.visibility : Icons.edit),
                   title: Text(_editMode ? '閲覧モードにする' : 'ステッカー編集'),
-                  subtitle: Text(
-                    _editMode ? '移動操作を無効にします' : '移動・貼り付け・削除を行います',
-                  ),
+                  subtitle: Text(_editMode ? '移動操作を無効にします' : '移動・貼り付け・削除を行います'),
                 ),
               ),
               if (_editMode) const PopupMenuDivider(),
@@ -430,21 +440,28 @@ class _StickerScreenState extends ConsumerState<StickerScreen> {
           final matchingShoeIds = shoes
               .where((shoe) {
                 final brandName = brandNames[shoe.brandId] ?? '';
-                final matchesQuery = query.isEmpty ||
+                final matchesQuery =
+                    query.isEmpty ||
                     shoe.modelName.toLowerCase().contains(query) ||
                     brandName.toLowerCase().contains(query) ||
-                    (shoe.displayTitle?.toLowerCase().contains(query) ?? false) ||
+                    (shoe.displayTitle?.toLowerCase().contains(query) ??
+                        false) ||
                     (shoe.stickerText?.toLowerCase().contains(query) ?? false);
                 final matchesBrand =
-                    _selectedBrandId == null || shoe.brandId == _selectedBrandId;
+                    _selectedBrandId == null ||
+                    shoe.brandId == _selectedBrandId;
                 final matchesStatus =
                     _selectedStatus == null || shoe.status == _selectedStatus;
-                final matchesColor = _selectedColor == null ||
+                final matchesColor =
+                    _selectedColor == null ||
                     (shoe.color ?? '')
                         .split(',')
                         .map((color) => color.trim())
                         .contains(_selectedColor);
-                return matchesQuery && matchesBrand && matchesStatus && matchesColor;
+                return matchesQuery &&
+                    matchesBrand &&
+                    matchesStatus &&
+                    matchesColor;
               })
               .map((shoe) => shoe.id)
               .toSet();
@@ -558,41 +575,69 @@ class _StickerScreenState extends ConsumerState<StickerScreen> {
               _StickerFilterGroup(
                 label: '状態',
                 children: [
-                  _filterChip(sheetContext, 'すべて', _selectedStatus == null,
-                      () => _selectedStatus = null),
-                  _filterChip(sheetContext, '新品', _selectedStatus == Shoe.statusNew,
-                      () => _selectedStatus = Shoe.statusNew),
-                  _filterChip(sheetContext, '着用済み', _selectedStatus == Shoe.statusWorn,
-                      () => _selectedStatus = Shoe.statusWorn),
-                  _filterChip(sheetContext, '手放した', _selectedStatus == Shoe.statusParted,
-                      () => _selectedStatus = Shoe.statusParted),
+                  _filterChip(
+                    sheetContext,
+                    'すべて',
+                    _selectedStatus == null,
+                    () => _selectedStatus = null,
+                  ),
+                  _filterChip(
+                    sheetContext,
+                    '新品',
+                    _selectedStatus == Shoe.statusNew,
+                    () => _selectedStatus = Shoe.statusNew,
+                  ),
+                  _filterChip(
+                    sheetContext,
+                    '着用済み',
+                    _selectedStatus == Shoe.statusWorn,
+                    () => _selectedStatus = Shoe.statusWorn,
+                  ),
+                  _filterChip(
+                    sheetContext,
+                    '手放した',
+                    _selectedStatus == Shoe.statusParted,
+                    () => _selectedStatus = Shoe.statusParted,
+                  ),
                 ],
               ),
               _StickerFilterGroup(
                 label: 'ブランド',
                 children: [
-                  _filterChip(sheetContext, 'すべて', _selectedBrandId == null,
-                      () => _selectedBrandId = null),
-                  ...brands.map((brand) => _filterChip(
-                        sheetContext,
-                        brand.name,
-                        _selectedBrandId == brand.id,
-                        () => _selectedBrandId = brand.id,
-                      )),
+                  _filterChip(
+                    sheetContext,
+                    'すべて',
+                    _selectedBrandId == null,
+                    () => _selectedBrandId = null,
+                  ),
+                  ...brands.map(
+                    (brand) => _filterChip(
+                      sheetContext,
+                      brand.name,
+                      _selectedBrandId == brand.id,
+                      () => _selectedBrandId = brand.id,
+                    ),
+                  ),
                 ],
               ),
               if (colors.isNotEmpty)
                 _StickerFilterGroup(
                   label: 'カラー',
                   children: [
-                    _filterChip(sheetContext, 'すべて', _selectedColor == null,
-                        () => _selectedColor = null),
-                    ...colors.map((color) => _filterChip(
-                          sheetContext,
-                          color,
-                          _selectedColor == color,
-                          () => _selectedColor = color,
-                        )),
+                    _filterChip(
+                      sheetContext,
+                      'すべて',
+                      _selectedColor == null,
+                      () => _selectedColor = null,
+                    ),
+                    ...colors.map(
+                      (color) => _filterChip(
+                        sheetContext,
+                        color,
+                        _selectedColor == color,
+                        () => _selectedColor = color,
+                      ),
+                    ),
                   ],
                 ),
             ],
@@ -634,7 +679,12 @@ class _StickerScreenState extends ConsumerState<StickerScreen> {
     }
     if (selected == null || !mounted) return;
     final repository = ref.read(stickerRepositoryProvider);
-    await repository.pasteToBoard(boardId, selected.id, x: position.dx, y: position.dy);
+    await repository.pasteToBoard(
+      boardId,
+      selected.id,
+      x: position.dx,
+      y: position.dy,
+    );
     final newItems = await repository.getBoardItems(boardId);
     if (mounted) setState(() => _boardItemsCache[boardId] = newItems);
   }
@@ -652,9 +702,11 @@ class _StickerScreenState extends ConsumerState<StickerScreen> {
             itemBuilder: (context, index) {
               final shoe = shoes[index];
               return ListTile(
-                title: Text(shoe.displayTitle?.isNotEmpty == true
-                    ? shoe.displayTitle!
-                    : shoe.modelName),
+                title: Text(
+                  shoe.displayTitle?.isNotEmpty == true
+                      ? shoe.displayTitle!
+                      : shoe.modelName,
+                ),
                 onTap: () => Navigator.pop(context, shoe),
               );
             },
@@ -663,7 +715,9 @@ class _StickerScreenState extends ConsumerState<StickerScreen> {
       ),
     );
     if (shoe == null || !mounted) return;
-    final photo = await ref.read(photoRepositoryProvider).getMainPhoto(shoe.id!);
+    final photo = await ref
+        .read(photoRepositoryProvider)
+        .getMainPhoto(shoe.id!);
     if (!mounted) return;
     if (photo == null) {
       await showDialog<void>(
@@ -671,7 +725,12 @@ class _StickerScreenState extends ConsumerState<StickerScreen> {
         builder: (context) => AlertDialog(
           title: const Text('メイン写真が必要です'),
           content: const Text('Detail画面で写真を追加してから作成してください。'),
-          actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('閉じる'))],
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('閉じる'),
+            ),
+          ],
         ),
       );
       return;
@@ -689,14 +748,18 @@ class _StickerScreenState extends ConsumerState<StickerScreen> {
       var cropWidthFrac = photo.cropWidthFrac;
       var cropHeightFrac = photo.cropHeightFrac;
       if (cutoutPath == null || !await File(cutoutPath).exists()) {
-        final result = await BackgroundRemovalService()
-            .removeEdgeBackground(photo.filePath, shoe.id!);
+        final result = await BackgroundRemovalService().removeEdgeBackground(
+          photo.filePath,
+          shoe.id!,
+        );
         cutoutPath = result.cutoutPath;
         cropOffsetXFrac = result.offsetXFrac;
         cropOffsetYFrac = result.offsetYFrac;
         cropWidthFrac = result.widthFrac;
         cropHeightFrac = result.heightFrac;
-        await ref.read(photoRepositoryProvider).updatePhoto(
+        await ref
+            .read(photoRepositoryProvider)
+            .updatePhoto(
               photo.copyWith(
                 cutoutPath: result.cutoutPath,
                 cutoutMaskPath: result.maskPath,
@@ -746,7 +809,8 @@ class _StickerScreenState extends ConsumerState<StickerScreen> {
       final boardId = _boardId ?? await repository.ensureDefaultBoard();
       final count = await repository.getBoardItemCount(boardId);
       final isPremium =
-          await ref.read(settingsRepositoryProvider).getValue('is_premium') == 'true';
+          await ref.read(settingsRepositoryProvider).getValue('is_premium') ==
+          'true';
       final limit = isPremium
           ? StickerRepository.premiumBoardItemLimit
           : StickerRepository.freeBoardItemLimit;
@@ -763,7 +827,12 @@ class _StickerScreenState extends ConsumerState<StickerScreen> {
           context: context,
           builder: (context) => AlertDialog(
             title: const Text('ステッカーを作成できませんでした'),
-            actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('閉じる'))],
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('閉じる'),
+              ),
+            ],
           ),
         );
       }
@@ -786,11 +855,19 @@ class _StickerScreenState extends ConsumerState<StickerScreen> {
     var shadow = existing?.shadowEnabled ?? true;
     var textScale = existing?.textScale ?? .75;
     var textX = existing?.textX ?? .5;
-    var textY = existing?.textY ?? .55;
+    // .55だと靴の中央付近に重なってしまうため、靴の下の余白に収まる位置を初期値にする。
+    var textY = existing?.textY ?? .92;
     const colors = <int>[
-      0xFFFFFFFF, 0xFF111111, 0xFFFF6A00, 0xFFFFC400,
-      0xFFE53935, 0xFFEC407A, 0xFF7E57C2, 0xFF1E88E5,
-      0xFF00ACC1, 0xFF43A047,
+      0xFFFFFFFF,
+      0xFF111111,
+      0xFFFF6A00,
+      0xFFFFC400,
+      0xFFE53935,
+      0xFFEC407A,
+      0xFF7E57C2,
+      0xFF1E88E5,
+      0xFF00ACC1,
+      0xFF43A047,
     ];
     return Navigator.push<_StickerDesign>(
       context,
@@ -862,9 +939,13 @@ class _StickerScreenState extends ConsumerState<StickerScreen> {
       cropOffsetYFrac = editResult.offsetYFrac;
       cropWidthFrac = editResult.widthFrac;
       cropHeightFrac = editResult.heightFrac;
-      final photo = await ref.read(photoRepositoryProvider).getMainPhoto(asset.shoeId);
+      final photo = await ref
+          .read(photoRepositoryProvider)
+          .getMainPhoto(asset.shoeId);
       if (photo != null) {
-        await ref.read(photoRepositoryProvider).updatePhoto(
+        await ref
+            .read(photoRepositoryProvider)
+            .updatePhoto(
               photo.copyWith(
                 cutoutPath: editResult.cutoutPath,
                 cutoutMaskPath: editResult.maskPath,
@@ -881,12 +962,18 @@ class _StickerScreenState extends ConsumerState<StickerScreen> {
         ref.invalidate(mainPhotoProvider(asset.shoeId));
       }
     } else {
-      final updated = await _showStickerDesigner(shoe, asset.stickerPath, asset);
+      final updated = await _showStickerDesigner(
+        shoe,
+        asset.stickerPath,
+        asset,
+      );
       if (updated == null || !mounted) return;
       design = updated;
     }
 
-    await ref.read(stickerRepositoryProvider).saveSticker(
+    await ref
+        .read(stickerRepositoryProvider)
+        .saveSticker(
           shoeId: asset.shoeId,
           sourcePath: asset.sourcePath,
           stickerPath: stickerPath,
@@ -931,8 +1018,9 @@ class _StickerScreenState extends ConsumerState<StickerScreen> {
         setState(() {
           _selectedSticker = null;
           _selectedBoardItem = null;
-          _boardItemsCache[boardId] =
-              current().where((i) => i.id != item.id).toList();
+          _boardItemsCache[boardId] = current()
+              .where((i) => i.id != item.id)
+              .toList();
         });
         repository.deleteBoardItem(item.id);
       case _StickerToolAction.zoomIn:
@@ -944,7 +1032,9 @@ class _StickerScreenState extends ConsumerState<StickerScreen> {
         });
         repository.updateBoardItem(zoomedIn);
       case _StickerToolAction.zoomOut:
-        final zoomedOut = item.copyWith(scale: (item.scale - .1).clamp(.4, 2.0));
+        final zoomedOut = item.copyWith(
+          scale: (item.scale - .1).clamp(.4, 2.0),
+        );
         setState(() {
           _boardItemsCache[boardId] = [
             for (final i in current()) i.id == zoomedOut.id ? zoomedOut : i,
@@ -969,11 +1059,14 @@ class _StickerScreenState extends ConsumerState<StickerScreen> {
 
   Future<bool> _checkBoardCapacity(int boardId) async {
     final isPremium =
-        await ref.read(settingsRepositoryProvider).getValue('is_premium') == 'true';
+        await ref.read(settingsRepositoryProvider).getValue('is_premium') ==
+        'true';
     final limit = isPremium
         ? StickerRepository.premiumBoardItemLimit
         : StickerRepository.freeBoardItemLimit;
-    final count = await ref.read(stickerRepositoryProvider).getBoardItemCount(boardId);
+    final count = await ref
+        .read(stickerRepositoryProvider)
+        .getBoardItemCount(boardId);
     if (count < limit) return true;
     if (!mounted) return false;
     await showAppMessage(
@@ -1069,11 +1162,23 @@ class _StickerBoard extends StatefulWidget {
   final ValueChanged<StickerBoardItem> onChanged;
   final void Function(StickerAsset asset, StickerBoardItem item) onEdit;
   final void Function(StickerAsset asset, StickerBoardItem item) onDesign;
-  final void Function(StickerAsset, StickerBoardItem, _StickerToolAction) onToolAction;
+  final void Function(StickerAsset, StickerBoardItem, _StickerToolAction)
+  onToolAction;
 
   @override
   State<_StickerBoard> createState() => _StickerBoardState();
 }
+
+// ボード上での実際の表示サイズ。
+const _kBoardArtworkDisplaySize = 120.0;
+// テキストレイアウトを計算する際の基準サイズ。displaySizeそのままだと
+// フォントサイズが3px程度と極端に小さくなり、グリフの丸め誤差が
+// ボックスサイズに対して相対的に大きくなって、デザインプレビュー
+// （実寸が大きくフォントサイズも大きい）とのテキスト位置のズレの
+// 原因になる。そのため一旦大きいサイズでレイアウト・描画してから
+// FittedBoxで表示サイズへ縮小することで、プレビューと同じ精度で
+// 位置が決まるようにする。
+const _kBoardArtworkRenderSize = 300.0;
 
 class _StickerBoardState extends State<_StickerBoard> {
   late List<StickerBoardItem> _items;
@@ -1121,192 +1226,275 @@ class _StickerBoardState extends State<_StickerBoard> {
                     builder: (context, constraints) => GestureDetector(
                       behavior: HitTestBehavior.opaque,
                       onLongPressStart: widget.editMode
-                          ? (details) => widget.onPaste(Offset(
-                                (details.localPosition.dx / constraints.maxWidth)
+                          ? (details) => widget.onPaste(
+                              Offset(
+                                (details.localPosition.dx /
+                                        constraints.maxWidth)
                                     .clamp(0, .78),
-                                (details.localPosition.dy / constraints.maxHeight)
+                                (details.localPosition.dy /
+                                        constraints.maxHeight)
                                     .clamp(0, .82),
-                              ))
+                              ),
+                            )
                           : null,
                       child: DecoratedBox(
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(20),
                           border: Border.all(
-                              color: Theme.of(context).colorScheme.outlineVariant),
+                            color: Theme.of(context).colorScheme.outlineVariant,
+                          ),
                         ),
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(20),
                           child: ThemedBackground(
                             theme: widget.backgroundTheme,
                             child: Stack(
-                          clipBehavior: Clip.hardEdge,
-                          children: [
-                            ..._items.map((item) {
-                              final asset = assets[item.stickerId];
-                              if (asset == null) return const SizedBox.shrink();
-                              return Positioned(
-                                key: ValueKey(item.id),
-                                left: item.x * constraints.maxWidth,
-                                top: item.y * constraints.maxHeight,
-                                child: GestureDetector(
-                                  onTap: widget.editMode
-                                      ? () => widget.onEdit(asset, item)
-                                      : null,
-                                  onLongPress: widget.editMode
-                                      ? () => widget.onDesign(asset, item)
-                                      : null,
-                                  onScaleStart: (_) {
-                                    _startScale = item.scale;
-                                    _startRotation = item.rotation;
-                                  },
-                                  onScaleUpdate: (details) {
-                                    final index = _items
-                                        .indexWhere((value) => value.id == item.id);
-                                    setState(() {
-                                      _items[index] = item.copyWith(
-                                        x: (item.x +
-                                                details.focalPointDelta.dx /
-                                                    constraints.maxWidth)
-                                            .clamp(0, .78),
-                                        y: (item.y +
-                                                details.focalPointDelta.dy /
-                                                    constraints.maxHeight)
-                                            .clamp(0, .82),
-                                        scale: widget.editMode
-                                            ? (_startScale * details.scale)
-                                                .clamp(.4, 2.0)
-                                            : item.scale,
-                                        rotation: _startRotation,
-                                      );
-                                    });
-                                  },
-                                  onScaleEnd: (_) => widget.onChanged(
-                                    _items.firstWhere((value) => value.id == item.id),
-                                  ),
-                                  child: Transform.rotate(
-                                    angle: item.rotation,
-                                    child: Stack(
-                                      clipBehavior: Clip.none,
-                                      alignment: Alignment.center,
-                                      children: [
-                                        Transform.scale(
-                                          scale: item.scale,
-                                          child: DecoratedBox(
-                                            decoration: BoxDecoration(
-                                              border: widget.selectedItemId == item.id
-                                                  ? Border.all(
-                                                      color: Colors.orange,
-                                                      width: 2,
-                                                    )
-                                                  : null,
-                                              borderRadius: BorderRadius.circular(10),
+                              clipBehavior: Clip.hardEdge,
+                              children: [
+                                ..._items.map((item) {
+                                  final asset = assets[item.stickerId];
+                                  if (asset == null) {
+                                    return const SizedBox.shrink();
+                                  }
+                                  return Positioned(
+                                    key: ValueKey(item.id),
+                                    left: item.x * constraints.maxWidth,
+                                    top: item.y * constraints.maxHeight,
+                                    child: GestureDetector(
+                                      onTap: widget.editMode
+                                          ? () => widget.onEdit(asset, item)
+                                          : null,
+                                      onLongPress: widget.editMode
+                                          ? () => widget.onDesign(asset, item)
+                                          : null,
+                                      onScaleStart: (_) {
+                                        _startScale = item.scale;
+                                        _startRotation = item.rotation;
+                                      },
+                                      onScaleUpdate: (details) {
+                                        final index = _items.indexWhere(
+                                          (value) => value.id == item.id,
+                                        );
+                                        setState(() {
+                                          _items[index] = item.copyWith(
+                                            x:
+                                                (item.x +
+                                                        details
+                                                                .focalPointDelta
+                                                                .dx /
+                                                            constraints
+                                                                .maxWidth)
+                                                    .clamp(0, .78),
+                                            y:
+                                                (item.y +
+                                                        details
+                                                                .focalPointDelta
+                                                                .dy /
+                                                            constraints
+                                                                .maxHeight)
+                                                    .clamp(0, .82),
+                                            scale: widget.editMode
+                                                ? (_startScale * details.scale)
+                                                      .clamp(.4, 2.0)
+                                                : item.scale,
+                                            rotation: _startRotation,
+                                          );
+                                        });
+                                      },
+                                      onScaleEnd: (_) => widget.onChanged(
+                                        _items.firstWhere(
+                                          (value) => value.id == item.id,
+                                        ),
+                                      ),
+                                      child: Transform.rotate(
+                                        angle: item.rotation,
+                                        child: Stack(
+                                          clipBehavior: Clip.none,
+                                          alignment: Alignment.center,
+                                          children: [
+                                            Transform.scale(
+                                              scale: item.scale,
+                                              child: DecoratedBox(
+                                                decoration: BoxDecoration(
+                                                  border:
+                                                      widget.selectedItemId ==
+                                                          item.id
+                                                      ? Border.all(
+                                                          color: Colors.orange,
+                                                          width: 2,
+                                                        )
+                                                      : null,
+                                                  borderRadius:
+                                                      BorderRadius.circular(10),
+                                                ),
+                                                child: RepaintBoundary(
+                                                  child: SizedBox(
+                                                    width:
+                                                        _kBoardArtworkDisplaySize *
+                                                        1.25,
+                                                    height:
+                                                        _kBoardArtworkDisplaySize *
+                                                        .72,
+                                                    child: FittedBox(
+                                                      fit: BoxFit.fill,
+                                                      child: _StickerArtwork(
+                                                        asset: asset,
+                                                        size:
+                                                            _kBoardArtworkRenderSize,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
                                             ),
-                                            child: RepaintBoundary(
-                                              child: _StickerArtwork(asset: asset),
-                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                }),
+                                ..._items.map(
+                                  (item) => _buildTextItem(item, constraints),
+                                ),
+                                if (widget.editMode && selectedItem != null)
+                                  Positioned(
+                                    left:
+                                        selectedItem.x * constraints.maxWidth +
+                                        75 +
+                                        math.cos(
+                                              selectedItem.rotation -
+                                                  math.pi / 2,
+                                            ) *
+                                            68 *
+                                            selectedItem.scale -
+                                        17,
+                                    top:
+                                        selectedItem.y * constraints.maxHeight +
+                                        60 +
+                                        math.sin(
+                                              selectedItem.rotation -
+                                                  math.pi / 2,
+                                            ) *
+                                            68 *
+                                            selectedItem.scale -
+                                        17,
+                                    child: GestureDetector(
+                                      behavior: HitTestBehavior.opaque,
+                                      onPanStart: (details) {
+                                        final box =
+                                            _boardKey.currentContext
+                                                    ?.findRenderObject()
+                                                as RenderBox?;
+                                        if (box == null) return;
+                                        _rotationCenter = box.localToGlobal(
+                                          Offset(
+                                            selectedItem!.x *
+                                                    constraints.maxWidth +
+                                                75,
+                                            selectedItem.y *
+                                                    constraints.maxHeight +
+                                                43,
+                                          ),
+                                        );
+                                        final delta =
+                                            details.globalPosition -
+                                            _rotationCenter!;
+                                        _handleStartAngle = math.atan2(
+                                          delta.dy,
+                                          delta.dx,
+                                        );
+                                        _handleStartRotation =
+                                            selectedItem.rotation;
+                                      },
+                                      onPanUpdate: (details) {
+                                        final center = _rotationCenter;
+                                        if (center == null) return;
+                                        final index = _items.indexWhere(
+                                          (value) =>
+                                              value.id == selectedItem!.id,
+                                        );
+                                        final current = _items[index];
+                                        final delta =
+                                            details.globalPosition - center;
+                                        final angle = math.atan2(
+                                          delta.dy,
+                                          delta.dx,
+                                        );
+                                        setState(() {
+                                          _items[index] = current.copyWith(
+                                            rotation:
+                                                _handleStartRotation +
+                                                angle -
+                                                _handleStartAngle,
+                                          );
+                                        });
+                                      },
+                                      onPanEnd: (_) => widget.onChanged(
+                                        _items.firstWhere(
+                                          (value) =>
+                                              value.id == selectedItem!.id,
+                                        ),
+                                      ),
+                                      child: Container(
+                                        width: 34,
+                                        height: 34,
+                                        decoration: BoxDecoration(
+                                          color: Colors.orange,
+                                          shape: BoxShape.circle,
+                                          border: Border.all(
+                                            color: Colors.white,
+                                            width: 2,
                                           ),
                                         ),
-                                      ],
+                                        child: const Icon(
+                                          Icons.rotate_right,
+                                          size: 20,
+                                          color: Colors.white,
+                                        ),
+                                      ),
                                     ),
                                   ),
-                                ),
-                              );
-                            }),
-                            ..._items.map((item) => _buildTextItem(item, constraints)),
-                            if (widget.editMode && selectedItem != null)
-                              Positioned(
-                                left: selectedItem.x * constraints.maxWidth +
-                                    75 +
-                                    math.cos(selectedItem.rotation - math.pi / 2) *
-                                        68 *
-                                        selectedItem.scale -
-                                    17,
-                                top: selectedItem.y * constraints.maxHeight +
-                                    60 +
-                                    math.sin(selectedItem.rotation - math.pi / 2) *
-                                        68 *
-                                        selectedItem.scale -
-                                    17,
-                                child: GestureDetector(
-                                  behavior: HitTestBehavior.opaque,
-                                  onPanStart: (details) {
-                                    final box = _boardKey.currentContext
-                                        ?.findRenderObject() as RenderBox?;
-                                    if (box == null) return;
-                                    _rotationCenter = box.localToGlobal(Offset(
-                                      selectedItem!.x * constraints.maxWidth + 75,
-                                      selectedItem.y * constraints.maxHeight + 43,
-                                    ));
-                                    final delta =
-                                        details.globalPosition - _rotationCenter!;
-                                    _handleStartAngle =
-                                        math.atan2(delta.dy, delta.dx);
-                                    _handleStartRotation = selectedItem.rotation;
-                                  },
-                                  onPanUpdate: (details) {
-                                    final center = _rotationCenter;
-                                    if (center == null) return;
-                                    final index = _items.indexWhere(
-                                      (value) => value.id == selectedItem!.id,
-                                    );
-                                    final current = _items[index];
-                                    final delta = details.globalPosition - center;
-                                    final angle = math.atan2(delta.dy, delta.dx);
-                                    setState(() {
-                                      _items[index] = current.copyWith(
-                                        rotation: _handleStartRotation +
-                                            angle -
-                                            _handleStartAngle,
-                                      );
-                                    });
-                                  },
-                                  onPanEnd: (_) => widget.onChanged(
-                                    _items.firstWhere(
-                                        (value) => value.id == selectedItem!.id),
-                                  ),
-                                  child: Container(
-                                    width: 34,
-                                    height: 34,
-                                    decoration: BoxDecoration(
-                                      color: Colors.orange,
-                                      shape: BoxShape.circle,
-                                      border: Border.all(color: Colors.white, width: 2),
-                                    ),
-                                    child: const Icon(
-                                      Icons.rotate_right,
-                                      size: 20,
-                                      color: Colors.white,
+                                if (widget.editMode && selectedItem != null)
+                                  Positioned(
+                                    // ステッカーは中心(x*maxWidth+75, y*maxHeight+43.2)を
+                                    // 基準に拡大縮小されるため、はみ出す量のうち固定部分(75/43.2)
+                                    // と拡大率に応じて変わる部分(scale倍)を分けて計算する。
+                                    left:
+                                        (selectedItem.x * constraints.maxWidth +
+                                                75 -
+                                                147)
+                                            .clamp(
+                                              4,
+                                              constraints.maxWidth - 294,
+                                            ),
+                                    top:
+                                        (selectedItem.y *
+                                                    constraints.maxHeight +
+                                                43.2 +
+                                                43.2 * selectedItem.scale +
+                                                8)
+                                            .clamp(
+                                              4,
+                                              constraints.maxHeight - 48,
+                                            ),
+                                    child: _StickerSelectionToolbar(
+                                      onAction: (action) {
+                                        final current = _items.firstWhere(
+                                          (value) =>
+                                              value.id == selectedItem!.id,
+                                        );
+                                        final asset = assets[current.stickerId];
+                                        if (asset != null) {
+                                          widget.onToolAction(
+                                            asset,
+                                            current,
+                                            action,
+                                          );
+                                        }
+                                      },
                                     ),
                                   ),
-                                ),
-                              ),
-                            if (widget.editMode && selectedItem != null)
-                              Positioned(
-                                // ステッカーは中心(x*maxWidth+75, y*maxHeight+43.2)を
-                                // 基準に拡大縮小されるため、はみ出す量のうち固定部分(75/43.2)
-                                // と拡大率に応じて変わる部分(scale倍)を分けて計算する。
-                                left: (selectedItem.x * constraints.maxWidth +
-                                        75 -
-                                        147)
-                                    .clamp(4, constraints.maxWidth - 294),
-                                top: (selectedItem.y * constraints.maxHeight +
-                                        43.2 +
-                                        43.2 * selectedItem.scale +
-                                        8)
-                                    .clamp(4, constraints.maxHeight - 48),
-                                child: _StickerSelectionToolbar(
-                                  onAction: (action) {
-                                    final current = _items.firstWhere(
-                                      (value) => value.id == selectedItem!.id,
-                                    );
-                                    final asset = assets[current.stickerId];
-                                    if (asset != null) {
-                                      widget.onToolAction(asset, current, action);
-                                    }
-                                  },
-                                ),
-                              ),
-                          ],
+                              ],
                             ),
                           ),
                         ),
@@ -1323,11 +1511,19 @@ class _StickerBoardState extends State<_StickerBoard> {
   }
 
   Widget _buildTextItem(StickerBoardItem item, BoxConstraints constraints) {
-    if (!item.textEnabled || item.textContent.isEmpty) return const SizedBox.shrink();
+    if (!item.textEnabled || item.textContent.isEmpty) {
+      return const SizedBox.shrink();
+    }
     return Positioned(
       key: ValueKey('text_${item.id}'),
-      left: (item.textX * constraints.maxWidth).clamp(0.0, constraints.maxWidth - 12),
-      top: (item.textY * constraints.maxHeight).clamp(0.0, constraints.maxHeight - 12),
+      left: (item.textX * constraints.maxWidth).clamp(
+        0.0,
+        constraints.maxWidth - 12,
+      ),
+      top: (item.textY * constraints.maxHeight).clamp(
+        0.0,
+        constraints.maxHeight - 12,
+      ),
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onPanUpdate: (details) {
@@ -1335,10 +1531,14 @@ class _StickerBoardState extends State<_StickerBoard> {
           if (index == -1) return;
           setState(() {
             _items[index] = _items[index].copyWith(
-              textX: (_items[index].textX + details.delta.dx / constraints.maxWidth)
-                  .clamp(0.0, 0.95),
-              textY: (_items[index].textY + details.delta.dy / constraints.maxHeight)
-                  .clamp(0.0, 0.95),
+              textX:
+                  (_items[index].textX +
+                          details.delta.dx / constraints.maxWidth)
+                      .clamp(0.0, 0.95),
+              textY:
+                  (_items[index].textY +
+                          details.delta.dy / constraints.maxHeight)
+                      .clamp(0.0, 0.95),
             );
           });
         },
@@ -1371,12 +1571,19 @@ class _StickerBoardState extends State<_StickerBoard> {
     final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
     if (bytes == null) return;
     final directory = await getTemporaryDirectory();
-    final file = File(p.join(
+    final file = File(
+      p.join(
         directory.path,
-        'kickxkick_board_${DateTime.now().millisecondsSinceEpoch}.png'));
+        'kickxkick_board_${DateTime.now().millisecondsSinceEpoch}.png',
+      ),
+    );
     await file.writeAsBytes(bytes.buffer.asUint8List());
-    await SharePlus.instance
-        .share(ShareParams(files: [XFile(file.path)], subject: 'KickxKick Sticker Board'));
+    await SharePlus.instance.share(
+      ShareParams(
+        files: [XFile(file.path)],
+        subject: 'KickxKick Sticker Board',
+      ),
+    );
   }
 }
 
@@ -1492,12 +1699,12 @@ class _StickerArtworkState extends State<_StickerArtwork> {
     final height = size * .72;
     final width = size * 1.25;
     final fontSize = size * 0.0288 * asset.textScale;
-    // 文字数×係数の近似値ではなく、TextPainterで実際に描画される幅・高さを
-    // 正確に測定する。プレビュー(大きいsize)とボード(小さいsize)で
-    // 見た目の位置が微妙にズレる問題の原因だったため、実測に統一する。
+    // 文字数×係数の粗い見積もりではなく、実際のフォントメトリクスを測定する。
+    // デザイン画面（sizeが大）とボード（sizeが小）で見積もりのズレ方が変わり、
+    // 靴の絵とテキストの重なり方に差が出てしまうのを防ぐため。
     final textPainter = TextPainter(
       text: TextSpan(
-        text: text,
+        text: text.isEmpty ? ' ' : text,
         style: TextStyle(
           fontFamily: 'NotoSansJP',
           fontSize: fontSize,
@@ -1505,14 +1712,36 @@ class _StickerArtworkState extends State<_StickerArtwork> {
           height: 1,
         ),
       ),
+      // 実際に描画されるTextウィジェットはMediaQueryのtextScalerを適用するため、
+      // 計測側も同じスケールを指定しないと、特にsizeが小さいボード表示で
+      // 実寸とのズレが顕著になり文字が途中で切れて見えてしまう。
+      textScaler: MediaQuery.textScalerOf(context),
       textDirection: TextDirection.ltr,
       maxLines: 1,
     )..layout();
-    final estimatedTextWidth = textPainter.width.clamp(fontSize, width * .92);
+    // 表示ボックスの幅は実測値そのまま使う（クランプすると長いテキストが
+    // 途中で切れて表示されてしまうため）。ドラッグ可能範囲(minX/maxX)の計算だけ、
+    // 中心がキャンバス外まで行き過ぎないよう上限をかける。
+    final measuredTextWidth = textPainter.width;
     final textHeight = textPainter.height;
-    final minX = estimatedTextWidth / 2 / width;
+    // テキストが小さいとドラッグ判定エリアも小さくなり枠があっても掴みにくいため、
+    // タップ・ドラッグ用の当たり判定は最低44px確保する（見た目のテキストサイズとは独立）。
+    // ただし、これは移動操作ができる編集画面（onTextPositionChangedあり）でのみ適用する。
+    // ボード表示（size=120など小さい場合）にも一律適用すると、44pxという固定値が
+    // ボード全体に対して過大になり、minY/maxYのクランプ範囲が大きく歪んで
+    // 保存済みの位置が意図せず動いて見える原因になるため。
+    const minTouchSize = 44.0;
+    final hasDragHandle = widget.onTextPositionChanged != null;
+    final touchWidth = hasDragHandle
+        ? math.max(measuredTextWidth, minTouchSize)
+        : measuredTextWidth;
+    final touchHeight = hasDragHandle
+        ? math.max(textHeight, minTouchSize)
+        : textHeight;
+    final dragBoundWidth = touchWidth.clamp(fontSize, width * .92);
+    final minX = dragBoundWidth / 2 / width;
     final maxX = 1 - minX;
-    final minY = textHeight / 2 / height;
+    final minY = touchHeight / 2 / height;
     final maxY = 1 - minY;
     final textX = asset.textX.clamp(minX, maxX);
     final textY = asset.textY.clamp(minY, maxY);
@@ -1538,18 +1767,27 @@ class _StickerArtworkState extends State<_StickerArtwork> {
             ),
           if (text.isNotEmpty)
             Positioned(
-              left: textX * width - estimatedTextWidth / 2,
-              top: textY * height - textHeight / 2,
-              width: estimatedTextWidth,
-              height: textHeight,
+              left: textX * width - touchWidth / 2,
+              top: textY * height - touchHeight / 2,
+              width: touchWidth,
+              height: touchHeight,
               child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
                 onPanUpdate: widget.onTextPositionChanged == null
                     ? null
                     : (details) {
-                        widget.onTextPositionChanged!(Offset(
-                          (textX + details.delta.dx / width).clamp(minX, maxX),
-                          (textY + details.delta.dy / height).clamp(minY, maxY),
-                        ));
+                        widget.onTextPositionChanged!(
+                          Offset(
+                            (textX + details.delta.dx / width).clamp(
+                              minX,
+                              maxX,
+                            ),
+                            (textY + details.delta.dy / height).clamp(
+                              minY,
+                              maxY,
+                            ),
+                          ),
+                        );
                       },
                 // デザイン編集画面(onTextPositionChangedあり)でのみ、
                 // ステッカー本体の選択枠と同じオレンジ枠線で移動可能な範囲を示す。
@@ -1561,9 +1799,25 @@ class _StickerArtworkState extends State<_StickerArtwork> {
                           borderRadius: BorderRadius.circular(4),
                         ),
                   child: Stack(
+                    clipBehavior: Clip.none,
                     alignment: Alignment.center,
                     children: [
-                      _stickerText(text, Color(asset.textColor), PaintingStyle.fill, 0, size, asset.textScale),
+                      _stickerText(
+                        text,
+                        Color(asset.textColor),
+                        PaintingStyle.fill,
+                        0,
+                        size,
+                        asset.textScale,
+                      ),
+                      // 移動できることが分かりやすいよう、右下に掴んで動かせる
+                      // ハンドルアイコンを表示する（デザイン編集画面のみ）。
+                      if (widget.onTextPositionChanged != null)
+                        const Positioned(
+                          right: -10,
+                          bottom: -10,
+                          child: _TextDragHandle(),
+                        ),
                     ],
                   ),
                 ),
@@ -1585,6 +1839,10 @@ class _StickerArtworkState extends State<_StickerArtwork> {
     return Text(
       text,
       maxLines: 1,
+      softWrap: false,
+      // 実測幅の予測が僅かにずれても文字が絶対に切れないよう、
+      // クリップせずにボックス外へもそのまま描画させる。
+      overflow: TextOverflow.visible,
       style: TextStyle(
         fontFamily: 'NotoSansJP',
         fontSize: size * 0.0288 * textScale,
@@ -1595,6 +1853,28 @@ class _StickerArtworkState extends State<_StickerArtwork> {
           ..strokeJoin = StrokeJoin.round
           ..strokeWidth = strokeWidth
           ..color = color,
+      ),
+    );
+  }
+}
+
+/// テキストが掴んで動かせることを示す小さなハンドル。
+/// 親のGestureDetectorの当たり判定エリア内に乗るよう配置するだけの見た目用ウィジェット。
+class _TextDragHandle extends StatelessWidget {
+  const _TextDragHandle();
+
+  @override
+  Widget build(BuildContext context) {
+    return IgnorePointer(
+      child: Container(
+        width: 22,
+        height: 22,
+        decoration: const BoxDecoration(
+          color: Colors.orange,
+          shape: BoxShape.circle,
+          boxShadow: [BoxShadow(color: Colors.black38, blurRadius: 3)],
+        ),
+        child: const Icon(Icons.open_with, size: 14, color: Colors.white),
       ),
     );
   }
@@ -1617,7 +1897,10 @@ class _StickerArtworkPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    // 画像エリアは幅の 1.08/1.25、高さはフル
+    // 画像エリアは幅の 1.08/1.25、高さはフル。
+    // ※この比率を変えると、既存ステッカーに保存済みのテキスト座標(textX/textY)と
+    // 靴の描画位置・サイズの相対関係がズレて、テキストが靴から外れて見えるようになる
+    // ため、安易に変更しないこと。
     final imgAreaW = size.width * (1.08 / 1.25);
     final imgAreaH = size.height;
     final centerX = (size.width - imgAreaW) / 2;
@@ -1635,8 +1918,10 @@ class _StickerArtworkPainter extends CustomPainter {
     // フチの太さはsize=120基準(元の固定値6px/3px)の比率を保ったまま
     // artworkSizeに比例させる。デザイン編集画面など大きいsizeで表示した時も
     // 文字サイズ(size * 0.0288)と同じようにフチが太くなり、見た目の比率が崩れない。
-    final outerBorderWidth = artworkSize * 0.05;
-    final innerBorderWidth = artworkSize * 0.025;
+    // ステッカーテキストを入れる余白を確保するため、実際に使ってみた上で
+    // 0.05/0.025からさらに拡大している(0.065/0.035)。
+    final outerBorderWidth = artworkSize * 0.065;
+    final innerBorderWidth = artworkSize * 0.035;
     // フチのギザギザを抑えるための弱いぼかし。色・太さがはっきり分かる程度に留める。
     final borderBlurSigma = artworkSize * 0.012;
     // シャドウの縦オフセットもsize=120基準(元の固定値7px)の比率を保ったまま
@@ -1652,7 +1937,8 @@ class _StickerArtworkPainter extends CustomPainter {
         )
         ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4);
       canvas.drawImageRect(
-        image, srcRect,
+        image,
+        srcRect,
         Rect.fromLTWH(drawX, drawY + shadowOffsetY, drawW, drawH),
         shadowPaint,
       );
@@ -1666,11 +1952,13 @@ class _StickerArtworkPainter extends CustomPainter {
     for (var i = 0; i < 16; i++) {
       final angle = i * 2 * math.pi / 16;
       canvas.drawImageRect(
-        image, srcRect,
+        image,
+        srcRect,
         Rect.fromLTWH(
           drawX + outerBorderWidth * math.cos(angle),
           drawY + outerBorderWidth * math.sin(angle),
-          drawW, drawH,
+          drawW,
+          drawH,
         ),
         outerPaint,
       );
@@ -1683,18 +1971,25 @@ class _StickerArtworkPainter extends CustomPainter {
     for (var i = 0; i < 8; i++) {
       final angle = i * 2 * math.pi / 8;
       canvas.drawImageRect(
-        image, srcRect,
+        image,
+        srcRect,
         Rect.fromLTWH(
           drawX + innerBorderWidth * math.cos(angle),
           drawY + innerBorderWidth * math.sin(angle),
-          drawW, drawH,
+          drawW,
+          drawH,
         ),
         innerPaint,
       );
     }
 
     // 4. 本体画像
-    canvas.drawImageRect(image, srcRect, Rect.fromLTWH(drawX, drawY, drawW, drawH), Paint());
+    canvas.drawImageRect(
+      image,
+      srcRect,
+      Rect.fromLTWH(drawX, drawY, drawW, drawH),
+      Paint(),
+    );
   }
 
   @override
@@ -1851,14 +2146,27 @@ class _StickerDesignerPageState extends State<_StickerDesignerPage> {
                                 min: .6,
                                 max: 1.6,
                                 divisions: 20,
-                                onChanged: (v) => setState(() => _textScale = v),
+                                onChanged: (v) =>
+                                    setState(() => _textScale = v),
                               ),
                             ),
                           ],
                         ),
-                        _palette('文字色', _textColor, (v) => setState(() => _textColor = v)),
-                        _palette('内フチ（標準：白）', _innerColor, (v) => setState(() => _innerColor = v)),
-                        _palette('外フチ（標準：オレンジ）', _outerColor, (v) => setState(() => _outerColor = v)),
+                        _palette(
+                          '文字色',
+                          _textColor,
+                          (v) => setState(() => _textColor = v),
+                        ),
+                        _palette(
+                          '内フチ（標準：白）',
+                          _innerColor,
+                          (v) => setState(() => _innerColor = v),
+                        ),
+                        _palette(
+                          '外フチ（標準：オレンジ）',
+                          _outerColor,
+                          (v) => setState(() => _outerColor = v),
+                        ),
                         SwitchListTile(
                           contentPadding: EdgeInsets.zero,
                           title: const Text('Shadow'),
@@ -1908,7 +2216,9 @@ class _StickerDesignerPageState extends State<_StickerDesignerPage> {
                     ? Icon(
                         Icons.check,
                         size: 19,
-                        color: value == 0xFFFFFFFF ? Colors.black : Colors.white,
+                        color: value == 0xFFFFFFFF
+                            ? Colors.black
+                            : Colors.white,
                       )
                     : null,
               ),

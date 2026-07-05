@@ -72,7 +72,8 @@ class ShoeCard extends StatelessWidget {
                     children: [
                       Text(
                         modelName,
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(
                               color: colors.onSurface,
                               fontWeight: FontWeight.w700,
                               fontSize: titleFontSize,
@@ -85,7 +86,8 @@ class ShoeCard extends StatelessWidget {
                         SizedBox(height: compact ? 2 : 4),
                         Text(
                           brandName,
-                          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          style: Theme.of(context).textTheme.labelSmall
+                              ?.copyWith(
                                 color: colors.onSurfaceVariant,
                                 fontSize: compact ? 9 : null,
                               ),
@@ -97,7 +99,8 @@ class ShoeCard extends StatelessWidget {
                         const SizedBox(height: 4),
                         Text(
                           statusLabel!,
-                          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          style: Theme.of(context).textTheme.labelSmall
+                              ?.copyWith(
                                 color: colors.primary,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -107,7 +110,8 @@ class ShoeCard extends StatelessWidget {
                         const SizedBox(height: 4),
                         Text(
                           archiveNumber!,
-                          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          style: Theme.of(context).textTheme.labelSmall
+                              ?.copyWith(
                                 color: colors.onSurfaceVariant,
                                 fontSize: 10,
                                 letterSpacing: 0.5,
@@ -143,10 +147,11 @@ class _ShoeImage extends StatelessWidget {
     return Image.file(
       File(path),
       fit: BoxFit.contain,
-      filterQuality: FilterQuality.high,
-      errorBuilder: (_, __, ___) => _ImagePlaceholder(
-        iconColor: Theme.of(context).colorScheme.outline,
-      ),
+      // FilterQuality.highのミップマップ縮小は、切り抜き境界の半透明ピクセルを
+      // 平均化する際に明るい縁が滲んで見えることがあるため、あえて品質を落とす。
+      filterQuality: FilterQuality.medium,
+      errorBuilder: (_, __, ___) =>
+          _ImagePlaceholder(iconColor: Theme.of(context).colorScheme.outline),
     );
   }
 }
@@ -159,11 +164,7 @@ class _ImagePlaceholder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Icon(
-        Icons.image_outlined,
-        size: 64,
-        color: iconColor,
-      ),
+      child: Icon(Icons.image_outlined, size: 64, color: iconColor),
     );
   }
 }
