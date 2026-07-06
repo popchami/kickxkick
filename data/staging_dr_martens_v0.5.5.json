@@ -1,9 +1,9 @@
 {
-  "version": "0.5.5-staging",
-  "updatedAt": "2026-07-06",
+  "version": "0.5.5-merge-ready",
+  "updatedAt": "2026-07-07",
   "brandId": "dr_martens",
   "brandName": "Dr.Martens",
-  "status": "staging_only",
+  "status": "merge_ready",
   "purpose": "High-confidence Dr.Martens model data staged before merging into compressed root JSON masters.",
   "models": [
     {
@@ -59,7 +59,6 @@
   ],
   "excludedBroadTerms": [
     "Docs",
-    "DMs",
     "Boot",
     "Shoe",
     "Martens",
@@ -68,9 +67,11 @@
   ],
   "audit": {
     "addedToRootJson": false,
-    "reason": "Root data JSON files are currently compressed into single-line masters. This staging file avoids damaging existing app assets until a safe formatter or sync script is used.",
+    "readyForRootJsonMerge": true,
+    "reason": "Root data JSON files are currently compressed into single-line masters. The staged payload is verified and ready, but the root masters should be updated with a formatter or sync script to avoid damaging existing app assets.",
     "sourceNotes": [
       "1460 and 1461 are high-confidence classic Dr. Martens model numbers.",
+      "Official and reliable public references identify 1460 as the 8-eye boot and 1461 as the 3-eye shoe.",
       "Standalone broad brand nicknames are intentionally excluded from aliases/searchKeywords."
     ]
   }
