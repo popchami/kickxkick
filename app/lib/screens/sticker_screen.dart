@@ -1182,8 +1182,11 @@ const _kBoardArtworkRenderSize = 300.0;
 
 class _StickerBoardState extends State<_StickerBoard> {
   late List<StickerBoardItem> _items;
-  double _startScale = 1;
-  double _startRotation = 0;
+  // ドラッグ・回転中の一時的な位置/拡大率/回転を保持するNotifier(itemId単位)。
+  // ここを更新するだけならsetStateを介さないため、該当ステッカーと
+  // 選択ツールバー・回転ハンドルだけが再描画され、他のステッカーは
+  // 再構築されない。
+  final Map<int, ValueNotifier<StickerBoardItem>> _liveItemNotifiers = {};
   Offset? _rotationCenter;
   double _handleStartAngle = 0;
   double _handleStartRotation = 0;
@@ -1193,6 +1196,7 @@ class _StickerBoardState extends State<_StickerBoard> {
   void initState() {
     super.initState();
     _items = [...widget.items];
+    _syncLiveNotifiers();
   }
 
   @override
@@ -1200,7 +1204,42 @@ class _StickerBoardState extends State<_StickerBoard> {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.items != widget.items) {
       setState(() => _items = [...widget.items]);
+      _syncLiveNotifiers();
     }
+  }
+
+  @override
+  void dispose() {
+    for (final notifier in _liveItemNotifiers.values) {
+      notifier.dispose();
+    }
+    super.dispose();
+  }
+
+  void _syncLiveNotifiers() {
+    for (final item in _items) {
+      final notifier = _liveItemNotifiers[item.id];
+      if (notifier == null) {
+        _liveItemNotifiers[item.id] = ValueNotifier(item);
+      } else {
+        notifier.value = item;
+      }
+    }
+    final currentIds = _items.map((item) => item.id).toSet();
+    final staleIds = _liveItemNotifiers.keys
+        .where((id) => !currentIds.contains(id))
+        .toList();
+    for (final id in staleIds) {
+      _liveItemNotifiers.remove(id)?.dispose();
+    }
+  }
+
+  void _commitItem(StickerBoardItem finalItem) {
+    final index = _items.indexWhere((value) => value.id == finalItem.id);
+    if (index != -1) {
+      setState(() => _items[index] = finalItem);
+    }
+    widget.onChanged(finalItem);
   }
 
   @override
@@ -1256,242 +1295,172 @@ class _StickerBoardState extends State<_StickerBoard> {
                                   if (asset == null) {
                                     return const SizedBox.shrink();
                                   }
-                                  return Positioned(
+                                  return _StickerBoardItemView(
                                     key: ValueKey(item.id),
-                                    left: item.x * constraints.maxWidth,
-                                    top: item.y * constraints.maxHeight,
-                                    child: GestureDetector(
-                                      onTap: widget.editMode
-                                          ? () => widget.onEdit(asset, item)
-                                          : null,
-                                      onLongPress: widget.editMode
-                                          ? () => widget.onDesign(asset, item)
-                                          : null,
-                                      onScaleStart: (_) {
-                                        _startScale = item.scale;
-                                        _startRotation = item.rotation;
-                                      },
-                                      onScaleUpdate: (details) {
-                                        final index = _items.indexWhere(
-                                          (value) => value.id == item.id,
-                                        );
-                                        setState(() {
-                                          _items[index] = item.copyWith(
-                                            x:
-                                                (item.x +
-                                                        details
-                                                                .focalPointDelta
-                                                                .dx /
-                                                            constraints
-                                                                .maxWidth)
-                                                    .clamp(0, .78),
-                                            y:
-                                                (item.y +
-                                                        details
-                                                                .focalPointDelta
-                                                                .dy /
-                                                            constraints
-                                                                .maxHeight)
-                                                    .clamp(0, .82),
-                                            scale: widget.editMode
-                                                ? (_startScale * details.scale)
-                                                      .clamp(.4, 2.0)
-                                                : item.scale,
-                                            rotation: _startRotation,
-                                          );
-                                        });
-                                      },
-                                      onScaleEnd: (_) => widget.onChanged(
-                                        _items.firstWhere(
-                                          (value) => value.id == item.id,
-                                        ),
-                                      ),
-                                      child: Transform.rotate(
-                                        angle: item.rotation,
-                                        child: Stack(
-                                          clipBehavior: Clip.none,
-                                          alignment: Alignment.center,
-                                          children: [
-                                            Transform.scale(
-                                              scale: item.scale,
-                                              child: DecoratedBox(
-                                                decoration: BoxDecoration(
-                                                  border:
-                                                      widget.selectedItemId ==
-                                                          item.id
-                                                      ? Border.all(
-                                                          color: Colors.orange,
-                                                          width: 2,
-                                                        )
-                                                      : null,
-                                                  borderRadius:
-                                                      BorderRadius.circular(10),
-                                                ),
-                                                child: RepaintBoundary(
-                                                  child: SizedBox(
-                                                    width:
-                                                        _kBoardArtworkDisplaySize *
-                                                        1.25,
-                                                    height:
-                                                        _kBoardArtworkDisplaySize *
-                                                        .72,
-                                                    child: FittedBox(
-                                                      fit: BoxFit.fill,
-                                                      child: _StickerArtwork(
-                                                        asset: asset,
-                                                        size:
-                                                            _kBoardArtworkRenderSize,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
+                                    asset: asset,
+                                    editMode: widget.editMode,
+                                    selected: widget.selectedItemId == item.id,
+                                    constraints: constraints,
+                                    liveNotifier: _liveItemNotifiers[item.id]!,
+                                    onSelect: () => widget.onEdit(asset, item),
+                                    onDesign: () => widget.onDesign(asset, item),
+                                    onCommit: _commitItem,
                                   );
                                 }),
                                 ..._items.map(
                                   (item) => _buildTextItem(item, constraints),
                                 ),
                                 if (widget.editMode && selectedItem != null)
-                                  Positioned(
-                                    left:
-                                        selectedItem.x * constraints.maxWidth +
-                                        75 +
-                                        math.cos(
-                                              selectedItem.rotation -
-                                                  math.pi / 2,
-                                            ) *
-                                            68 *
-                                            selectedItem.scale -
-                                        17,
-                                    top:
-                                        selectedItem.y * constraints.maxHeight +
-                                        60 +
-                                        math.sin(
-                                              selectedItem.rotation -
-                                                  math.pi / 2,
-                                            ) *
-                                            68 *
-                                            selectedItem.scale -
-                                        17,
-                                    child: GestureDetector(
-                                      behavior: HitTestBehavior.opaque,
-                                      onPanStart: (details) {
-                                        final box =
-                                            _boardKey.currentContext
-                                                    ?.findRenderObject()
-                                                as RenderBox?;
-                                        if (box == null) return;
-                                        _rotationCenter = box.localToGlobal(
-                                          Offset(
-                                            selectedItem!.x *
-                                                    constraints.maxWidth +
-                                                75,
-                                            selectedItem.y *
-                                                    constraints.maxHeight +
-                                                43,
-                                          ),
-                                        );
-                                        final delta =
-                                            details.globalPosition -
-                                            _rotationCenter!;
-                                        _handleStartAngle = math.atan2(
-                                          delta.dy,
-                                          delta.dx,
-                                        );
-                                        _handleStartRotation =
-                                            selectedItem.rotation;
-                                      },
-                                      onPanUpdate: (details) {
-                                        final center = _rotationCenter;
-                                        if (center == null) return;
-                                        final index = _items.indexWhere(
-                                          (value) =>
-                                              value.id == selectedItem!.id,
-                                        );
-                                        final current = _items[index];
-                                        final delta =
-                                            details.globalPosition - center;
-                                        final angle = math.atan2(
-                                          delta.dy,
-                                          delta.dx,
-                                        );
-                                        setState(() {
-                                          _items[index] = current.copyWith(
+                                  ValueListenableBuilder<StickerBoardItem>(
+                                    valueListenable:
+                                        _liveItemNotifiers[selectedItem.id]!,
+                                    builder: (context, liveSelected, _) =>
+                                        Positioned(
+                                      left:
+                                          liveSelected.x *
+                                              constraints.maxWidth +
+                                          75 +
+                                          math.cos(
+                                                liveSelected.rotation -
+                                                    math.pi / 2,
+                                              ) *
+                                              68 *
+                                              liveSelected.scale -
+                                          17,
+                                      top:
+                                          liveSelected.y *
+                                              constraints.maxHeight +
+                                          60 +
+                                          math.sin(
+                                                liveSelected.rotation -
+                                                    math.pi / 2,
+                                              ) *
+                                              68 *
+                                              liveSelected.scale -
+                                          17,
+                                      child: GestureDetector(
+                                        behavior: HitTestBehavior.opaque,
+                                        onPanStart: (details) {
+                                          final box =
+                                              _boardKey.currentContext
+                                                      ?.findRenderObject()
+                                                  as RenderBox?;
+                                          if (box == null) return;
+                                          final notifier =
+                                              _liveItemNotifiers[
+                                                  selectedItem!.id]!;
+                                          final current = notifier.value;
+                                          _rotationCenter = box.localToGlobal(
+                                            Offset(
+                                              current.x *
+                                                      constraints.maxWidth +
+                                                  75,
+                                              current.y *
+                                                      constraints.maxHeight +
+                                                  43,
+                                            ),
+                                          );
+                                          final delta =
+                                              details.globalPosition -
+                                              _rotationCenter!;
+                                          _handleStartAngle = math.atan2(
+                                            delta.dy,
+                                            delta.dx,
+                                          );
+                                          _handleStartRotation =
+                                              current.rotation;
+                                        },
+                                        onPanUpdate: (details) {
+                                          final center = _rotationCenter;
+                                          if (center == null) return;
+                                          final notifier =
+                                              _liveItemNotifiers[
+                                                  selectedItem!.id]!;
+                                          final current = notifier.value;
+                                          final delta =
+                                              details.globalPosition - center;
+                                          final angle = math.atan2(
+                                            delta.dy,
+                                            delta.dx,
+                                          );
+                                          notifier.value = current.copyWith(
                                             rotation:
                                                 _handleStartRotation +
                                                 angle -
                                                 _handleStartAngle,
                                           );
-                                        });
-                                      },
-                                      onPanEnd: (_) => widget.onChanged(
-                                        _items.firstWhere(
-                                          (value) =>
-                                              value.id == selectedItem!.id,
-                                        ),
-                                      ),
-                                      child: Container(
-                                        width: 34,
-                                        height: 34,
-                                        decoration: BoxDecoration(
-                                          color: Colors.orange,
-                                          shape: BoxShape.circle,
-                                          border: Border.all(
-                                            color: Colors.white,
-                                            width: 2,
+                                        },
+                                        onPanEnd: (_) {
+                                          final notifier =
+                                              _liveItemNotifiers[
+                                                  selectedItem!.id]!;
+                                          _commitItem(notifier.value);
+                                        },
+                                        child: Container(
+                                          width: 34,
+                                          height: 34,
+                                          decoration: BoxDecoration(
+                                            color: Colors.orange,
+                                            shape: BoxShape.circle,
+                                            border: Border.all(
+                                              color: Colors.white,
+                                              width: 2,
+                                            ),
                                           ),
-                                        ),
-                                        child: const Icon(
-                                          Icons.rotate_right,
-                                          size: 20,
-                                          color: Colors.white,
+                                          child: const Icon(
+                                            Icons.rotate_right,
+                                            size: 20,
+                                            color: Colors.white,
+                                          ),
                                         ),
                                       ),
                                     ),
                                   ),
                                 if (widget.editMode && selectedItem != null)
-                                  Positioned(
-                                    // ステッカーは中心(x*maxWidth+75, y*maxHeight+43.2)を
-                                    // 基準に拡大縮小されるため、はみ出す量のうち固定部分(75/43.2)
-                                    // と拡大率に応じて変わる部分(scale倍)を分けて計算する。
-                                    left:
-                                        (selectedItem.x * constraints.maxWidth +
-                                                75 -
-                                                147)
-                                            .clamp(
-                                              4,
-                                              constraints.maxWidth - 294,
-                                            ),
-                                    top:
-                                        (selectedItem.y *
-                                                    constraints.maxHeight +
-                                                43.2 +
-                                                43.2 * selectedItem.scale +
-                                                8)
-                                            .clamp(
-                                              4,
-                                              constraints.maxHeight - 48,
-                                            ),
-                                    child: _StickerSelectionToolbar(
-                                      onAction: (action) {
-                                        final current = _items.firstWhere(
-                                          (value) =>
-                                              value.id == selectedItem!.id,
-                                        );
-                                        final asset = assets[current.stickerId];
-                                        if (asset != null) {
-                                          widget.onToolAction(
-                                            asset,
-                                            current,
-                                            action,
-                                          );
-                                        }
-                                      },
+                                  ValueListenableBuilder<StickerBoardItem>(
+                                    valueListenable:
+                                        _liveItemNotifiers[selectedItem.id]!,
+                                    builder: (context, liveSelected, _) =>
+                                        Positioned(
+                                      // ステッカーは中心(x*maxWidth+75, y*maxHeight+43.2)を
+                                      // 基準に拡大縮小されるため、はみ出す量のうち固定部分(75/43.2)
+                                      // と拡大率に応じて変わる部分(scale倍)を分けて計算する。
+                                      left:
+                                          (liveSelected.x *
+                                                      constraints.maxWidth +
+                                                  75 -
+                                                  147)
+                                              .clamp(
+                                                4,
+                                                constraints.maxWidth - 294,
+                                              ),
+                                      top:
+                                          (liveSelected.y *
+                                                      constraints.maxHeight +
+                                                  43.2 +
+                                                  43.2 * liveSelected.scale +
+                                                  8)
+                                              .clamp(
+                                                4,
+                                                constraints.maxHeight - 48,
+                                              ),
+                                      child: _StickerSelectionToolbar(
+                                        onAction: (action) {
+                                          final notifier =
+                                              _liveItemNotifiers[
+                                                  selectedItem!.id]!;
+                                          final current = notifier.value;
+                                          final asset =
+                                              assets[current.stickerId];
+                                          if (asset != null) {
+                                            widget.onToolAction(
+                                              asset,
+                                              current,
+                                              action,
+                                            );
+                                          }
+                                        },
+                                      ),
                                     ),
                                   ),
                               ],
@@ -1583,6 +1552,123 @@ class _StickerBoardState extends State<_StickerBoard> {
         files: [XFile(file.path)],
         subject: 'KickxKick Sticker Board',
       ),
+    );
+  }
+}
+
+/// ボード上のステッカー1個ぶんの表示・ドラッグ/ピンチ操作を担当する。
+/// ドラッグ・拡大縮小の途中経過はwidget.liveNotifierだけを更新し、
+/// 親(_StickerBoardState)のsetStateを呼ばないため、操作中に再描画されるのは
+/// このウィジェット1個だけになる。確定値はジェスチャー終了時にonCommitで
+/// 親へ伝える。
+class _StickerBoardItemView extends StatefulWidget {
+  const _StickerBoardItemView({
+    super.key,
+    required this.asset,
+    required this.editMode,
+    required this.selected,
+    required this.constraints,
+    required this.liveNotifier,
+    required this.onSelect,
+    required this.onDesign,
+    required this.onCommit,
+  });
+
+  final StickerAsset asset;
+  final bool editMode;
+  final bool selected;
+  final BoxConstraints constraints;
+  final ValueNotifier<StickerBoardItem> liveNotifier;
+  final VoidCallback onSelect;
+  final VoidCallback onDesign;
+  final ValueChanged<StickerBoardItem> onCommit;
+
+  @override
+  State<_StickerBoardItemView> createState() => _StickerBoardItemViewState();
+}
+
+class _StickerBoardItemViewState extends State<_StickerBoardItemView> {
+  double _startScale = 1;
+  double _startRotation = 0;
+
+  void _onScaleStart(ScaleStartDetails details) {
+    final current = widget.liveNotifier.value;
+    _startScale = current.scale;
+    _startRotation = current.rotation;
+  }
+
+  void _onScaleUpdate(ScaleUpdateDetails details) {
+    final current = widget.liveNotifier.value;
+    widget.liveNotifier.value = current.copyWith(
+      x:
+          (current.x +
+                  details.focalPointDelta.dx / widget.constraints.maxWidth)
+              .clamp(0, .78),
+      y:
+          (current.y +
+                  details.focalPointDelta.dy / widget.constraints.maxHeight)
+              .clamp(0, .82),
+      scale: widget.editMode
+          ? (_startScale * details.scale).clamp(.4, 2.0)
+          : current.scale,
+      rotation: _startRotation,
+    );
+  }
+
+  void _onScaleEnd(ScaleEndDetails details) {
+    widget.onCommit(widget.liveNotifier.value);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder<StickerBoardItem>(
+      valueListenable: widget.liveNotifier,
+      builder: (context, item, child) {
+        return Positioned(
+          left: item.x * widget.constraints.maxWidth,
+          top: item.y * widget.constraints.maxHeight,
+          child: GestureDetector(
+            onTap: widget.editMode ? widget.onSelect : null,
+            onLongPress: widget.editMode ? widget.onDesign : null,
+            onScaleStart: _onScaleStart,
+            onScaleUpdate: _onScaleUpdate,
+            onScaleEnd: _onScaleEnd,
+            child: Transform.rotate(
+              angle: item.rotation,
+              child: Stack(
+                clipBehavior: Clip.none,
+                alignment: Alignment.center,
+                children: [
+                  Transform.scale(
+                    scale: item.scale,
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        border: widget.selected
+                            ? Border.all(color: Colors.orange, width: 2)
+                            : null,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: RepaintBoundary(
+                        child: SizedBox(
+                          width: _kBoardArtworkDisplaySize * 1.25,
+                          height: _kBoardArtworkDisplaySize * .72,
+                          child: FittedBox(
+                            fit: BoxFit.fill,
+                            child: _StickerArtwork(
+                              asset: widget.asset,
+                              size: _kBoardArtworkRenderSize,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }
