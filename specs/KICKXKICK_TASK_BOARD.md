@@ -1,4 +1,4 @@
-# Kick×Kick Task Board v2.5
+# Kick×Kick Task Board v2.6
 
 ## 目的
 
@@ -15,9 +15,10 @@ Kick×Kick開発の現在地を管理する。
 Tier S / Tier A はPASS。
 Tier BはHOKA / Saucony / SALOMON / MERRELL / BROOKSを追加し、Alias / searchKeywords までPASS化済み。
 Tier Cはブランド名先行登録済み。SKECHERSはv0.5.3で8モデルまで拡張。crocsはv0.5.4で4モデル追加開始。
+Dr.Martensはv0.5.5-merge-readyとして1460 / 1461を検証済みステージング化。本体JSON反映待ち。
 ABC-MARTなど国内流通リファレンスを基準に、今後もデータ資産を継続育成する。
 data/models.json・aliases.json・search_keywords.json と app/assets/data 側は v0.5.4 として同期済み。
-次はSearch MVPテスト、TOP5・着用履歴・詳細確認を進める。
+次はDr.Martens本体反映、JSON同期自動化、Search MVPテスト、TOP5・着用履歴・詳細確認を進める。
 ```
 
 引き継ぎ:
@@ -60,7 +61,7 @@ docs/HANDOFF_BRAND_MODEL_SEARCH.md
 状態:
 
 ```text
-ACTIVE / MVP DATA PASS / MARKET REFERENCE GROWTH / DATA v0.5.4 SYNCED
+ACTIVE / MVP DATA PASS / MARKET REFERENCE GROWTH / DATA v0.5.4 SYNCED / DR.MARTENS v0.5.5 MERGE-READY
 ```
 
 - [x] BRAND_MASTER.md 作成
@@ -142,11 +143,19 @@ ACTIVE / MVP DATA PASS / MARKET REFERENCE GROWTH / DATA v0.5.4 SYNCED
 - [x] data/README.md v0.5.4反映
 - [x] data/validation_rules.md v1.6反映
 - [x] MODEL_MASTER_COVERAGE v2.1反映
+- [x] Dr.Martens 1460 / 1461 ステージング作成
+- [x] Dr.Martens 1460 / 1461 公式・信頼情報監査
+- [x] Dr.Martens Alias / searchKeywords 候補をmerge-ready化
+- [x] data/README.md v0.5.5-staging反映
+- [x] CHANGELOG v0.5.5-staging audit反映
+- [x] MODEL_MASTER_COVERAGE v2.2反映
 
 保留:
 
+- [ ] Dr.Martens v0.5.5 merge-ready payload を本体JSONへ反映
+- [ ] Dr.Martens app/assets/data/*.json 同期
+- [ ] JSON同期の自動化または整形済みJSONへの移行
 - [ ] Search MVPテストケース実施
-- [ ] data/*.json と app/assets/data/*.json の同期自動化
 - [ ] Tier S / A / B のABC-MART差分監査
 - [ ] Tier Cブランドのモデル追加継続
 - [ ] SKECHERS / crocs の国内流通差分監査継続
@@ -158,71 +167,5 @@ ACTIVE / MVP DATA PASS / MARKET REFERENCE GROWTH / DATA v0.5.4 SYNCED
 状態:
 
 ```text
-IN PROGRESS / RUNTIME CHECK STARTED
-```
-
-目的:
-
-スニーカー登録・詳細・TOP5・着用履歴
-
-## Sprint1 Tasks
-
-### Foundation
-
-- [x] Flutter起動確認
-- [ ] flutter analyze
-- [x] Material3確認
-- [x] Riverpod確認
-- [x] Bottom Navigation確認
-- [x] FAB確認
-
-### Sneaker
-
-- [x] Sneaker Model確認
-- [x] Sneaker Repository確認
-- [x] Sneaker Provider確認
-- [x] ShoeForm 実機確認
-- [ ] Shoe Detail確認
-
-### Search / Registration
-
-状態:
-
-```text
-IMPLEMENTED / PHOTO SAVE CHECKED / DATA v0.5.4 SYNCED
-```
-
-- [x] Load app/assets/data/brands.json
-- [x] Load app/assets/data/models.json
-- [x] Load app/assets/data/aliases.json
-- [x] Load app/assets/data/search_keywords.json
-- [x] Brand search model
-- [x] Model search model
-- [x] Alias search model
-- [x] Search normalization
-- [x] Brand-first model suggestion
-- [x] Alphabetical suggestion limit 5
-- [x] Number search via searchKeywords
-- [x] Canonical modelName save
-- [x] Brand candidate UI
-- [x] Model candidate UI
-- [x] Brand change resets model
-- [x] Free input fallback
-- [x] Registration flow integration
-- [x] Free input brand local save
-- [ ] Search MVP test cases 実施
-- [x] 実機で登録保存確認
-- [ ] 編集画面で誤入力修正確認
-
-参照仕様:
-
-```text
-SEARCH_SPEC.md
-SEARCH_DATA_SPEC.md
-ALIAS_MASTER_SPEC.md
-ALIAS_MASTER.md
-MODEL_MASTER_DATA_SPEC.md
-REGISTRATION_FLOW_SPEC.md
-REGISTRATION_VALIDATION_SPEC.md
-SEARCH_MVP_TEST_SPEC.md
+TODO
 ```
