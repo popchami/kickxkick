@@ -4,6 +4,44 @@
 
 ---
 
+## 2026-07-07 v0.5.5 staging audit
+
+### Updated
+
+- `data/staging_dr_martens_v0.5.5.json` を `0.5.5-merge-ready` に更新
+- Dr.Martens の高確度モデル候補を本体JSON反映前の検証済みデータとして整理
+  - `1460`
+  - `1461`
+- Alias / searchKeywords 候補も検証済みとして整理
+  - `DrMartens1460` / `DocMartens1460`
+  - `DrMartens1461` / `DocMartens1461`
+  - `ドクターマーチン1460` / `ドクターマーチン1461`
+
+### Audited
+
+- `brands.json` に `dr_martens` が Tier C brand-only として登録済みであることを確認
+- 信頼できる公開情報で、`1460` が8ホールブーツ、`1461` が3ホールシューズとして扱われていることを確認
+- `1460` / `1461` は数字だけでも識別性が高いため、searchKeywords 候補として維持
+- `Docs` / `Boot` / `Shoe` / `Martens` / `Dr.Martens` / `Doc Martens` 単体は広すぎるため、Alias / searchKeywords には追加しない
+- 色名、商品説明文、商品画像、在庫情報、コラボ名は追加なし
+
+### Not Added To Root JSON
+
+- `models.json` / `aliases.json` / `search_keywords.json` 本体への反映は未実施
+- 理由: 現在の本体JSONは1行圧縮形式で、全体を安全に再生成せずに追記すると既存データ破損のリスクがあるため
+- 次回はJSON整形または同期スクリプトを先に入れてから、本体JSONと `app/assets/data/` 側へ同時反映する
+
+### Remaining
+
+- Dr.Martens 0.5.5 merge-ready payload の本体JSON反映
+- `app/assets/data/*.json` への同期
+- JSON同期の自動化または整形済みJSONへの移行
+- Search MVPテストケース実施
+- Tier S / A / B のABC-MART差分監査
+- Tier Cブランドのモデル追加継続
+
+---
+
 ## 2026-07-05 v0.5.4 audit
 
 ### Audited
