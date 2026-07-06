@@ -81,6 +81,7 @@ class TopFiveSection extends ConsumerWidget {
       builder: (_) => _TopFivePicker(rank: rank, shoes: shoes, brands: brands),
     );
     if (selected == null) return;
+    if (!context.mounted) return;
     await ref.read(shoeRepositoryProvider).setTopOrder(selected.id!, rank);
     ref.invalidate(shoesProvider);
   }

@@ -179,13 +179,6 @@ class _CutoutAdjustmentScreenState extends State<CutoutAdjustmentScreen> {
     }
   }
 
-  void _startStep(double Function(double) update, VoidCallback? onStop) {
-    _stepTimer?.cancel();
-    _stepTimer = Timer.periodic(const Duration(milliseconds: 80), (_) {
-      setState(() {});
-    });
-  }
-
   void _stopStep() {
     _stepTimer?.cancel();
     _stepTimer = null;
@@ -233,62 +226,6 @@ class _CutoutAdjustmentScreenState extends State<CutoutAdjustmentScreen> {
           borderRadius: BorderRadius.circular(8),
         ),
         child: Icon(icon, size: 18),
-      ),
-    );
-  }
-
-  Widget _buildSliderRow({
-    required String label,
-    required double value,
-    required double min,
-    required double max,
-    required ValueChanged<double> onChanged,
-    VoidCallback? onChangeEnd,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        children: [
-          SizedBox(
-            width: 88,
-            child: Text(label, style: const TextStyle(fontSize: 13)),
-          ),
-          _buildStepButton(
-            icon: Icons.remove,
-            value: value,
-            min: min,
-            max: max,
-            step: -(max - min) / 100,
-            onChanged: onChanged,
-            onChangeEnd: onChangeEnd,
-          ),
-          Expanded(
-            child: Slider(
-              value: value,
-              min: min,
-              max: max,
-              onChanged: _processing ? null : onChanged,
-              onChangeEnd: onChangeEnd == null ? null : (_) => onChangeEnd(),
-            ),
-          ),
-          _buildStepButton(
-            icon: Icons.add,
-            value: value,
-            min: min,
-            max: max,
-            step: (max - min) / 100,
-            onChanged: onChanged,
-            onChangeEnd: onChangeEnd,
-          ),
-          SizedBox(
-            width: 36,
-            child: Text(
-              '${value.round()}',
-              textAlign: TextAlign.right,
-              style: const TextStyle(fontSize: 12),
-            ),
-          ),
-        ],
       ),
     );
   }
