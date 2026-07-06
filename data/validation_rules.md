@@ -1,4 +1,4 @@
-# Kick×Kick Data Validation Rules v1.6
+# Kick×Kick Data Validation Rules v1.7
 
 ## Purpose
 
@@ -75,6 +75,8 @@ Classic Clog
 Crocband Clog
 Classic Bae Clog
 Echo Clog
+1460
+1461
 ```
 
 ### NG
@@ -105,6 +107,10 @@ ClassicClog
 CrocbandClog
 ClassicBaeClog
 EchoClog
+DrMartens1460
+DocMartens1460
+DrMartens1461
+DocMartens1461
 ```
 
 ---
@@ -142,6 +148,8 @@ crocs_classic_clog
 crocs_crocband_clog
 crocs_classic_bae_clog
 crocs_echo_clog
+dr_martens_1460
+dr_martens_1461
 ```
 
 ### NG
@@ -159,6 +167,8 @@ GoWalk
 SkechersStreet
 ClassicClog
 EchoClog
+DrMartens1460
+DocMartens1461
 ```
 
 ---
@@ -183,6 +193,7 @@ brandId: merrell
 brandId: brooks
 brandId: skechers
 brandId: crocs
+brandId: dr_martens
 ```
 
 ### NG
@@ -196,6 +207,8 @@ brandId: salomon_sportstyle
 brandId: brooks_running
 brandId: skechers_usa
 brandId: crocs_japan
+brandId: drmartens
+brandId: docs
 ```
 
 ---
@@ -248,6 +261,10 @@ CrocsClassicClog
 CrocbandClog
 ClassicBaeClog
 EchoClog
+DrMartens1460
+DocMartens1460
+DrMartens1461
+DocMartens1461
 ```
 
 ### Aliasに入れないもの
@@ -281,6 +298,12 @@ Golf
 Clog
 Bae
 Echo
+Docs
+Boot
+Shoe
+Martens
+Dr.Martens
+Doc Martens
 ```
 
 理由:
@@ -334,6 +357,10 @@ ClassicBaeClog
 クラシックベイクロッグ
 EchoClog
 エコークロッグ
+1460
+ドクターマーチン1460
+1461
+ドクターマーチン1461
 ```
 
 ### searchKeywordsに入れないもの
@@ -368,6 +395,12 @@ Golf
 Clog
 Bae
 Echo
+Docs
+Boot
+Shoe
+Martens
+Dr.Martens
+Doc Martens
 ```
 
 理由:
@@ -391,6 +424,8 @@ Echo
 1130 -> GEL-1130
 550 -> 550
 9060 -> 9060
+1460 -> Dr.Martens 1460
+1461 -> Dr.Martens 1461
 ```
 
 ### NG
@@ -402,4 +437,27 @@ Echo
 7
 8
 9
+```
+
+---
+
+## 7. Staging Rule
+
+本体JSONが1行圧縮形式で安全に差分追記できない場合は、検証済みデータを `data/staging_*.json` に分離してよい。
+
+### OK
+
+```text
+- ブランドIDが既にbrands.jsonに存在する
+- modelId / alias / searchKeyword の対応が明確
+- 本体JSON反映前であることを明記する
+- CHANGELOG / README / Coverage / Task Board に状態を反映する
+```
+
+### NG
+
+```text
+- ステージングを本体反映済みとして扱う
+- app/assets/data 側と同期済みと誤記する
+- 未検証モデルをまとめて投入する
 ```
