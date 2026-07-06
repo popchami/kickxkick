@@ -1,10 +1,22 @@
 import 'package:flutter/material.dart';
 
+import '../models/background_theme.dart';
+
 class AppTheme {
   static const String appName = 'KickxKick';
   static const String tagline = 'Collect. Create. Exhibit.';
 
-  static ThemeData get lightTheme {
+  static Color _barColorFor(BackgroundTheme backgroundTheme) {
+    switch (backgroundTheme) {
+      case BackgroundTheme.orange:
+        return const Color(0xFFFF7A1A);
+      case BackgroundTheme.street:
+        return const Color(0xFF1C1C1C);
+    }
+  }
+
+  static ThemeData lightTheme(BackgroundTheme backgroundTheme) {
+    final barColor = _barColorFor(backgroundTheme);
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.light,
@@ -14,14 +26,14 @@ class AppTheme {
         brightness: Brightness.light,
       ),
       scaffoldBackgroundColor: const Color(0xFFFAFAFA),
-      appBarTheme: const AppBarTheme(
+      appBarTheme: AppBarTheme(
         elevation: 0,
-        backgroundColor: Color(0xFFFF7A1A),
-        foregroundColor: Color(0xFFFFFFFF),
+        backgroundColor: barColor,
+        foregroundColor: const Color(0xFFFFFFFF),
         centerTitle: false,
       ),
       navigationBarTheme: NavigationBarThemeData(
-        backgroundColor: const Color(0xFFFF7A1A),
+        backgroundColor: barColor,
         indicatorColor: Colors.white.withValues(alpha: 0.25),
         iconTheme: WidgetStateProperty.resolveWith((states) {
           return IconThemeData(
@@ -52,7 +64,8 @@ class AppTheme {
     );
   }
 
-  static ThemeData get darkTheme {
+  static ThemeData darkTheme(BackgroundTheme backgroundTheme) {
+    final barColor = _barColorFor(backgroundTheme);
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
@@ -62,14 +75,14 @@ class AppTheme {
         brightness: Brightness.dark,
       ),
       scaffoldBackgroundColor: const Color(0xFF121212),
-      appBarTheme: const AppBarTheme(
+      appBarTheme: AppBarTheme(
         elevation: 0,
-        backgroundColor: Color(0xFFFF7A1A),
-        foregroundColor: Color(0xFFFFFFFF),
+        backgroundColor: barColor,
+        foregroundColor: const Color(0xFFFFFFFF),
         centerTitle: false,
       ),
       navigationBarTheme: NavigationBarThemeData(
-        backgroundColor: const Color(0xFFFF7A1A),
+        backgroundColor: barColor,
         indicatorColor: Colors.white.withValues(alpha: 0.25),
         iconTheme: WidgetStateProperty.resolveWith((states) {
           return IconThemeData(

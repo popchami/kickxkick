@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'theme/app_theme.dart';
+import 'models/background_theme.dart';
 import 'providers/theme_provider.dart';
 import 'providers/navigation_provider.dart';
 import 'providers/settings_provider.dart';
@@ -21,11 +22,14 @@ class KickxKickApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final themeMode = ref.watch(themeModeProvider);
+    final backgroundTheme =
+        ref.watch(appBackgroundThemeProvider).value ??
+        BackgroundTheme.defaultTheme;
 
     return MaterialApp(
       title: 'Kick×Kick',
-      theme: AppTheme.lightTheme,
-      darkTheme: AppTheme.darkTheme,
+      theme: AppTheme.lightTheme(backgroundTheme),
+      darkTheme: AppTheme.darkTheme(backgroundTheme),
       themeMode: themeMode,
       home: const KickxKickHome(),
       debugShowCheckedModeBanner: false,
