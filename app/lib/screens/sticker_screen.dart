@@ -55,6 +55,13 @@ class _StickerScreenState extends ConsumerState<StickerScreen> {
   int? _boardId;
   bool _sharingBoard = false;
 
+  // LINEスタンプ用書き出し中だけ、画面外にステッカー1個ぶんの高画質ビューを
+  // 構築するための状態。
+  bool _exportingLineSticker = false;
+  StickerAsset? _lineExportAsset;
+  Completer<void>? _lineExportCompleter;
+  final GlobalKey _lineExportKey = GlobalKey();
+
   GlobalKey<_StickerBoardState> _boardKeyFor(int boardId) =>
       _boardKeys.putIfAbsent(boardId, () => GlobalKey<_StickerBoardState>());
 
@@ -65,6 +72,59 @@ class _StickerScreenState extends ConsumerState<StickerScreen> {
     } finally {
       if (mounted) {
         setState(() => _sharingBoard = false);
+      }
+    }
+  }
+
+  /// 選択中のステッカー1個を、板の上で見えている見た目のまま
+  /// (_StickerArtworkPainterによる縁取り・影込み)、LINEスタンプ用の
+  /// 1024×1024透過PNGとして書き出して共有する。exportBoard()と同様、
+  /// 画面外に高画質(stickerPath)の一時ビューを構築してキャプチャする。
+  Future<void> _exportStickerForLine(StickerAsset asset) async {
+    if (_exportingLineSticker) return;
+    final completer = Completer<void>();
+    _lineExportCompleter = completer;
+
+    setState(() {
+      _lineExportAsset = asset;
+      _exportingLineSticker = true;
+    });
+
+    try {
+      await completer.future.timeout(
+        const Duration(seconds: 8),
+        onTimeout: () {},
+      );
+      await WidgetsBinding.instance.endOfFrame;
+
+      final boundary =
+          _lineExportKey.currentContext?.findRenderObject()
+              as RenderRepaintBoundary?;
+      if (boundary == null) return;
+      final image = await boundary.toImage(pixelRatio: 1);
+      final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
+      if (bytes == null) return;
+      final directory = await getTemporaryDirectory();
+      final file = File(
+        p.join(
+          directory.path,
+          'kickxkick_sticker_line_${DateTime.now().millisecondsSinceEpoch}.png',
+        ),
+      );
+      await file.writeAsBytes(bytes.buffer.asUint8List());
+      await SharePlus.instance.share(
+        ShareParams(
+          files: [XFile(file.path)],
+          subject: 'KickxKick Sticker',
+        ),
+      );
+    } finally {
+      _lineExportCompleter = null;
+      if (mounted) {
+        setState(() {
+          _exportingLineSticker = false;
+          _lineExportAsset = null;
+        });
       }
     }
   }
@@ -378,6 +438,15 @@ class _StickerScreenState extends ConsumerState<StickerScreen> {
           ),
         ),
         actions: [
+          if (_exportingLineSticker)
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 12),
+              child: SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
+            ),
           IconButton(
             onPressed: _boardId == null || _sharingBoard
                 ? null
@@ -453,7 +522,9 @@ class _StickerScreenState extends ConsumerState<StickerScreen> {
           ),
         ],
       ),
-      body: stickersAsync.when(
+      body: Stack(
+        children: [
+          stickersAsync.when(
         data: (stickers) {
           final query = _searchText.trim().toLowerCase();
           final matchingShoeIds = shoes
@@ -556,6 +627,25 @@ class _StickerScreenState extends ConsumerState<StickerScreen> {
         },
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (_, __) => const Center(child: Text('ステッカーを読み込めませんでした')),
+          ),
+          if (_exportingLineSticker && _lineExportAsset != null)
+            Positioned(
+              left: -99999,
+              top: -99999,
+              child: RepaintBoundary(
+                key: _lineExportKey,
+                child: _StickerLineExportView(
+                  asset: _lineExportAsset!,
+                  onArtworkLoaded: () {
+                    final completer = _lineExportCompleter;
+                    if (completer != null && !completer.isCompleted) {
+                      completer.complete();
+                    }
+                  },
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }
@@ -1073,6 +1163,8 @@ class _StickerScreenState extends ConsumerState<StickerScreen> {
         await _editSticker(asset, shoes, action: _StickerEditAction.design);
       case _StickerToolAction.editCutout:
         await _editSticker(asset, shoes, action: _StickerEditAction.cutout);
+      case _StickerToolAction.exportForLine:
+        await _exportStickerForLine(asset);
     }
   }
 
@@ -1112,6 +1204,7 @@ enum _StickerToolAction {
   bringFront,
   editDesign,
   editCutout,
+  exportForLine,
 }
 
 class _StickerDesign {
@@ -1761,6 +1854,53 @@ class _StickerBoardExportView extends StatelessWidget {
   }
 }
 
+/// LINEスタンプ用の書き出し専用ビュー。ステッカー1個を、板の上で見えている
+/// 見た目のまま(_StickerArtwork/_StickerArtworkPainterによる縁取り・影込み)、
+/// 1024×1024の透過キャンバスの中央にアスペクト比を保って配置する。
+/// ThemedBackground・外枠は付けず、余白はすべて透過のままにする。
+class _StickerLineExportView extends StatelessWidget {
+  const _StickerLineExportView({
+    required this.asset,
+    required this.onArtworkLoaded,
+  });
+
+  final StickerAsset asset;
+  final VoidCallback onArtworkLoaded;
+
+  // LINEスタンプ向けの書き出しサイズ(正方形・透過PNG)。
+  static const double _canvasSize = 1024;
+  // ステッカー本体(横長矩形)をキャンバスいっぱいに詰めすぎず、
+  // 少し余白を残して収める。
+  static const double _fillRatio = 0.9;
+  // previewPath(最大450px)ではなく、書き出し時だけこの上限でstickerPathを
+  // デコードする。
+  static const int _exportTargetWidth = 1600;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: _canvasSize,
+      height: _canvasSize,
+      child: Center(
+        child: SizedBox(
+          width: _canvasSize * _fillRatio,
+          height: _canvasSize * _fillRatio,
+          child: FittedBox(
+            fit: BoxFit.contain,
+            child: _StickerArtwork(
+              asset: asset,
+              size: _kBoardArtworkRenderSize,
+              imagePathOverride: asset.stickerPath,
+              targetWidthOverride: _exportTargetWidth,
+              onImageLoaded: onArtworkLoaded,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 /// ボード上のステッカー1個ぶんの表示・ドラッグ/ピンチ操作を担当する。
 /// ドラッグ・拡大縮小の途中経過はwidget.liveNotifierだけを更新し、
 /// 親(_StickerBoardState)のsetStateを呼ばないため、操作中に再描画されるのは
@@ -1923,6 +2063,10 @@ class _StickerSelectionToolbar extends StatelessWidget {
                 PopupMenuItem(
                   value: _StickerToolAction.editCutout,
                   child: Text('切り抜きを編集'),
+                ),
+                PopupMenuItem(
+                  value: _StickerToolAction.exportForLine,
+                  child: Text('LINEスタンプ用に書き出す'),
                 ),
               ],
             ),
