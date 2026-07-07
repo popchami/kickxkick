@@ -28,6 +28,9 @@ dependencies:
   cross_file: ^0.3.4+2
   image: ^4.9.0
 
+  # Icons
+  flutter_svg: ^2.3.0
+
   # AI Segmentation (Android only – Beta)
   google_mlkit_subject_segmentation: ^0.0.3
 
@@ -52,3 +55,4 @@ flutter:
     - assets/data/aliases.json
     - assets/data/search_keywords.json
     - assets/backgrounds/
+    - assets/icons/street/
