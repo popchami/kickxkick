@@ -3,7 +3,7 @@ Next:
   （nav_homeの元絵(PNG、512×512)のみ作成済み）。SVGが揃ったら、
   ThemedIconウィジェット(widgets/themed_icon.dart)へ
   main.dart・各画面のアイコンを実際に置き換える作業も残っている
-- 前回セッションでまとめて実装した以下の変更は、いずれも実機での
+- 今回までにまとめて実装した以下の変更は、いずれも実機での
   動作確認がまだ（PC使用可能時に一括確認）:
   - ステッカーのドラッグ/回転パフォーマンス改善(_StickerBoardItemView化)
   - 上下バーのorange/streetテーマ連動配色
