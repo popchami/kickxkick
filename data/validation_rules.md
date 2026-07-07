@@ -1,4 +1,4 @@
-# Kick×Kick Data Validation Rules v1.7
+# Kick×Kick Data Validation Rules v1.8
 
 ## Purpose
 
@@ -77,6 +77,19 @@ Classic Bae Clog
 Echo Clog
 1460
 1461
+2976
+Jadon
+Sinclair
+Adrian
+Blaire
+Gryphon
+Jorge
+Carlson
+8053
+3989
+101
+Church
+Ramsey
 ```
 
 ### NG
@@ -111,6 +124,10 @@ DrMartens1460
 DocMartens1460
 DrMartens1461
 DocMartens1461
+DrMartens2976
+DrMartensJadon
+DrMartensAdrian
+DrMartensGryphon
 ```
 
 ---
@@ -150,6 +167,19 @@ crocs_classic_bae_clog
 crocs_echo_clog
 dr_martens_1460
 dr_martens_1461
+dr_martens_2976
+dr_martens_jadon
+dr_martens_sinclair
+dr_martens_adrian
+dr_martens_blaire
+dr_martens_gryphon
+dr_martens_jorge
+dr_martens_carlson
+dr_martens_8053
+dr_martens_3989
+dr_martens_101
+dr_martens_church
+dr_martens_ramsey
 ```
 
 ### NG
@@ -169,6 +199,7 @@ ClassicClog
 EchoClog
 DrMartens1460
 DocMartens1461
+DrMartensJadon
 ```
 
 ---
@@ -265,6 +296,20 @@ DrMartens1460
 DocMartens1460
 DrMartens1461
 DocMartens1461
+DrMartens2976
+DocMartens2976
+DrMartensJadon
+DrMartensSinclair
+DrMartensAdrian
+DrMartensBlaire
+DrMartensGryphon
+DrMartensJorge
+DrMartensCarlson
+DrMartens8053
+DrMartens3989
+DrMartens101
+DrMartensChurch
+DrMartensRamsey
 ```
 
 ### Aliasに入れないもの
@@ -299,8 +344,14 @@ Clog
 Bae
 Echo
 Docs
+DMs
 Boot
 Shoe
+Loafer
+Sandal
+Mule
+Chelsea
+Platform
 Martens
 Dr.Martens
 Doc Martens
@@ -361,6 +412,27 @@ EchoClog
 ドクターマーチン1460
 1461
 ドクターマーチン1461
+2976
+ドクターマーチン2976
+DrMartensJadon
+ドクターマーチンジェイドン
+DrMartensSinclair
+ドクターマーチンシンクレア
+DrMartensAdrian
+ドクターマーチンエイドリアン
+DrMartensBlaire
+ドクターマーチンブレア
+DrMartensGryphon
+ドクターマーチングリフォン
+DrMartensJorge
+ドクターマーチンホルヘ
+DrMartensCarlson
+ドクターマーチンカールソン
+8053
+3989
+101
+DrMartensChurch
+DrMartensRamsey
 ```
 
 ### searchKeywordsに入れないもの
@@ -396,8 +468,14 @@ Clog
 Bae
 Echo
 Docs
+DMs
 Boot
 Shoe
+Loafer
+Sandal
+Mule
+Chelsea
+Platform
 Martens
 Dr.Martens
 Doc Martens
@@ -426,6 +504,10 @@ Doc Martens
 9060 -> 9060
 1460 -> Dr.Martens 1460
 1461 -> Dr.Martens 1461
+2976 -> Dr.Martens 2976
+8053 -> Dr.Martens 8053
+3989 -> Dr.Martens 3989
+101 -> Dr.Martens 101
 ```
 
 ### NG
