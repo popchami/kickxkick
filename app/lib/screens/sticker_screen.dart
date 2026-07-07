@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:math' as math;
 import 'dart:ui' as ui;
@@ -52,9 +53,21 @@ class _StickerScreenState extends ConsumerState<StickerScreen> {
   StickerBoardItem? _selectedBoardItem;
   List<StickerBoard> _boards = [];
   int? _boardId;
+  bool _sharingBoard = false;
 
   GlobalKey<_StickerBoardState> _boardKeyFor(int boardId) =>
       _boardKeys.putIfAbsent(boardId, () => GlobalKey<_StickerBoardState>());
+
+  Future<void> _shareBoard(int boardId) async {
+    setState(() => _sharingBoard = true);
+    try {
+      await _boardKeyFor(boardId).currentState?.exportBoard();
+    } finally {
+      if (mounted) {
+        setState(() => _sharingBoard = false);
+      }
+    }
+  }
 
   String get _currentBoardName {
     final boardId = _boardId;
@@ -366,10 +379,16 @@ class _StickerScreenState extends ConsumerState<StickerScreen> {
         ),
         actions: [
           IconButton(
-            onPressed: _boardId == null
+            onPressed: _boardId == null || _sharingBoard
                 ? null
-                : () => _boardKeyFor(_boardId!).currentState?.exportBoard(),
-            icon: const Icon(Icons.ios_share_outlined),
+                : () => _shareBoard(_boardId!),
+            icon: _sharingBoard
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Icon(Icons.ios_share_outlined),
             tooltip: 'ボードを共有',
           ),
           PopupMenuButton<_StickerBoardCommand>(
@@ -1192,6 +1211,12 @@ class _StickerBoardState extends State<_StickerBoard> {
   double _handleStartRotation = 0;
   final GlobalKey _boardKey = GlobalKey();
 
+  // 共有画像の書き出し中だけ、画面外に高画質版のボードを構築するための状態。
+  bool _exporting = false;
+  Size? _exportSize;
+  void Function(int stickerId)? _onExportArtworkLoaded;
+  final GlobalKey _exportBoardKey = GlobalKey();
+
   @override
   void initState() {
     super.initState();
@@ -1252,7 +1277,9 @@ class _StickerBoardState extends State<_StickerBoard> {
         break;
       }
     }
-    return Column(
+    return Stack(
+      children: [
+        Column(
       children: [
         Expanded(
           child: Center(
@@ -1476,6 +1503,23 @@ class _StickerBoardState extends State<_StickerBoard> {
           ),
         ),
       ],
+        ),
+        if (_exporting && _exportSize != null && _onExportArtworkLoaded != null)
+          Positioned(
+            left: -99999,
+            top: -99999,
+            child: RepaintBoundary(
+              key: _exportBoardKey,
+              child: _StickerBoardExportView(
+                size: _exportSize!,
+                items: _items,
+                stickers: widget.stickers,
+                backgroundTheme: widget.backgroundTheme,
+                onArtworkLoaded: _onExportArtworkLoaded!,
+              ),
+            ),
+          ),
+      ],
     );
   }
 
@@ -1532,25 +1576,186 @@ class _StickerBoardState extends State<_StickerBoard> {
     return Color(int.parse('FF$h', radix: 16));
   }
 
+  /// 画面表示中のボードと同じ見た目・同じサイズを、画面外
+  /// (Positioned(left: -99999, ...))に高画質(stickerPath)で再構築し、
+  /// それをキャプチャして共有する。画面表示用のプレビュー画像
+  /// (previewPath、最大450px)をそのままスクリーンショットすると
+  /// 共有画像も低画質になってしまうため、共有時だけ元データから
+  /// 描き直す。
   Future<void> exportBoard() async {
-    final boundary =
-        _boardKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
-    if (boundary == null) return;
-    final image = await boundary.toImage(pixelRatio: 3);
-    final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
-    if (bytes == null) return;
-    final directory = await getTemporaryDirectory();
-    final file = File(
-      p.join(
-        directory.path,
-        'kickxkick_board_${DateTime.now().millisecondsSinceEpoch}.png',
-      ),
-    );
-    await file.writeAsBytes(bytes.buffer.asUint8List());
-    await SharePlus.instance.share(
-      ShareParams(
-        files: [XFile(file.path)],
-        subject: 'KickxKick Sticker Board',
+    final boardSize = _boardKey.currentContext?.size;
+    if (boardSize == null) return;
+
+    final assets = {for (final value in widget.stickers) value.id: value};
+    final neededStickerIds = _items
+        .map((item) => item.stickerId)
+        .where((id) => assets.containsKey(id))
+        .toSet();
+    final loadedStickerIds = <int>{};
+    final allLoaded = Completer<void>();
+    if (neededStickerIds.isEmpty) {
+      allLoaded.complete();
+    }
+    _onExportArtworkLoaded = (stickerId) {
+      loadedStickerIds.add(stickerId);
+      if (loadedStickerIds.length >= neededStickerIds.length &&
+          !allLoaded.isCompleted) {
+        allLoaded.complete();
+      }
+    };
+
+    setState(() {
+      _exportSize = boardSize;
+      _exporting = true;
+    });
+
+    try {
+      // 高画質画像(最大1600px)の事前デコードが終わるまで待つ。
+      // 万一デコードに失敗する画像があっても共有自体は止めないよう、
+      // タイムアウトで先に進める。
+      await allLoaded.future.timeout(
+        const Duration(seconds: 8),
+        onTimeout: () {},
+      );
+      // デコード完了後の再描画が実際にペイントされるのを1フレーム待つ。
+      await WidgetsBinding.instance.endOfFrame;
+
+      final boundary =
+          _exportBoardKey.currentContext?.findRenderObject()
+              as RenderRepaintBoundary?;
+      if (boundary == null) return;
+      final image = await boundary.toImage(pixelRatio: 3);
+      final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
+      if (bytes == null) return;
+      final directory = await getTemporaryDirectory();
+      final file = File(
+        p.join(
+          directory.path,
+          'kickxkick_board_${DateTime.now().millisecondsSinceEpoch}.png',
+        ),
+      );
+      await file.writeAsBytes(bytes.buffer.asUint8List());
+      await SharePlus.instance.share(
+        ShareParams(
+          files: [XFile(file.path)],
+          subject: 'KickxKick Sticker Board',
+        ),
+      );
+    } finally {
+      _onExportArtworkLoaded = null;
+      if (mounted) {
+        setState(() {
+          _exporting = false;
+          _exportSize = null;
+        });
+      }
+    }
+  }
+}
+
+/// 共有画像の書き出し専用ビュー。画面表示用の_StickerBoardStateと違い、
+/// 編集用のGestureDetector・選択枠・回転ハンドル・ツールバーは持たず、
+/// 高画質画像(stickerPath)を使った見た目だけを画面外に再現する。
+class _StickerBoardExportView extends StatelessWidget {
+  const _StickerBoardExportView({
+    required this.size,
+    required this.items,
+    required this.stickers,
+    required this.backgroundTheme,
+    required this.onArtworkLoaded,
+  });
+
+  final Size size;
+  final List<StickerBoardItem> items;
+  final List<StickerAsset> stickers;
+  final BackgroundTheme backgroundTheme;
+  final void Function(int stickerId) onArtworkLoaded;
+
+  // previewPath(最大450px)ではなく、共有時だけこの上限でstickerPathを
+  // デコードする。ボード上の表示サイズを考えれば十分な解像度であり、
+  // 上限を外すとステッカー枚数によっては書き出しが重くなりすぎるため。
+  static const _exportTargetWidth = 1600;
+
+  Color _hexToColor(String hex) {
+    final h = hex.replaceAll('#', '');
+    return Color(int.parse('FF$h', radix: 16));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final assets = {for (final value in stickers) value.id: value};
+    return SizedBox(
+      width: size.width,
+      height: size.height,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: Theme.of(context).colorScheme.outlineVariant,
+          ),
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(20),
+          child: ThemedBackground(
+            theme: backgroundTheme,
+            child: Stack(
+              clipBehavior: Clip.hardEdge,
+              children: [
+                for (final item in items)
+                  if (assets[item.stickerId] != null)
+                    Positioned(
+                      left: item.x * size.width,
+                      top: item.y * size.height,
+                      child: Transform.rotate(
+                        angle: item.rotation,
+                        child: Transform.scale(
+                          scale: item.scale,
+                          child: SizedBox(
+                            width: _kBoardArtworkDisplaySize * 1.25,
+                            height: _kBoardArtworkDisplaySize * .72,
+                            child: FittedBox(
+                              fit: BoxFit.fill,
+                              child: _StickerArtwork(
+                                asset: assets[item.stickerId]!,
+                                size: _kBoardArtworkRenderSize,
+                                imagePathOverride:
+                                    assets[item.stickerId]!.stickerPath,
+                                targetWidthOverride: _exportTargetWidth,
+                                onImageLoaded: () =>
+                                    onArtworkLoaded(item.stickerId),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                for (final item in items)
+                  if (item.textEnabled && item.textContent.isNotEmpty)
+                    Positioned(
+                      left: (item.textX * size.width).clamp(
+                        0.0,
+                        size.width - 12,
+                      ),
+                      top: (item.textY * size.height).clamp(
+                        0.0,
+                        size.height - 12,
+                      ),
+                      child: Text(
+                        item.textContent,
+                        style: TextStyle(
+                          fontSize: 120 * 0.72 * item.scale * item.textSize,
+                          color: _hexToColor(item.textColor),
+                          fontFamily:
+                              item.textFont.isEmpty ? null : item.textFont,
+                          decoration: TextDecoration.none,
+                          backgroundColor: Colors.transparent,
+                        ),
+                      ),
+                    ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -1733,11 +1938,20 @@ class _StickerArtwork extends StatefulWidget {
     required this.asset,
     this.size = 120,
     this.onTextPositionChanged,
+    this.imagePathOverride,
+    this.targetWidthOverride,
+    this.onImageLoaded,
   });
 
   final StickerAsset asset;
   final double size;
   final ValueChanged<Offset>? onTextPositionChanged;
+  // 書き出し(共有画像生成)専用: 画面表示用のdisplayPath(軽量プレビュー)
+  // ではなく、高画質なstickerPathなどを直接指定するための上書き。
+  final String? imagePathOverride;
+  final int? targetWidthOverride;
+  // 書き出し専用: 事前デコードの完了を呼び出し元に知らせるための通知。
+  final VoidCallback? onImageLoaded;
 
   @override
   State<_StickerArtwork> createState() => _StickerArtworkState();
@@ -1745,6 +1959,9 @@ class _StickerArtwork extends StatefulWidget {
 
 class _StickerArtworkState extends State<_StickerArtwork> {
   ui.Image? _image;
+
+  String get _imagePath => widget.imagePathOverride ?? widget.asset.displayPath;
+  int get _targetWidth => widget.targetWidthOverride ?? 800;
 
   @override
   void initState() {
@@ -1755,7 +1972,8 @@ class _StickerArtworkState extends State<_StickerArtwork> {
   @override
   void didUpdateWidget(_StickerArtwork oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.asset.displayPath != widget.asset.displayPath) {
+    final oldPath = oldWidget.imagePathOverride ?? oldWidget.asset.displayPath;
+    if (oldPath != _imagePath) {
       _image = null;
       _loadImage();
     }
@@ -1768,13 +1986,14 @@ class _StickerArtworkState extends State<_StickerArtwork> {
   }
 
   Future<void> _loadImage() async {
-    final bytes = await File(widget.asset.displayPath).readAsBytes();
-    final codec = await ui.instantiateImageCodec(bytes, targetWidth: 800);
+    final bytes = await File(_imagePath).readAsBytes();
+    final codec = await ui.instantiateImageCodec(bytes, targetWidth: _targetWidth);
     final frame = await codec.getNextFrame();
     if (mounted) {
       _image?.dispose();
       setState(() => _image = frame.image);
     }
+    widget.onImageLoaded?.call();
   }
 
   @override

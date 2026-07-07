@@ -68,6 +68,11 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen> {
   int? _shelfId;
   bool _isDragging = false;
 
+  // 共有画像の書き出し中だけ、画面外に高画質版の棚を構築するための状態。
+  bool _sharing = false;
+  final GlobalKey _exportShelfKey = GlobalKey();
+  _ShelfExportData? _exportShelfData;
+
   GlobalKey _shareKeyFor(int shelfId) =>
       _shareKeys.putIfAbsent(shelfId, () => GlobalKey());
 
@@ -316,13 +321,21 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen> {
             tooltip: '棚に追加',
           ),
           IconButton(
-            onPressed: _shareCollection,
-            icon: const Icon(Icons.ios_share_outlined),
+            onPressed: _sharing ? null : _shareCollection,
+            icon: _sharing
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Icon(Icons.ios_share_outlined),
             tooltip: '棚を共有',
           ),
         ],
       ),
-      body: shoesAsync.when(
+      body: Stack(
+        children: [
+          shoesAsync.when(
         data: (shoes) {
           if (shoes.isEmpty) {
             return EmptyState(
@@ -440,28 +453,97 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen> {
         },
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (_, __) => const Center(child: Text('読み込みに失敗しました')),
+          ),
+          if (_sharing && _exportShelfData != null)
+            Positioned(
+              left: -99999,
+              top: -99999,
+              child: RepaintBoundary(
+                key: _exportShelfKey,
+                child: _ShelfExportView(data: _exportShelfData!),
+              ),
+            ),
+        ],
       ),
     );
   }
 
+  /// 画面表示中の棚(_ShelfGrid/_ShelfBackdrop)と同じ余白・装飾・背景を保ったまま、
+  /// 端末の画面サイズに依存しない十分大きい固定サイズで、画面外に棚を再構築して
+  /// キャプチャする。靴の写真自体は画面表示でも既に高画質(cutoutPath/filePath)
+  /// を使っているため、劣化の原因は「画面の小さい表示領域をそのまま
+  /// スクリーンショットしていたこと」であり、画像ソースの変更は不要。
   Future<void> _shareCollection() async {
+    if (_sharing) return;
     final shelfId = _shelfId;
     if (shelfId == null) return;
-    final boundary = _shareKeys[shelfId]?.currentContext?.findRenderObject()
-        as RenderRepaintBoundary?;
-    if (boundary == null) return;
-    final image = await boundary.toImage(pixelRatio: 3);
-    final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
-    if (bytes == null) return;
-    final directory = await getTemporaryDirectory();
-    final file = File(p.join(
-      directory.path,
-      'kickxkick_collection_${DateTime.now().millisecondsSinceEpoch}.png',
-    ));
-    await file.writeAsBytes(bytes.buffer.asUint8List());
-    await SharePlus.instance.share(
-      ShareParams(files: [XFile(file.path)], subject: 'KickxKick Collection'),
-    );
+    final shelf = _shelves.where((s) => s.id == shelfId).firstOrNull;
+    if (shelf == null) return;
+
+    final shelfItems =
+        ref.read(shelfItemsProvider(shelfId)).value ?? const <ShelfItem>[];
+    final allShoes = ref.read(shoesProvider).value ?? const <Shoe>[];
+    final brands = ref.read(brandsProvider).value ?? const <Brand>[];
+    final brandNames = {
+      for (final brand in brands)
+        if (brand.id != null) brand.id!: brand.name,
+    };
+    final columns = ref.read(collectionColumnsProvider).value ?? 2;
+    final shoesById = {for (final shoe in allShoes) shoe.id: shoe};
+
+    final shoeImagePaths = <int, String?>{};
+    for (final item in shelfItems) {
+      final shoe = shoesById[item.shoeId];
+      if (shoe?.id == null) continue;
+      final photo = ref.read(mainPhotoProvider(shoe!.id!)).value;
+      shoeImagePaths[shoe.id!] = photo?.cutoutPath ?? photo?.filePath;
+    }
+    final imagePaths = shoeImagePaths.values.whereType<String>().toSet();
+
+    setState(() {
+      _sharing = true;
+      _exportShelfData = _ShelfExportData(
+        shelfItems: shelfItems,
+        allShoes: allShoes,
+        brandNames: brandNames,
+        backgroundTheme: shelf.backgroundTheme,
+        columns: columns,
+        shoeImagePaths: shoeImagePaths,
+      );
+    });
+
+    try {
+      // Image.fileが実際にデコード・キャッシュされるのを待ってから
+      // キャプチャする(そうしないと空欄のまま撮影されてしまう)。
+      await Future.wait([
+        for (final path in imagePaths)
+          precacheImage(FileImage(File(path)), context),
+      ]);
+      await WidgetsBinding.instance.endOfFrame;
+
+      final boundary = _exportShelfKey.currentContext?.findRenderObject()
+          as RenderRepaintBoundary?;
+      if (boundary == null) return;
+      final image = await boundary.toImage(pixelRatio: 2);
+      final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
+      if (bytes == null) return;
+      final directory = await getTemporaryDirectory();
+      final file = File(p.join(
+        directory.path,
+        'kickxkick_collection_${DateTime.now().millisecondsSinceEpoch}.png',
+      ));
+      await file.writeAsBytes(bytes.buffer.asUint8List());
+      await SharePlus.instance.share(
+        ShareParams(files: [XFile(file.path)], subject: 'KickxKick Collection'),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _sharing = false;
+          _exportShelfData = null;
+        });
+      }
+    }
   }
 
   Future<void> _showAddShoeSheet(int shelfId) async {
@@ -857,6 +939,145 @@ class _FilterGroup extends StatelessWidget {
     );
   }
 
+}
+
+/// 共有画像の書き出し(_ShelfExportView)に必要な、棚1枚ぶんのスナップショット。
+/// 画面表示中に取得した値を固定化し、書き出し中に他の操作で
+/// 内容が変わらないようにする。
+class _ShelfExportData {
+  const _ShelfExportData({
+    required this.shelfItems,
+    required this.allShoes,
+    required this.brandNames,
+    required this.backgroundTheme,
+    required this.columns,
+    required this.shoeImagePaths,
+  });
+
+  final List<ShelfItem> shelfItems;
+  final List<Shoe> allShoes;
+  final Map<int, String> brandNames;
+  final BackgroundTheme backgroundTheme;
+  final int columns;
+  final Map<int, String?> shoeImagePaths;
+}
+
+/// 共有画像の書き出し専用ビュー。画面表示側(_ShelfGrid/_ShelfBackdrop)と
+/// 同じ余白・装飾・背景になるよう構成をそのまま踏襲しつつ、DragTargetなど
+/// 編集用のロジックは持たない。画面は端末の画面サイズに依存するため、
+/// 共有画像は端末に依存しない十分大きな固定幅で書き出す。
+class _ShelfExportView extends StatelessWidget {
+  const _ShelfExportView({required this.data});
+
+  final _ShelfExportData data;
+
+  static const double _exportGridWidth = 1400;
+
+  double _gridSpacing(int columns) {
+    switch (columns) {
+      case 2:
+        return 12;
+      case 3:
+        return 10;
+      case 4:
+        return 8;
+      case 5:
+        return 6;
+      default:
+        return 12;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final columns = data.columns;
+    final shoesById = {for (final shoe in data.allShoes) shoe.id: shoe};
+    final slotToShoeId = {
+      for (final item in data.shelfItems) item.slotIndex: item.shoeId,
+    };
+
+    const horizontalPadding = 24.0;
+    final spacing = _gridSpacing(columns);
+    final cardWidth =
+        (_exportGridWidth - horizontalPadding - spacing * (columns - 1)) /
+        columns;
+    final compact = cardWidth < 130;
+    final tiny = cardWidth < 90;
+    final imageHeight = cardWidth * 0.82;
+    final titleHeight = tiny
+        ? 50.0
+        : compact
+            ? 68.0
+            : 116.0;
+    final rows = (ShelfRepository.slotCount / columns).ceil();
+    final gridHeight =
+        rows * (imageHeight + titleHeight) + (rows - 1) * spacing;
+
+    return ColoredBox(
+      color: Theme.of(context).scaffoldBackgroundColor,
+      child: SizedBox(
+        width: _exportGridWidth,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
+              child: Row(
+                children: [
+                  Text(
+                    '${data.shelfItems.length}/${ShelfRepository.slotCount}',
+                    style: Theme.of(context).textTheme.labelLarge,
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(12),
+              child: _ShelfBackdrop(
+                backgroundTheme: data.backgroundTheme,
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: SizedBox(
+                    height: gridHeight,
+                    child: GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: columns,
+                        mainAxisExtent: imageHeight + titleHeight,
+                        mainAxisSpacing: spacing,
+                        crossAxisSpacing: spacing,
+                      ),
+                      itemCount: ShelfRepository.slotCount,
+                      itemBuilder: (context, slotIndex) {
+                        final shoeId = slotToShoeId[slotIndex];
+                        final shoe = shoeId != null ? shoesById[shoeId] : null;
+                        if (shoe == null) {
+                          return const _EmptySlot(highlighted: false);
+                        }
+                        return ShoeCard(
+                          brandName: data.brandNames[shoe.brandId] ?? 'Unknown',
+                          modelName: shoe.displayTitle?.isNotEmpty == true
+                              ? shoe.displayTitle!
+                              : shoe.modelName,
+                          size: shoe.size ?? '-',
+                          color: shoe.color ?? '',
+                          statusLabel: shoe.statusLabel,
+                          imagePath: data.shoeImagePaths[shoe.id],
+                          archiveNumber: null,
+                          onTap: () {},
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 class _ShelfGrid extends ConsumerWidget {
