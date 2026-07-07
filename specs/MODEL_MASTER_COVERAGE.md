@@ -1,4 +1,4 @@
-# Kick×Kick Model Master Coverage v2.2
+# Kick×Kick Model Master Coverage v2.3
 
 ## Purpose
 
@@ -90,7 +90,7 @@ TODO
 |---|---|---|---|---|---|---|
 | SKECHERS | PARTIAL | PASS | PASS | PASS | MODEL_STARTED | 公式Collections確認ベースで8件追加。`Uno` / `Walk` / `Run` / `BOBS` / `Street` / `Golf` 単体は未追加。 |
 | crocs | PARTIAL | PASS | PASS | PASS | MODEL_STARTED | 日本公式クロッグページ確認ベースで4件追加。`Classic` / `Clog` / `Bae` / `Echo` 単体は未追加。 |
-| Dr.Martens | STAGED | STAGED | STAGED | STAGED | MERGE_READY | `1460` / `1461` を検証済み。`Docs` / `Boot` / `Shoe` / `Martens` 単体は未追加。本体JSON反映待ち。 |
+| Dr.Martens | STAGED 15 | STAGED | STAGED | STAGED | MERGE_READY | 15モデルへ拡張済み。`Docs` / `DMs` / `Boot` / `Shoe` / `Loafer` / `Sandal` / `Mule` / `Chelsea` / `Platform` / `Martens` 単体は未追加。本体JSON反映待ち。 |
 
 ---
 
@@ -155,6 +155,11 @@ searchKeywords: TODO
 2026-07-07 v0.5.5-staging
 - Dr.Martens `1460` / `1461` を検証済みmerge-ready stagingへ更新
 - 本体JSON反映前に広すぎるAlias/searchKeywordsを除外
+
+2026-07-08 v0.5.6-staging
+- Dr.Martensを15モデルへ拡張
+- Alias / searchKeywordsも同じ15モデルに合わせて拡張
+- 本体JSON反映前のmerge-ready stagingとして管理
 ```
 
 ---
@@ -162,7 +167,7 @@ searchKeywords: TODO
 ## Next Work
 
 ```text
-1. Dr.Martens v0.5.5 merge-ready payload を本体JSONへ反映
+1. Dr.Martens v0.5.6 expanded merge-ready payload を本体JSONへ反映
 2. app/assets/data/*.json へ同期
 3. JSON整形または同期スクリプトを追加
 4. Tier Cブランドのモデル追加を優先度順に進める
