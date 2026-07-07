@@ -1,4 +1,4 @@
-# Kick×Kick Task Board v2.6
+# Kick×Kick Task Board v2.7
 
 ## 目的
 
@@ -15,10 +15,10 @@ Kick×Kick開発の現在地を管理する。
 Tier S / Tier A はPASS。
 Tier BはHOKA / Saucony / SALOMON / MERRELL / BROOKSを追加し、Alias / searchKeywords までPASS化済み。
 Tier Cはブランド名先行登録済み。SKECHERSはv0.5.3で8モデルまで拡張。crocsはv0.5.4で4モデル追加開始。
-Dr.Martensはv0.5.5-merge-readyとして1460 / 1461を検証済みステージング化。本体JSON反映待ち。
+Dr.Martensはv0.5.6-merge-readyとして15モデルを検証済みステージング化。本体JSON反映待ち。
 ABC-MARTなど国内流通リファレンスを基準に、今後もデータ資産を継続育成する。
 data/models.json・aliases.json・search_keywords.json と app/assets/data 側は v0.5.4 として同期済み。
-次はDr.Martens本体反映、JSON同期自動化、Search MVPテスト、TOP5・着用履歴・詳細確認を進める。
+次はJSON整形または同期自動化を入れて、Dr.Martensのexpanded payloadを本体JSONとapp/assetsへ反映する。
 ```
 
 引き継ぎ:
@@ -61,7 +61,7 @@ docs/HANDOFF_BRAND_MODEL_SEARCH.md
 状態:
 
 ```text
-ACTIVE / MVP DATA PASS / MARKET REFERENCE GROWTH / DATA v0.5.4 SYNCED / DR.MARTENS v0.5.5 MERGE-READY
+ACTIVE / MVP DATA PASS / MARKET REFERENCE GROWTH / DATA v0.5.4 SYNCED / DR.MARTENS v0.5.6 EXPANDED MERGE-READY
 ```
 
 - [x] BRAND_MASTER.md 作成
@@ -149,10 +149,16 @@ ACTIVE / MVP DATA PASS / MARKET REFERENCE GROWTH / DATA v0.5.4 SYNCED / DR.MARTE
 - [x] data/README.md v0.5.5-staging反映
 - [x] CHANGELOG v0.5.5-staging audit反映
 - [x] MODEL_MASTER_COVERAGE v2.2反映
+- [x] Dr.Martens 15モデル expanded staging 作成
+- [x] Dr.Martens Alias / searchKeywords 候補を15モデル分へ拡張
+- [x] data/README.md v0.5.6-staging反映
+- [x] data/validation_rules.md v1.8反映
+- [x] CHANGELOG v0.5.6 expanded staging反映
+- [x] MODEL_MASTER_COVERAGE v2.3反映
 
 保留:
 
-- [ ] Dr.Martens v0.5.5 merge-ready payload を本体JSONへ反映
+- [ ] Dr.Martens v0.5.6 expanded merge-ready payload を本体JSONへ反映
 - [ ] Dr.Martens app/assets/data/*.json 同期
 - [ ] JSON同期の自動化または整形済みJSONへの移行
 - [ ] Search MVPテストケース実施
