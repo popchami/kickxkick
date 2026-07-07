@@ -26,7 +26,7 @@ staging_dr_martens_v0.5.5.json
 Tier S: Nike / Air Jordan / adidas / New Balance / ASICS
 Tier A: PUMA / Converse / Vans / Reebok
 Tier B: HOKA / Saucony / SALOMON / MERRELL / BROOKS
-Tier C: brand-only registry + SKECHERS / crocs model-started + Dr.Martens merge-ready staging
+Tier C: brand-only registry + SKECHERS / crocs model-started + Dr.Martens expanded merge-ready staging
 ```
 
 Tier SはMVP基準でPASS。ただしABC-MARTなど国内流通リファレンスとの差分監査は継続する。
@@ -37,9 +37,9 @@ Tier BはHOKA / Saucony / SALOMON / MERRELL / BROOKSを追加済み。MERRELL / 
 
 Tier Cはブランド名を先行登録済み。v0.5.3 で SKECHERS を8件まで拡張し、v0.5.4 で crocs の高確度クロッグモデル4件を追加した。
 
-Dr.Martensは v0.5.5-merge-ready として `staging_dr_martens_v0.5.5.json` に検証済みデータを分離している。本体JSONが1行圧縮形式のため、壊さないように次回の整形または同期スクリプト導入後に `models.json` / `aliases.json` / `search_keywords.json` と `app/assets/data/` 側へ反映する。
+Dr.Martensは v0.5.6-merge-ready として `staging_dr_martens_v0.5.5.json` に15モデルの検証済みデータを分離している。本体JSONが1行圧縮形式のため、壊さないように次回の整形または同期スクリプト導入後に `models.json` / `aliases.json` / `search_keywords.json` と `app/assets/data/` 側へ反映する。
 
-2026-07-04時点で `data/models.json` / `data/aliases.json` / `data/search_keywords.json` と `app/assets/data/` 側は v0.5.4 として同期済み。
+2026-07-04時点で `data/models.json` / `data/aliases.json` / `data/search_keywords.json` と `app/assets/data/` 側は v0.5.4 として同期済み。Dr.Martens拡張分はまだ本体JSON未反映。
 
 ---
 
@@ -117,6 +117,19 @@ Dr.Martensの検証済み追加候補。
 ```text
 1460
 1461
+2976
+Jadon
+Sinclair
+Adrian
+Blaire
+Gryphon
+Jorge
+Carlson
+8053
+3989
+101
+Church
+Ramsey
 ```
 
 本体JSONへ直接反映する前の安全なステージングデータとして扱う。
@@ -148,6 +161,10 @@ ClassicBaeClog -> Classic Bae Clog
 EchoClog -> Echo Clog
 DrMartens1460 -> 1460
 DrMartens1461 -> 1461
+DrMartens2976 -> 2976
+DrMartensJadon -> Jadon
+DrMartensAdrian -> Adrian
+DrMartensGryphon -> Gryphon
 ```
 
 `aliases.json` や `search_keywords.json` の値を保存名にしてはいけない。
@@ -177,11 +194,21 @@ merrell_agility_peak_6
 brooks_ghost_18
 skechers_d_lites
 crocs_classic_clog
-crocs_crocband_clog
-crocs_classic_bae_clog
-crocs_echo_clog
 dr_martens_1460
 dr_martens_1461
+dr_martens_2976
+dr_martens_jadon
+dr_martens_sinclair
+dr_martens_adrian
+dr_martens_blaire
+dr_martens_gryphon
+dr_martens_jorge
+dr_martens_carlson
+dr_martens_8053
+dr_martens_3989
+dr_martens_101
+dr_martens_church
+dr_martens_ramsey
 ```
 
 ---
@@ -225,7 +252,7 @@ searchKeywordsに入れないもの:
 ```text
 - 1文字だけの数字や英字
 - Air / Max / GEL / Cloud / XT / Pro など広すぎる単語
-- Old / Classic / Star / Club / Ride / Guide / Ghost / Trail / Glove / Peak / Uno / Street / Golf / Clog / Bae / Echo / Boot / Shoe / Martens など広すぎる単語
+- Old / Classic / Star / Club / Ride / Guide / Ghost / Trail / Glove / Peak / Uno / Street / Golf / Clog / Bae / Echo / Boot / Shoe / Loafer / Sandal / Mule / Chelsea / Platform / Martens など広すぎる単語
 - 色名だけ
 - コラボ名だけ
 ```
