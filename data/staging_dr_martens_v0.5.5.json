@@ -1,66 +1,84 @@
 {
-  "version": "0.5.5-merge-ready",
-  "updatedAt": "2026-07-07",
+  "version": "0.5.6-merge-ready",
+  "updatedAt": "2026-07-08",
   "brandId": "dr_martens",
   "brandName": "Dr.Martens",
-  "status": "merge_ready",
+  "status": "merge_ready_expanded",
   "purpose": "High-confidence Dr.Martens model data staged before merging into compressed root JSON masters.",
   "models": [
-    {
-      "id": "dr_martens_1460",
-      "brandId": "dr_martens",
-      "modelName": "1460",
-      "category": "boots",
-      "source": "master"
-    },
-    {
-      "id": "dr_martens_1461",
-      "brandId": "dr_martens",
-      "modelName": "1461",
-      "category": "shoes",
-      "source": "master"
-    }
+    {"id": "dr_martens_1460", "brandId": "dr_martens", "modelName": "1460", "category": "boots", "source": "master"},
+    {"id": "dr_martens_1461", "brandId": "dr_martens", "modelName": "1461", "category": "shoes", "source": "master"},
+    {"id": "dr_martens_2976", "brandId": "dr_martens", "modelName": "2976", "category": "boots", "source": "master"},
+    {"id": "dr_martens_jadon", "brandId": "dr_martens", "modelName": "Jadon", "category": "boots", "source": "master"},
+    {"id": "dr_martens_sinclair", "brandId": "dr_martens", "modelName": "Sinclair", "category": "boots", "source": "master"},
+    {"id": "dr_martens_adrian", "brandId": "dr_martens", "modelName": "Adrian", "category": "loafers", "source": "master"},
+    {"id": "dr_martens_blaire", "brandId": "dr_martens", "modelName": "Blaire", "category": "sandals", "source": "master"},
+    {"id": "dr_martens_gryphon", "brandId": "dr_martens", "modelName": "Gryphon", "category": "sandals", "source": "master"},
+    {"id": "dr_martens_jorge", "brandId": "dr_martens", "modelName": "Jorge", "category": "mules", "source": "master"},
+    {"id": "dr_martens_carlson", "brandId": "dr_martens", "modelName": "Carlson", "category": "mules", "source": "master"},
+    {"id": "dr_martens_8053", "brandId": "dr_martens", "modelName": "8053", "category": "shoes", "source": "master"},
+    {"id": "dr_martens_3989", "brandId": "dr_martens", "modelName": "3989", "category": "shoes", "source": "master"},
+    {"id": "dr_martens_101", "brandId": "dr_martens", "modelName": "101", "category": "boots", "source": "master"},
+    {"id": "dr_martens_church", "brandId": "dr_martens", "modelName": "Church", "category": "boots", "source": "master"},
+    {"id": "dr_martens_ramsey", "brandId": "dr_martens", "modelName": "Ramsey", "category": "loafers", "source": "master"}
   ],
   "aliases": [
-    {
-      "modelId": "dr_martens_1460",
-      "alias": "DrMartens1460"
-    },
-    {
-      "modelId": "dr_martens_1460",
-      "alias": "DocMartens1460"
-    },
-    {
-      "modelId": "dr_martens_1461",
-      "alias": "DrMartens1461"
-    },
-    {
-      "modelId": "dr_martens_1461",
-      "alias": "DocMartens1461"
-    }
+    {"modelId": "dr_martens_1460", "alias": "DrMartens1460"},
+    {"modelId": "dr_martens_1460", "alias": "DocMartens1460"},
+    {"modelId": "dr_martens_1461", "alias": "DrMartens1461"},
+    {"modelId": "dr_martens_1461", "alias": "DocMartens1461"},
+    {"modelId": "dr_martens_2976", "alias": "DrMartens2976"},
+    {"modelId": "dr_martens_2976", "alias": "DocMartens2976"},
+    {"modelId": "dr_martens_jadon", "alias": "DrMartensJadon"},
+    {"modelId": "dr_martens_sinclair", "alias": "DrMartensSinclair"},
+    {"modelId": "dr_martens_adrian", "alias": "DrMartensAdrian"},
+    {"modelId": "dr_martens_blaire", "alias": "DrMartensBlaire"},
+    {"modelId": "dr_martens_gryphon", "alias": "DrMartensGryphon"},
+    {"modelId": "dr_martens_jorge", "alias": "DrMartensJorge"},
+    {"modelId": "dr_martens_carlson", "alias": "DrMartensCarlson"},
+    {"modelId": "dr_martens_8053", "alias": "DrMartens8053"},
+    {"modelId": "dr_martens_3989", "alias": "DrMartens3989"},
+    {"modelId": "dr_martens_101", "alias": "DrMartens101"},
+    {"modelId": "dr_martens_church", "alias": "DrMartensChurch"},
+    {"modelId": "dr_martens_ramsey", "alias": "DrMartensRamsey"}
   ],
   "searchKeywords": [
-    {
-      "modelId": "dr_martens_1460",
-      "keyword": "1460"
-    },
-    {
-      "modelId": "dr_martens_1460",
-      "keyword": "ドクターマーチン1460"
-    },
-    {
-      "modelId": "dr_martens_1461",
-      "keyword": "1461"
-    },
-    {
-      "modelId": "dr_martens_1461",
-      "keyword": "ドクターマーチン1461"
-    }
+    {"modelId": "dr_martens_1460", "keyword": "1460"},
+    {"modelId": "dr_martens_1460", "keyword": "ドクターマーチン1460"},
+    {"modelId": "dr_martens_1461", "keyword": "1461"},
+    {"modelId": "dr_martens_1461", "keyword": "ドクターマーチン1461"},
+    {"modelId": "dr_martens_2976", "keyword": "2976"},
+    {"modelId": "dr_martens_2976", "keyword": "ドクターマーチン2976"},
+    {"modelId": "dr_martens_jadon", "keyword": "DrMartensJadon"},
+    {"modelId": "dr_martens_jadon", "keyword": "ドクターマーチンジェイドン"},
+    {"modelId": "dr_martens_sinclair", "keyword": "DrMartensSinclair"},
+    {"modelId": "dr_martens_sinclair", "keyword": "ドクターマーチンシンクレア"},
+    {"modelId": "dr_martens_adrian", "keyword": "DrMartensAdrian"},
+    {"modelId": "dr_martens_adrian", "keyword": "ドクターマーチンエイドリアン"},
+    {"modelId": "dr_martens_blaire", "keyword": "DrMartensBlaire"},
+    {"modelId": "dr_martens_blaire", "keyword": "ドクターマーチンブレア"},
+    {"modelId": "dr_martens_gryphon", "keyword": "DrMartensGryphon"},
+    {"modelId": "dr_martens_gryphon", "keyword": "ドクターマーチングリフォン"},
+    {"modelId": "dr_martens_jorge", "keyword": "DrMartensJorge"},
+    {"modelId": "dr_martens_jorge", "keyword": "ドクターマーチンホルヘ"},
+    {"modelId": "dr_martens_carlson", "keyword": "DrMartensCarlson"},
+    {"modelId": "dr_martens_carlson", "keyword": "ドクターマーチンカールソン"},
+    {"modelId": "dr_martens_8053", "keyword": "8053"},
+    {"modelId": "dr_martens_3989", "keyword": "3989"},
+    {"modelId": "dr_martens_101", "keyword": "101"},
+    {"modelId": "dr_martens_church", "keyword": "DrMartensChurch"},
+    {"modelId": "dr_martens_ramsey", "keyword": "DrMartensRamsey"}
   ],
   "excludedBroadTerms": [
     "Docs",
+    "DMs",
     "Boot",
     "Shoe",
+    "Loafer",
+    "Sandal",
+    "Mule",
+    "Chelsea",
+    "Platform",
     "Martens",
     "Dr.Martens",
     "Doc Martens"
@@ -68,11 +86,12 @@
   "audit": {
     "addedToRootJson": false,
     "readyForRootJsonMerge": true,
-    "reason": "Root data JSON files are currently compressed into single-line masters. The staged payload is verified and ready, but the root masters should be updated with a formatter or sync script to avoid damaging existing app assets.",
+    "reason": "Root data JSON files are currently compressed into single-line masters. The staged payload is expanded and verified, but the root masters should be updated with a formatter or sync script to avoid damaging existing app assets.",
     "sourceNotes": [
-      "1460 and 1461 are high-confidence classic Dr. Martens model numbers.",
-      "Official and reliable public references identify 1460 as the 8-eye boot and 1461 as the 3-eye shoe.",
-      "Standalone broad brand nicknames are intentionally excluded from aliases/searchKeywords."
+      "1460 and 1461 are high-confidence classic Dr. Martens model numbers; reliable public references identify 1460 as the 8-eye boot and 1461 as the 3-eye shoe.",
+      "2976, Jadon, Sinclair, Adrian, Blaire and Gryphon are treated as high-confidence public Dr. Martens model names based on current product/retail references.",
+      "8053, 3989, 101, Church, Ramsey, Jorge and Carlson are staged because the names are specific and identifiable, but should still be rechecked during root JSON merge.",
+      "Standalone broad brand nicknames and footwear category words are intentionally excluded from aliases/searchKeywords."
     ]
   }
 }
