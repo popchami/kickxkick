@@ -16,6 +16,7 @@ models.json
 aliases.json
 search_keywords.json
 staging_dr_martens_v0.5.5.json
+sync_dr_martens_v0.5.7.py
 ```
 
 ---
@@ -26,7 +27,7 @@ staging_dr_martens_v0.5.5.json
 Tier S: Nike / Air Jordan / adidas / New Balance / ASICS
 Tier A: PUMA / Converse / Vans / Reebok
 Tier B: HOKA / Saucony / SALOMON / MERRELL / BROOKS
-Tier C: brand-only registry + SKECHERS / crocs model-started + Dr.Martens expanded merge-ready staging
+Tier C: brand-only registry + SKECHERS / crocs model-started + Dr.Martens expanded merge-ready audited
 ```
 
 Tier SはMVP基準でPASS。ただしABC-MARTなど国内流通リファレンスとの差分監査は継続する。
@@ -37,9 +38,9 @@ Tier BはHOKA / Saucony / SALOMON / MERRELL / BROOKSを追加済み。MERRELL / 
 
 Tier Cはブランド名を先行登録済み。v0.5.3 で SKECHERS を8件まで拡張し、v0.5.4 で crocs の高確度クロッグモデル4件を追加した。
 
-Dr.Martensは v0.5.6-merge-ready として `staging_dr_martens_v0.5.5.json` に15モデルの検証済みデータを分離している。本体JSONが1行圧縮形式のため、壊さないように次回の整形または同期スクリプト導入後に `models.json` / `aliases.json` / `search_keywords.json` と `app/assets/data/` 側へ反映する。
+Dr.Martensは v0.5.7-merge-ready-audited として `staging_dr_martens_v0.5.5.json` に15モデルの検証済みデータを分離している。同期用の `data/sync_dr_martens_v0.5.7.py` は作成済み。本体JSONが1行圧縮形式のため、壊さないようにリポジトリ実行環境で同期スクリプトを実行して `models.json` / `aliases.json` / `search_keywords.json` と `app/assets/data/` 側へ反映する。
 
-2026-07-04時点で `data/models.json` / `data/aliases.json` / `data/search_keywords.json` と `app/assets/data/` 側は v0.5.4 として同期済み。Dr.Martens拡張分はまだ本体JSON未反映。
+2026-07-09時点で `data/models.json` / `data/aliases.json` / `data/search_keywords.json` と `app/assets/data/` 側は v0.5.4 として同期済み。Dr.Martens拡張分はmerge-ready auditedだが、まだ本体JSON未反映。
 
 ---
 
@@ -133,6 +134,16 @@ Ramsey
 ```
 
 本体JSONへ直接反映する前の安全なステージングデータとして扱う。
+
+### sync_dr_martens_v0.5.7.py
+
+Dr.Martens staging を本体JSONと `app/assets/data/` に同期するための決定的スクリプト。
+
+```text
+python3 data/sync_dr_martens_v0.5.7.py
+```
+
+手作業で圧縮JSONを編集せず、このスクリプトで同時反映する。
 
 ---
 
