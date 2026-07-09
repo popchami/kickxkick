@@ -1,4 +1,4 @@
-# Kick×Kick Model Master Coverage v2.3
+# Kick×Kick Model Master Coverage v2.4
 
 ## Purpose
 
@@ -35,6 +35,10 @@ MERGE_READY
 - ブランド名は登録済み
 - 高確度モデル / Alias / searchKeywords は検証済み
 - ただし本体JSONとapp/assets/dataへの同期反映は未実施
+
+MERGE_READY_AUDITED
+- MERGE_READYに加えて、同期スクリプトと除外語監査が明文化済み
+- 実行環境で同期スクリプトを走らせれば本体JSON反映できる状態
 
 BRAND_ONLY
 - ブランド名は登録済み
@@ -90,7 +94,7 @@ TODO
 |---|---|---|---|---|---|---|
 | SKECHERS | PARTIAL | PASS | PASS | PASS | MODEL_STARTED | 公式Collections確認ベースで8件追加。`Uno` / `Walk` / `Run` / `BOBS` / `Street` / `Golf` 単体は未追加。 |
 | crocs | PARTIAL | PASS | PASS | PASS | MODEL_STARTED | 日本公式クロッグページ確認ベースで4件追加。`Classic` / `Clog` / `Bae` / `Echo` 単体は未追加。 |
-| Dr.Martens | STAGED 15 | STAGED | STAGED | STAGED | MERGE_READY | 15モデルへ拡張済み。`Docs` / `DMs` / `Boot` / `Shoe` / `Loafer` / `Sandal` / `Mule` / `Chelsea` / `Platform` / `Martens` 単体は未追加。本体JSON反映待ち。 |
+| Dr.Martens | STAGED 15 | STAGED | STAGED | STAGED | MERGE_READY_AUDITED | 15モデルへ拡張済み。同期スクリプト `data/sync_dr_martens_v0.5.7.py` あり。`Docs` / `DMs` / `Boot` / `Shoe` / `Loafer` / `Sandal` / `Mule` / `Chelsea` / `Platform` / `Martens` 単体は未追加。本体JSON反映待ち。 |
 
 ---
 
@@ -160,6 +164,10 @@ searchKeywords: TODO
 - Dr.Martensを15モデルへ拡張
 - Alias / searchKeywordsも同じ15モデルに合わせて拡張
 - 本体JSON反映前のmerge-ready stagingとして管理
+
+2026-07-09 v0.5.7-audit
+- Dr.Martens stagingをmerge-ready-auditedへ更新
+- 同期スクリプト `data/sync_dr_martens_v0.5.7.py` を正式手順として明記
 ```
 
 ---
@@ -167,13 +175,12 @@ searchKeywords: TODO
 ## Next Work
 
 ```text
-1. Dr.Martens v0.5.6 expanded merge-ready payload を本体JSONへ反映
-2. app/assets/data/*.json へ同期
-3. JSON整形または同期スクリプトを追加
-4. Tier Cブランドのモデル追加を優先度順に進める
+1. `python3 data/sync_dr_martens_v0.5.7.py` をリポジトリ実行環境で実行
+2. app/assets/data/*.json とのSHA一致確認
+3. Search MVPテストケース実施
+4. 次のTier Cブランドを1ブランド集中で追加
 5. SKECHERS / crocs の国内流通差分監査を継続
 6. Tier S / A / B のABC-MART差分監査を継続
-7. Search MVPテストケースを実機またはFlutterテストで実施
 ```
 
 ---
