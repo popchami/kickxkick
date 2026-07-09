@@ -1,9 +1,9 @@
 {
-  "version": "0.5.6-merge-ready",
-  "updatedAt": "2026-07-08",
+  "version": "0.5.7-merge-ready-audited",
+  "updatedAt": "2026-07-09",
   "brandId": "dr_martens",
   "brandName": "Dr.Martens",
-  "status": "merge_ready_expanded",
+  "status": "merge_ready_expanded_audited",
   "purpose": "High-confidence Dr.Martens model data staged before merging into compressed root JSON masters.",
   "models": [
     {"id": "dr_martens_1460", "brandId": "dr_martens", "modelName": "1460", "category": "boots", "source": "master"},
@@ -86,7 +86,10 @@
   "audit": {
     "addedToRootJson": false,
     "readyForRootJsonMerge": true,
-    "reason": "Root data JSON files are currently compressed into single-line masters. The staged payload is expanded and verified, but the root masters should be updated with a formatter or sync script to avoid damaging existing app assets.",
+    "syncScript": "data/sync_dr_martens_v0.5.7.py",
+    "syncScriptReady": true,
+    "rootJsonMergeBlockedByRuntime": true,
+    "reason": "Root data JSON files are currently compressed into single-line masters. The deterministic sync script is available, but connector execution cannot run repository-local scripts; do not hand-edit the compressed masters unless the full JSON can be regenerated safely.",
     "sourceNotes": [
       "1460 and 1461 are high-confidence classic Dr. Martens model numbers; reliable public references identify 1460 as the 8-eye boot and 1461 as the 3-eye shoe.",
       "2976, Jadon, Sinclair, Adrian, Blaire and Gryphon are treated as high-confidence public Dr. Martens model names based on current product/retail references.",
