@@ -4,6 +4,30 @@
 
 ---
 
+## 2026-07-09 v0.5.7 sync helper audit
+
+### Updated
+
+- `data/staging_dr_martens_v0.5.5.json` を `0.5.7-merge-ready-audited` に更新
+- `data/sync_dr_martens_v0.5.7.py` を公式の同期手順として staging 側に明記
+- Dr.Martens 15モデル、Alias、searchKeywords の merge-ready 状態を再確認
+
+### Audited
+
+- `1460` / `1461` は定番モデルとして信頼情報で確認済み
+- 15モデルのID、brandId、modelName、category、source、Alias、searchKeywords の整合性を確認
+- `Docs` / `DMs` / `Boot` / `Shoe` / `Loafer` / `Sandal` / `Mule` / `Chelsea` / `Platform` / `Martens` / `Dr.Martens` / `Doc Martens` 単体は引き続き除外
+- root JSON と app/assets/data はまだ v0.5.4 同期状態。本体JSONは1行圧縮のため、破損防止を優先し、実行環境で同期スクリプトを走らせる方針を維持
+
+### Remaining
+
+- `python3 data/sync_dr_martens_v0.5.7.py` の実行
+- 実行後の `data/*.json` / `app/assets/data/*.json` SHA一致確認
+- Search MVPテストケース実施
+- 次ブランドの集中追加
+
+---
+
 ## 2026-07-08 v0.5.6 expanded staging
 
 ### Updated
@@ -140,7 +164,7 @@
 ### Added / Updated
 
 - SKECHERS: `D'Lites` / `Uno` / `GO WALK` / `GO RUN` を追加
-- data/models・aliases・search_keywords と app/assets/data 側を v0.5.2 として同期
+- data/models・aliases・search_keywords と app/assets/data 側を同期
 
 ---
 
