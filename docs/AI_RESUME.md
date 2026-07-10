@@ -10,9 +10,13 @@ Next:
   - ステッカーボード・コレクション棚の共有画像を高画質書き出し方式に変更
   - LINEスタンプ用ステッカー単体書き出し(1024×1024・透過PNG)
   - flutter_svg追加・ThemedIcon土台(SVGはまだ0個)
-- collection_screen.dartの_shareKeys/_shareKeyFor(旧・画面スクリーン
-  ショット方式の名残)が、高画質書き出し方式への切替後も未使用のまま
-  残っている。実機確認後、不要なら削除を検討
+- (自走モードで完了) 未使用コードの掃除4件をcommit・push済み:
+  _shareKeys削除(16755d2)、未使用AppFabウィジェット削除(ace1840)、
+  不要なcross_file依存の削除(98916ed)、未使用MuseumSummaryウィジェット
+  削除(ba8fcee)。cross_file削除のみ、次回PC使用時にflutter pub get/
+  buildで問題なく動くか要確認
+- 上記以外の掃除候補(print()直書き、空catch、重複import、コメント
+  アウトされた不要コード)は調査済みで、いずれも問題なし(対応不要)
 - ML Kit（AI背景除去）が実際に成功しているか、ログを見て確認する
   （ずっと保留中）
 
