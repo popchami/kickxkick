@@ -1703,7 +1703,9 @@ class _StickerBoardState extends State<_StickerBoard> {
     });
 
     try {
-      // 高画質画像(最大1600px)の事前デコードが終わるまで待つ。
+      // 高画質画像(最大1600px)の事前デコード + 縁取り・影込みキャッシュの
+      // 生成が終わるまで待つ(デコード完了だけを待つと、縁取りが未描画の
+      // 状態でキャプチャされてしまうため)。
       // 万一デコードに失敗する画像があっても共有自体は止めないよう、
       // タイムアウトで先に進める。
       await allLoaded.future.timeout(
@@ -2094,7 +2096,10 @@ class _StickerArtwork extends StatefulWidget {
   // ではなく、高画質なstickerPathなどを直接指定するための上書き。
   final String? imagePathOverride;
   final int? targetWidthOverride;
-  // 書き出し専用: 事前デコードの完了を呼び出し元に知らせるための通知。
+  // 書き出し専用: 画像デコード後、縁取り・影込みのキャッシュ生成
+  // (_buildCachedArtwork)まで完了したことを呼び出し元に知らせる通知。
+  // デコード完了時点ではまだ縁取りが描画されていないため、ここより早く
+  // 通知すると書き出し画像で縁取りが欠けることがある。
   final VoidCallback? onImageLoaded;
 
   @override
@@ -2103,6 +2108,15 @@ class _StickerArtwork extends StatefulWidget {
 
 class _StickerArtworkState extends State<_StickerArtwork> {
   ui.Image? _image;
+  // 縁取り・影込みの重い描画結果を1枚のビットマップとしてキャッシュしたもの。
+  // これが無いと、ドラッグ/拡大縮小のたびに_StickerArtworkPainterの
+  // drawImageRect呼び出し(シャドウ1回+外枠16回+内枠8回+本体1回)が毎フレーム
+  // 走り、GPUメモリを使い果たしてクラッシュする原因になっていたため導入。
+  ui.Image? _cachedArtwork;
+  // _buildCachedArtwork()はpicture.toImage()のawaitを挟むため、その間に
+  // 別の呼び出し(スタイル変更の連打など)が割り込むと古い結果で上書きして
+  // しまう。完了時にこの世代番号を比較し、古い結果は使わず破棄する。
+  int _cacheBuildGeneration = 0;
 
   String get _imagePath => widget.imagePathOverride ?? widget.asset.displayPath;
   int get _targetWidth => widget.targetWidthOverride ?? 800;
@@ -2118,25 +2132,80 @@ class _StickerArtworkState extends State<_StickerArtwork> {
     super.didUpdateWidget(oldWidget);
     final oldPath = oldWidget.imagePathOverride ?? oldWidget.asset.displayPath;
     if (oldPath != _imagePath) {
-      _image = null;
       _loadImage();
+      return;
+    }
+    final asset = widget.asset;
+    final oldAsset = oldWidget.asset;
+    if (asset.shadowEnabled != oldAsset.shadowEnabled ||
+        asset.outerBorderColor != oldAsset.outerBorderColor ||
+        asset.innerBorderColor != oldAsset.innerBorderColor ||
+        widget.size != oldWidget.size) {
+      _buildCachedArtwork();
     }
   }
 
   @override
   void dispose() {
     _image?.dispose();
+    _cachedArtwork?.dispose();
     super.dispose();
   }
 
   Future<void> _loadImage() async {
-    final bytes = await File(_imagePath).readAsBytes();
+    // pathが再度変わった場合に、この呼び出しが古い結果で上書きしないよう
+    // 開始時点のpathを覚えておき、完了時に今のpathと一致するかを確認する。
+    final requestedPath = _imagePath;
+    final bytes = await File(requestedPath).readAsBytes();
     final codec = await ui.instantiateImageCodec(bytes, targetWidth: _targetWidth);
     final frame = await codec.getNextFrame();
-    if (mounted) {
-      _image?.dispose();
-      setState(() => _image = frame.image);
+    if (!mounted || requestedPath != _imagePath) {
+      // widgetが既に破棄された、またはさらに新しいpathへの読み込みが
+      // 開始済み。このフレームはどこにも保持されないのでここで破棄する。
+      frame.image.dispose();
+      widget.onImageLoaded?.call();
+      return;
     }
+    _image?.dispose();
+    setState(() => _image = frame.image);
+    await _buildCachedArtwork();
+  }
+
+  /// _StickerArtworkPainterの描画結果を1回だけラスタライズしてキャッシュする。
+  /// 描画ロジック自体は_StickerArtworkPainterのものをそのまま呼ぶだけで変更しない。
+  Future<void> _buildCachedArtwork() async {
+    final image = _image;
+    if (image == null) {
+      widget.onImageLoaded?.call();
+      return;
+    }
+    final generation = ++_cacheBuildGeneration;
+    final asset = widget.asset;
+    final size = widget.size;
+    final height = size * .72;
+    final width = size * 1.25;
+    final recorder = ui.PictureRecorder();
+    final canvas = Canvas(recorder);
+    _StickerArtworkPainter(
+      image: image,
+      shadowEnabled: asset.shadowEnabled,
+      outerBorderColor: Color(asset.outerBorderColor),
+      innerBorderColor: Color(asset.innerBorderColor),
+      artworkSize: size,
+    ).paint(canvas, Size(width, height));
+    final picture = recorder.endRecording();
+    final rasterImage = await picture.toImage(width.ceil(), height.ceil());
+    picture.dispose();
+    if (!mounted || generation != _cacheBuildGeneration || image != _image) {
+      // widgetが既に破棄された、またはこの結果がすでに古い(別の再生成が
+      // 割り込んだ、もしくは元画像自体が差し替わった)。GPUメモリに残さず
+      // 即座に破棄する。
+      rasterImage.dispose();
+      widget.onImageLoaded?.call();
+      return;
+    }
+    _cachedArtwork?.dispose();
+    setState(() => _cachedArtwork = rasterImage);
     widget.onImageLoaded?.call();
   }
 
@@ -2203,16 +2272,12 @@ class _StickerArtworkState extends State<_StickerArtwork> {
         alignment: Alignment.topCenter,
         children: [
           // 案A: 38個の Image.file を1つの CustomPaint に集約
-          if (_image != null)
+          // 縁取り・影込みの重い描画は_buildCachedArtwork()で1回だけラスタライズ
+          // 済みのため、ここではそのビットマップを貼るだけの軽量描画にする。
+          if (_cachedArtwork != null)
             CustomPaint(
               size: Size(width, height),
-              painter: _StickerArtworkPainter(
-                image: _image!,
-                shadowEnabled: asset.shadowEnabled,
-                outerBorderColor: Color(asset.outerBorderColor),
-                innerBorderColor: Color(asset.innerBorderColor),
-                artworkSize: size,
-              ),
+              painter: _CachedArtworkPainter(_cachedArtwork!),
             ),
           if (text.isNotEmpty)
             Positioned(
@@ -2305,6 +2370,23 @@ class _StickerArtworkState extends State<_StickerArtwork> {
       ),
     );
   }
+}
+
+/// _StickerArtworkStateがキャッシュ済みのビットマップを貼るだけの軽量Painter。
+/// 縁取り・影の描画ロジック自体は持たない(_StickerArtworkPainter側で1回だけ実行済み)。
+class _CachedArtworkPainter extends CustomPainter {
+  const _CachedArtworkPainter(this.image);
+
+  final ui.Image image;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    canvas.drawImage(image, Offset.zero, Paint());
+  }
+
+  @override
+  bool shouldRepaint(_CachedArtworkPainter oldDelegate) =>
+      oldDelegate.image != image;
 }
 
 /// テキストが掴んで動かせることを示す小さなハンドル。
