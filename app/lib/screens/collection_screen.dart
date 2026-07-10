@@ -62,7 +62,6 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen> {
 
   final _searchController = TextEditingController();
   final _pageController = PageController();
-  final Map<int, GlobalKey> _shareKeys = {};
   String _searchText = '';
   List<Shelf> _shelves = [];
   int? _shelfId;
@@ -72,9 +71,6 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen> {
   bool _sharing = false;
   final GlobalKey _exportShelfKey = GlobalKey();
   _ShelfExportData? _exportShelfData;
-
-  GlobalKey _shareKeyFor(int shelfId) =>
-      _shareKeys.putIfAbsent(shelfId, () => GlobalKey());
 
   String get _currentShelfName {
     final shelfId = _shelfId;
@@ -199,7 +195,6 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen> {
     final wasActive = shelf.id == _shelfId;
     setState(() {
       _shelves = shelves;
-      _shareKeys.remove(shelf.id);
     });
     final targetShelf = wasActive
         ? shelves.first
@@ -362,7 +357,6 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen> {
               shoes: shoes,
               shelves: _shelves,
               pageController: _pageController,
-              shareKeyFor: _shareKeyFor,
               onPageChanged: _onShelfPageChanged,
               isDragging: _isDragging,
               onDragStarted: () => setState(() => _isDragging = true),
@@ -408,7 +402,6 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen> {
               shoes: shoes,
               shelves: _shelves,
               pageController: _pageController,
-              shareKeyFor: _shareKeyFor,
               onPageChanged: _onShelfPageChanged,
               isDragging: _isDragging,
               onDragStarted: () => setState(() => _isDragging = true),
@@ -610,7 +603,6 @@ class _CollectionContent extends ConsumerWidget {
   final List<Shoe> shoes;
   final List<Shelf> shelves;
   final PageController pageController;
-  final GlobalKey Function(int shelfId) shareKeyFor;
   final ValueChanged<int> onPageChanged;
   final bool isDragging;
   final VoidCallback onDragStarted;
@@ -630,7 +622,6 @@ class _CollectionContent extends ConsumerWidget {
     required this.shoes,
     required this.shelves,
     required this.pageController,
-    required this.shareKeyFor,
     required this.onPageChanged,
     required this.isDragging,
     required this.onDragStarted,
@@ -742,7 +733,6 @@ class _CollectionContent extends ConsumerWidget {
             itemBuilder: (context, index) {
               final shelf = shelves[index];
               return RepaintBoundary(
-                key: shareKeyFor(shelf.id),
                 child: ColoredBox(
                   color: Theme.of(context).scaffoldBackgroundColor,
                   child: Consumer(
