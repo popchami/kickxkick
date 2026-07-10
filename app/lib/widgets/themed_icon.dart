@@ -55,13 +55,12 @@ class ThemedIcon extends ConsumerWidget {
       return Icon(fallback, size: size, color: color);
     }
 
+    final c = color;
     return SvgPicture.asset(
       svgPath,
       width: size,
       height: size,
-      colorFilter: color == null
-          ? null
-          : ColorFilter.mode(color, BlendMode.srcIn),
+      colorFilter: c == null ? null : ColorFilter.mode(c, BlendMode.srcIn),
       // AssetManifestでの存在確認は「ファイルがバンドルされているか」しか
       // 保証しないため、中身が壊れたSVGだった場合の保険として二重に
       // フォールバックする。
