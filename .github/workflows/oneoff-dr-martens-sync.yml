@@ -1,0 +1,102 @@
+name: One-off Dr.Martens data sync
+
+on:
+  push:
+    branches:
+      - agent/dr-martens-v0.5.7-sync
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/dr-martens-v0.5.7-sync
+          fetch-depth: 0
+
+      - name: Sync master data
+        run: python3 data/sync_dr_martens_v0.5.7.py
+
+      - name: Update documentation
+        shell: python
+        run: |
+          from pathlib import Path
+
+          coverage = Path('specs/MODEL_MASTER_COVERAGE.md')
+          text = coverage.read_text(encoding='utf-8')
+          text = text.replace('# Kick×Kick Model Master Coverage v2.4', '# Kick×Kick Model Master Coverage v2.5')
+          old = '| Dr.Martens | STAGED 15 | STAGED | STAGED | STAGED | MERGE_READY_AUDITED | 15モデルへ拡張済み。同期スクリプト `data/sync_dr_martens_v0.5.7.py` あり。`Docs` / `DMs` / `Boot` / `Shoe` / `Loafer` / `Sandal` / `Mule` / `Chelsea` / `Platform` / `Martens` 単体は未追加。本体JSON反映待ち。 |'
+          new = '| Dr.Martens | PASS 15 | PASS | PASS | PASS | PASS | 15モデルを本体JSONとapp/assets/dataへ同期済み。広すぎるAlias/searchKeywordsは除外済み。 |'
+          if old not in text:
+              raise SystemExit('Dr.Martens coverage row not found')
+          text = text.replace(old, new)
+          text = text.replace('2026-07-09 v0.5.7-audit\n- Dr.Martens stagingをmerge-ready-auditedへ更新\n- 同期スクリプト `data/sync_dr_martens_v0.5.7.py` を正式手順として明記', '2026-07-09 v0.5.7-audit\n- Dr.Martens stagingをmerge-ready-auditedへ更新\n- 同期スクリプト `data/sync_dr_martens_v0.5.7.py` を正式手順として明記\n\n2026-07-10 v0.5.7\n- Dr.Martens 15モデルを本体JSONへ反映\n- Alias / searchKeywordsを同期\n- data/*.json と app/assets/data/*.json の一致を検証')
+          text = text.replace('1. `python3 data/sync_dr_martens_v0.5.7.py` をリポジトリ実行環境で実行\n2. app/assets/data/*.json とのSHA一致確認\n3. Search MVPテストケース実施\n4. 次のTier Cブランドを1ブランド集中で追加\n5. SKECHERS / crocs の国内流通差分監査を継続\n6. Tier S / A / B のABC-MART差分監査を継続', '1. Search MVPテストケース実施\n2. 次のTier Cブランドを1ブランド集中で追加\n3. SKECHERS / crocs の国内流通差分監査を継続\n4. Tier S / A / B のABC-MART差分監査を継続')
+          coverage.write_text(text, encoding='utf-8')
+
+          additions = {
+            'data/README.md': '\n\n## v0.5.7 Dr.Martens sync (2026-07-10)\n\n- 15 high-confidence Dr.Martens models were merged into the root masters.\n- `models.json`, `aliases.json`, and `search_keywords.json` are mirrored to `app/assets/data/`.\n- Broad standalone category or nickname terms remain excluded.\n',
+            'data/validation_rules.md': '\n\n## Dr.Martens v0.5.7 audit rule\n\n- Accept model-specific forms such as `DrMartens1460` and `ドクターマーチン1460`.\n- Reject broad standalone terms including `Docs`, `DMs`, `Boot`, `Shoe`, `Loafer`, `Sandal`, `Mule`, `Chelsea`, `Platform`, and `Martens`.\n- Require every Alias/searchKeyword modelId to resolve to a model in `models.json`.\n',
+            'data/CHANGELOG.md': '\n\n## 0.5.7 - 2026-07-10\n\n- Merged 15 audited Dr.Martens models into root and app asset masters.\n- Added model-specific aliases and Japanese/connected search keywords.\n- Verified duplicate keys, referential integrity, JSON parsing, and root/app byte equality.\n',
+            'specs/KICKXKICK_TASK_BOARD.md': '\n\n## Data asset update — 2026-07-10\n\n- [x] Merge Dr.Martens 15-model staging into root JSON masters\n- [x] Sync `app/assets/data/*.json`\n- [x] Audit broad Alias/searchKeyword exclusions\n- [x] Verify JSON integrity and root/app equality\n- [ ] Run Search MVP behavioral tests\n- [ ] Continue next single-brand Tier C expansion\n'
+          }
+          for filename, addition in additions.items():
+              p = Path(filename)
+              current = p.read_text(encoding='utf-8')
+              marker = addition.strip().splitlines()[0]
+              if marker not in current:
+                  p.write_text(current.rstrip() + addition, encoding='utf-8')
+
+      - name: Validate data integrity and synchronization
+        shell: python
+        run: |
+          import hashlib, json
+          from pathlib import Path
+
+          pairs = [
+            ('data/models.json', 'app/assets/data/models.json'),
+            ('data/aliases.json', 'app/assets/data/aliases.json'),
+            ('data/search_keywords.json', 'app/assets/data/search_keywords.json'),
+          ]
+          payloads = {}
+          for root, app in pairs:
+              rb = Path(root).read_bytes()
+              ab = Path(app).read_bytes()
+              assert rb == ab, f'not synchronized: {root} / {app}'
+              payloads[root] = json.loads(rb)
+              print(root, hashlib.sha256(rb).hexdigest())
+
+          models = payloads['data/models.json']['items']
+          aliases = payloads['data/aliases.json']['items']
+          keywords = payloads['data/search_keywords.json']['items']
+          model_ids = [x['id'] for x in models]
+          assert len(model_ids) == len(set(model_ids)), 'duplicate model ids'
+          model_set = set(model_ids)
+          assert all(x['modelId'] in model_set for x in aliases), 'orphan alias'
+          assert all(x['modelId'] in model_set for x in keywords), 'orphan keyword'
+          expected = {
+            'dr_martens_1460','dr_martens_1461','dr_martens_2976','dr_martens_jadon',
+            'dr_martens_sinclair','dr_martens_adrian','dr_martens_blaire','dr_martens_gryphon',
+            'dr_martens_jorge','dr_martens_carlson','dr_martens_8053','dr_martens_3989',
+            'dr_martens_101','dr_martens_church','dr_martens_ramsey'
+          }
+          assert expected <= model_set, 'missing Dr.Martens models'
+          forbidden = {'docs','dms','boot','shoe','loafer','sandal','mule','chelsea','platform','martens','dr.martens','doc martens'}
+          assert not any(x['alias'].strip().casefold() in forbidden for x in aliases if x['modelId'].startswith('dr_martens_'))
+          assert not any(x['keyword'].strip().casefold() in forbidden for x in keywords if x['modelId'].startswith('dr_martens_'))
+
+      - name: Remove one-off workflow and commit generated files
+        run: |
+          rm .github/workflows/oneoff-dr-martens-sync.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/models.json data/aliases.json data/search_keywords.json \
+            app/assets/data/models.json app/assets/data/aliases.json app/assets/data/search_keywords.json \
+            data/README.md data/validation_rules.md data/CHANGELOG.md \
+            specs/MODEL_MASTER_COVERAGE.md specs/KICKXKICK_TASK_BOARD.md \
+            .github/workflows/oneoff-dr-martens-sync.yml
+          git commit -m "data: merge audited Dr.Martens master data"
+          git push origin HEAD:agent/dr-martens-v0.5.7-sync
