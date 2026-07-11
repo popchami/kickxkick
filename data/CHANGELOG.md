@@ -233,3 +233,10 @@
 - Merged 15 audited Dr.Martens models into root and app asset masters.
 - Added model-specific aliases and Japanese/connected search keywords.
 - Verified duplicate keys, referential integrity, JSON parsing, and root/app byte equality.
+
+
+## v0.5.8 - 2026-07-11
+
+- Expanded SKECHERS from 8 to 16 audited model families.
+- Added Arch Fit, Max Cushioning, Hands Free Slip-ins, Glide-Step, Summits, Ultra Flex, Equalizer and Reggae.
+- Synchronized data JSON with app assets and retained broad-term exclusions.

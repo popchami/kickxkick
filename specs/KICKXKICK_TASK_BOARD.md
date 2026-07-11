@@ -187,3 +187,11 @@ TODO
 - [x] Verify JSON integrity and root/app equality
 - [ ] Run Search MVP behavioral tests
 - [ ] Continue next single-brand Tier C expansion
+
+
+## Data v0.5.8
+- [x] SKECHERSを16件へ拡張
+- [x] Alias / searchKeywords広義語監査
+- [x] data / app assets同期
+- [ ] Search MVP実動作テスト
+- [ ] crocs集中拡張

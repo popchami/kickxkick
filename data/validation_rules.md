@@ -549,3 +549,10 @@ Doc Martens
 - Accept model-specific forms such as `DrMartens1460` and `ドクターマーチン1460`.
 - Reject broad standalone terms including `Docs`, `DMs`, `Boot`, `Shoe`, `Loafer`, `Sandal`, `Mule`, `Chelsea`, `Platform`, and `Martens`.
 - Require every Alias/searchKeyword modelId to resolve to a model in `models.json`.
+
+
+## v0.5.8 SKECHERS audit
+
+- Full distinctive family names are allowed.
+- Standalone generic words such as Walk, Run, Sport, Street, Golf, Comfort, Cushion, Arch and Flex are blocked.
+- Summits, Equalizer and Reggae are only allowed with the SKECHERS brand in Alias/searchKeywords.

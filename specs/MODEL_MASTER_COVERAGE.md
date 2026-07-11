@@ -1,4 +1,4 @@
-# Kick×Kick Model Master Coverage v2.5
+# Kick×Kick Model Master Coverage v2.6
 
 ## Purpose
 
@@ -92,7 +92,7 @@ TODO
 
 | Brand | Model Coverage | Alias | searchKeywords | Canonical Name | Status | Notes |
 |---|---|---|---|---|---|---|
-| SKECHERS | PARTIAL | PASS | PASS | PASS | MODEL_STARTED | 公式Collections確認ベースで8件追加。`Uno` / `Walk` / `Run` / `BOBS` / `Street` / `Golf` 単体は未追加。 |
+| SKECHERS | PASS 16 | PASS | PASS | PASS | PASS | 16件へ拡張。一般語単体は除外し、識別性の高いフル名称・ブランド連結語のみ採用。 |
 | crocs | PARTIAL | PASS | PASS | PASS | MODEL_STARTED | 日本公式クロッグページ確認ベースで4件追加。`Classic` / `Clog` / `Bae` / `Echo` 単体は未追加。 |
 | Dr.Martens | PASS 15 | PASS | PASS | PASS | PASS | 15モデルを本体JSONとapp/assets/dataへ同期済み。広すぎるAlias/searchKeywordsは除外済み。 |
 
@@ -193,3 +193,8 @@ searchKeywords: TODO
 代表モデルだけで止めず、国内流通リファレンスのブランド・モデル量に近づける。
 
 ただし、低確度モデルや広すぎるAlias/searchKeywordsは追加しない。
+
+
+2026-07-11 v0.5.8
+- SKECHERSを16モデルへ拡張
+- data/*.json と app/assets/data/*.json の一致を検証
