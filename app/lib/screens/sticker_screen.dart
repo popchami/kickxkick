@@ -2489,8 +2489,6 @@ class _StickerArtworkPainter extends CustomPainter {
     // 0.05/0.025からさらに拡大している(0.065/0.035)。
     final outerBorderWidth = artworkSize * 0.065;
     final innerBorderWidth = artworkSize * 0.035;
-    // フチのギザギザを抑えるための弱いぼかし。色・太さがはっきり分かる程度に留める。
-    final borderBlurSigma = artworkSize * 0.012;
     // シャドウの縦オフセットもsize=120基準(元の固定値7px)の比率を保ったまま
     // artworkSizeに比例させる。
     final shadowOffsetY = artworkSize * (7 / 120);
@@ -2511,44 +2509,35 @@ class _StickerArtworkPainter extends CustomPainter {
       );
     }
 
-    // 2. 外枠: radius=outerBorderWidth で 16 方向に重ねて描画し、
-    // 弱いぼかしを加えることで輪郭のギザギザ・多角形的なカクつきを抑える。
+    // 2. 外枠: ImageFilter.dilateで本物の膨張(dilate)を行い、角のない
+    // 滑らかな輪郭にする(以前の「N方向にずらして重ね描き」による
+    // 多角形近似+ぼかしでは、方向数に応じたカクつきが残っていた)。
     final outerPaint = Paint()
-      ..colorFilter = ColorFilter.mode(outerBorderColor, BlendMode.srcIn)
-      ..maskFilter = MaskFilter.blur(BlurStyle.normal, borderBlurSigma);
-    for (var i = 0; i < 16; i++) {
-      final angle = i * 2 * math.pi / 16;
-      canvas.drawImageRect(
-        image,
-        srcRect,
-        Rect.fromLTWH(
-          drawX + outerBorderWidth * math.cos(angle),
-          drawY + outerBorderWidth * math.sin(angle),
-          drawW,
-          drawH,
-        ),
-        outerPaint,
-      );
-    }
+      ..imageFilter = ui.ImageFilter.dilate(
+        radiusX: outerBorderWidth,
+        radiusY: outerBorderWidth,
+      )
+      ..colorFilter = ColorFilter.mode(outerBorderColor, BlendMode.srcIn);
+    canvas.drawImageRect(
+      image,
+      srcRect,
+      Rect.fromLTWH(drawX, drawY, drawW, drawH),
+      outerPaint,
+    );
 
-    // 3. 内枠: radius=innerBorderWidth で 8 方向に重ねて描画し、外枠と同様に弱いぼかしを加える。
+    // 3. 内枠: 外枠と同様にdilateで滑らかに描画する。
     final innerPaint = Paint()
-      ..colorFilter = ColorFilter.mode(innerBorderColor, BlendMode.srcIn)
-      ..maskFilter = MaskFilter.blur(BlurStyle.normal, borderBlurSigma);
-    for (var i = 0; i < 8; i++) {
-      final angle = i * 2 * math.pi / 8;
-      canvas.drawImageRect(
-        image,
-        srcRect,
-        Rect.fromLTWH(
-          drawX + innerBorderWidth * math.cos(angle),
-          drawY + innerBorderWidth * math.sin(angle),
-          drawW,
-          drawH,
-        ),
-        innerPaint,
-      );
-    }
+      ..imageFilter = ui.ImageFilter.dilate(
+        radiusX: innerBorderWidth,
+        radiusY: innerBorderWidth,
+      )
+      ..colorFilter = ColorFilter.mode(innerBorderColor, BlendMode.srcIn);
+    canvas.drawImageRect(
+      image,
+      srcRect,
+      Rect.fromLTWH(drawX, drawY, drawW, drawH),
+      innerPaint,
+    );
 
     // 4. 本体画像
     canvas.drawImageRect(
