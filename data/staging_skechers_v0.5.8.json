@@ -1,0 +1,59 @@
+{
+  "version": "0.5.8-merge-ready-audited",
+  "updatedAt": "2026-07-11",
+  "brandId": "skechers",
+  "brandName": "SKECHERS",
+  "status": "merge_ready_expanded_audited",
+  "purpose": "High-confidence SKECHERS collection/model data for deterministic merge into root JSON masters.",
+  "models": [
+    {"id":"skechers_arch_fit","brandId":"skechers","modelName":"Arch Fit","category":"walking","source":"master"},
+    {"id":"skechers_max_cushioning","brandId":"skechers","modelName":"Max Cushioning","category":"running","source":"master"},
+    {"id":"skechers_slip_ins","brandId":"skechers","modelName":"Hands Free Slip-ins","category":"lifestyle","source":"master"},
+    {"id":"skechers_glide_step","brandId":"skechers","modelName":"Glide-Step","category":"walking","source":"master"},
+    {"id":"skechers_summits","brandId":"skechers","modelName":"Summits","category":"walking","source":"master"},
+    {"id":"skechers_ultra_flex","brandId":"skechers","modelName":"Ultra Flex","category":"lifestyle","source":"master"},
+    {"id":"skechers_equalizer","brandId":"skechers","modelName":"Equalizer","category":"walking","source":"master"},
+    {"id":"skechers_reggae","brandId":"skechers","modelName":"Reggae","category":"sandals","source":"master"}
+  ],
+  "aliases": [
+    {"modelId":"skechers_arch_fit","alias":"SkechersArchFit"},
+    {"modelId":"skechers_max_cushioning","alias":"SkechersMaxCushioning"},
+    {"modelId":"skechers_slip_ins","alias":"SkechersSlipIns"},
+    {"modelId":"skechers_slip_ins","alias":"HandsFreeSlipIns"},
+    {"modelId":"skechers_glide_step","alias":"SkechersGlideStep"},
+    {"modelId":"skechers_summits","alias":"SkechersSummits"},
+    {"modelId":"skechers_ultra_flex","alias":"SkechersUltraFlex"},
+    {"modelId":"skechers_equalizer","alias":"SkechersEqualizer"},
+    {"modelId":"skechers_reggae","alias":"SkechersReggae"}
+  ],
+  "searchKeywords": [
+    {"modelId":"skechers_arch_fit","keyword":"Skechers Arch Fit"},
+    {"modelId":"skechers_arch_fit","keyword":"スケッチャーズ アーチフィット"},
+    {"modelId":"skechers_max_cushioning","keyword":"Skechers Max Cushioning"},
+    {"modelId":"skechers_max_cushioning","keyword":"スケッチャーズ マックスクッショニング"},
+    {"modelId":"skechers_slip_ins","keyword":"Skechers Hands Free Slip-ins"},
+    {"modelId":"skechers_slip_ins","keyword":"スケッチャーズ スリップインズ"},
+    {"modelId":"skechers_glide_step","keyword":"Skechers Glide-Step"},
+    {"modelId":"skechers_glide_step","keyword":"スケッチャーズ グライドステップ"},
+    {"modelId":"skechers_summits","keyword":"Skechers Summits"},
+    {"modelId":"skechers_summits","keyword":"スケッチャーズ サミッツ"},
+    {"modelId":"skechers_ultra_flex","keyword":"Skechers Ultra Flex"},
+    {"modelId":"skechers_ultra_flex","keyword":"スケッチャーズ ウルトラフレックス"},
+    {"modelId":"skechers_equalizer","keyword":"Skechers Equalizer"},
+    {"modelId":"skechers_equalizer","keyword":"スケッチャーズ イコライザー"},
+    {"modelId":"skechers_reggae","keyword":"Skechers Reggae"},
+    {"modelId":"skechers_reggae","keyword":"スケッチャーズ レゲエ"}
+  ],
+  "excludedBroadTerms": ["Walk","Run","Sport","Street","Golf","Shoe","Sneaker","Slip-on","Comfort","Cushion","Arch","Flex","Summits","Equalizer","Reggae"],
+  "audit": {
+    "addedToRootJson": false,
+    "readyForRootJsonMerge": true,
+    "syncScript": "data/sync_skechers_v0.5.8.py",
+    "syncScriptReady": true,
+    "sourceNotes": [
+      "Arch Fit, Max Cushioning, Hands Free Slip-ins, Glide-Step, Summits, Ultra Flex, Equalizer and Reggae are established identifiable SKECHERS product families or model lines.",
+      "Standalone generic category and feature words are intentionally excluded; aliases and search keywords retain the SKECHERS brand or full distinctive phrase.",
+      "Existing eight SKECHERS entries are preserved and this staging contains only the audited expansion set."
+    ]
+  }
+}
