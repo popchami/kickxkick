@@ -1680,19 +1680,22 @@ class _StickerBoardState extends State<_StickerBoard> {
     if (boardSize == null) return;
 
     final assets = {for (final value in widget.stickers) value.id: value};
-    final neededStickerIds = _items
-        .map((item) => item.stickerId)
-        .where((id) => assets.containsKey(id))
-        .toSet();
-    final loadedStickerIds = <int>{};
+    // 「複製」機能で同じステッカーデザインをボードに複数個配置できるため、
+    // stickerIdの種類数ではなく、実際にエクスポートビューへ描画される
+    // ボード配置(item)の個数で待ち合わせる。stickerIdでSet集計すると、
+    // 同じデザインの配置がN個あっても1回の完了通知で満了してしまい、
+    // 残りN-1個のキャッシュ生成が終わる前にキャプチャされてしまう。
+    final neededItemCount = _items
+        .where((item) => assets.containsKey(item.stickerId))
+        .length;
+    var loadedItemCount = 0;
     final allLoaded = Completer<void>();
-    if (neededStickerIds.isEmpty) {
+    if (neededItemCount == 0) {
       allLoaded.complete();
     }
     _onExportArtworkLoaded = (stickerId) {
-      loadedStickerIds.add(stickerId);
-      if (loadedStickerIds.length >= neededStickerIds.length &&
-          !allLoaded.isCompleted) {
+      loadedItemCount++;
+      if (loadedItemCount >= neededItemCount && !allLoaded.isCompleted) {
         allLoaded.complete();
       }
     };
@@ -1714,7 +1717,7 @@ class _StickerBoardState extends State<_StickerBoard> {
       // タイムアウトを伸ばす(それでも上限は設け、デコード失敗時に
       // 無限に待ち続けないようにする)。
       final exportTimeout = Duration(
-        seconds: (8 + neededStickerIds.length * 2).clamp(8, 60),
+        seconds: (8 + neededItemCount * 2).clamp(8, 60),
       );
       await allLoaded.future.timeout(exportTimeout, onTimeout: () {});
       // デコード完了後の再描画が実際にペイントされるのを1フレーム待つ。
