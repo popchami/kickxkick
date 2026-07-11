@@ -2500,7 +2500,8 @@ class _StickerArtworkPainter extends CustomPainter {
           Colors.black.withValues(alpha: .55),
           BlendMode.srcIn,
         )
-        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4);
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4)
+        ..filterQuality = FilterQuality.medium;
       canvas.drawImageRect(
         image,
         srcRect,
@@ -2512,12 +2513,15 @@ class _StickerArtworkPainter extends CustomPainter {
     // 2. 外枠: ImageFilter.dilateで本物の膨張(dilate)を行い、角のない
     // 滑らかな輪郭にする(以前の「N方向にずらして重ね描き」による
     // 多角形近似+ぼかしでは、方向数に応じたカクつきが残っていた)。
+    // filterQuality未指定だとdrawImageRectの縮小描画がFilterQuality.none
+    // (最近傍補間)になり、境界が階段状にギザギザして見えるため指定する。
     final outerPaint = Paint()
       ..imageFilter = ui.ImageFilter.dilate(
         radiusX: outerBorderWidth,
         radiusY: outerBorderWidth,
       )
-      ..colorFilter = ColorFilter.mode(outerBorderColor, BlendMode.srcIn);
+      ..colorFilter = ColorFilter.mode(outerBorderColor, BlendMode.srcIn)
+      ..filterQuality = FilterQuality.medium;
     canvas.drawImageRect(
       image,
       srcRect,
@@ -2531,7 +2535,8 @@ class _StickerArtworkPainter extends CustomPainter {
         radiusX: innerBorderWidth,
         radiusY: innerBorderWidth,
       )
-      ..colorFilter = ColorFilter.mode(innerBorderColor, BlendMode.srcIn);
+      ..colorFilter = ColorFilter.mode(innerBorderColor, BlendMode.srcIn)
+      ..filterQuality = FilterQuality.medium;
     canvas.drawImageRect(
       image,
       srcRect,
@@ -2544,7 +2549,7 @@ class _StickerArtworkPainter extends CustomPainter {
       image,
       srcRect,
       Rect.fromLTWH(drawX, drawY, drawW, drawH),
-      Paint(),
+      Paint()..filterQuality = FilterQuality.medium,
     );
   }
 
