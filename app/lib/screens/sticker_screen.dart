@@ -1708,10 +1708,15 @@ class _StickerBoardState extends State<_StickerBoard> {
       // 状態でキャプチャされてしまうため)。
       // 万一デコードに失敗する画像があっても共有自体は止めないよう、
       // タイムアウトで先に進める。
-      await allLoaded.future.timeout(
-        const Duration(seconds: 8),
-        onTimeout: () {},
+      // ステッカー1個ごとにデコード+キャッシュ生成(GPUラスタライズ)が
+      // 必要なため、枚数が多いボードでは固定8秒では全枚数分に足りず、
+      // 一部のステッカーが空欄のまま共有されてしまう。枚数に応じて
+      // タイムアウトを伸ばす(それでも上限は設け、デコード失敗時に
+      // 無限に待ち続けないようにする)。
+      final exportTimeout = Duration(
+        seconds: (8 + neededStickerIds.length * 2).clamp(8, 60),
       );
+      await allLoaded.future.timeout(exportTimeout, onTimeout: () {});
       // デコード完了後の再描画が実際にペイントされるのを1フレーム待つ。
       await WidgetsBinding.instance.endOfFrame;
 
