@@ -1,0 +1,45 @@
+name: One-off Dr.Martens PR sync
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    if: github.head_ref == 'agent/dr-martens-v0.5.7-sync'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+      - run: python3 data/sync_dr_martens_v0.5.7.py
+      - name: Validate and commit
+        shell: python
+        run: |
+          import json
+          from pathlib import Path
+          pairs = [
+            ('data/models.json','app/assets/data/models.json'),
+            ('data/aliases.json','app/assets/data/aliases.json'),
+            ('data/search_keywords.json','app/assets/data/search_keywords.json'),
+          ]
+          payloads = {}
+          for a,b in pairs:
+              assert Path(a).read_bytes() == Path(b).read_bytes(), (a,b)
+              payloads[a] = json.loads(Path(a).read_text(encoding='utf-8'))
+          ids = {x['id'] for x in payloads['data/models.json']['items']}
+          expected = {'dr_martens_1460','dr_martens_1461','dr_martens_2976','dr_martens_jadon','dr_martens_sinclair','dr_martens_adrian','dr_martens_blaire','dr_martens_gryphon','dr_martens_jorge','dr_martens_carlson','dr_martens_8053','dr_martens_3989','dr_martens_101','dr_martens_church','dr_martens_ramsey'}
+          assert expected <= ids
+          assert all(x['modelId'] in ids for x in payloads['data/aliases.json']['items'])
+          assert all(x['modelId'] in ids for x in payloads['data/search_keywords.json']['items'])
+      - name: Commit generated JSON
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/models.json data/aliases.json data/search_keywords.json app/assets/data/models.json app/assets/data/aliases.json app/assets/data/search_keywords.json
+          git diff --cached --quiet || git commit -m "data: merge audited Dr.Martens master data"
+          git push origin HEAD:${{ github.head_ref }}
