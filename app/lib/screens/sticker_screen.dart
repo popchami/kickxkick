@@ -101,7 +101,10 @@ class _StickerScreenState extends ConsumerState<StickerScreen> {
           _lineExportKey.currentContext?.findRenderObject()
               as RenderRepaintBoundary?;
       if (boundary == null) return;
-      final image = await boundary.toImage(pixelRatio: 1);
+      // pixelRatio:1だと最終PNGが1024×1024に固定され、キャッシュ側を
+      // どれだけ高画質化しても拡大時にピクセルが見えてしまうため、
+      // exportBoard()と同じ3倍で撮影する。
+      final image = await boundary.toImage(pixelRatio: 3);
       final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
       if (bytes == null) return;
       final directory = await getTemporaryDirectory();
