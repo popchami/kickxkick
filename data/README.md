@@ -267,3 +267,9 @@ searchKeywordsに入れないもの:
 - 色名だけ
 - コラボ名だけ
 ```
+
+## v0.5.7 Dr.Martens sync (2026-07-10)
+
+- 15 high-confidence Dr.Martens models were merged into the root masters.
+- `models.json`, `aliases.json`, and `search_keywords.json` are mirrored to `app/assets/data/`.
+- Broad standalone category or nickname terms remain excluded.

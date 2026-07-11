@@ -178,3 +178,12 @@ ACTIVE / MVP DATA PASS / MARKET REFERENCE GROWTH / DATA v0.5.4 SYNCED / DR.MARTE
 ```text
 TODO
 ```
+
+## Data asset update — 2026-07-10
+
+- [x] Merge Dr.Martens 15-model staging into root JSON masters
+- [x] Sync `app/assets/data/*.json`
+- [x] Audit broad Alias/searchKeyword exclusions
+- [x] Verify JSON integrity and root/app equality
+- [ ] Run Search MVP behavioral tests
+- [ ] Continue next single-brand Tier C expansion

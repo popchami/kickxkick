@@ -227,3 +227,9 @@
 
 - HOKA Alias / searchKeywords を追加
 - `app/assets/data/aliases.json` / `app/assets/data/search_keywords.json` を同期更新
+
+## 0.5.7 - 2026-07-10
+
+- Merged 15 audited Dr.Martens models into root and app asset masters.
+- Added model-specific aliases and Japanese/connected search keywords.
+- Verified duplicate keys, referential integrity, JSON parsing, and root/app byte equality.

@@ -1,4 +1,4 @@
-# Kick×Kick Model Master Coverage v2.4
+# Kick×Kick Model Master Coverage v2.5
 
 ## Purpose
 
@@ -94,7 +94,7 @@ TODO
 |---|---|---|---|---|---|---|
 | SKECHERS | PARTIAL | PASS | PASS | PASS | MODEL_STARTED | 公式Collections確認ベースで8件追加。`Uno` / `Walk` / `Run` / `BOBS` / `Street` / `Golf` 単体は未追加。 |
 | crocs | PARTIAL | PASS | PASS | PASS | MODEL_STARTED | 日本公式クロッグページ確認ベースで4件追加。`Classic` / `Clog` / `Bae` / `Echo` 単体は未追加。 |
-| Dr.Martens | STAGED 15 | STAGED | STAGED | STAGED | MERGE_READY_AUDITED | 15モデルへ拡張済み。同期スクリプト `data/sync_dr_martens_v0.5.7.py` あり。`Docs` / `DMs` / `Boot` / `Shoe` / `Loafer` / `Sandal` / `Mule` / `Chelsea` / `Platform` / `Martens` 単体は未追加。本体JSON反映待ち。 |
+| Dr.Martens | PASS 15 | PASS | PASS | PASS | PASS | 15モデルを本体JSONとapp/assets/dataへ同期済み。広すぎるAlias/searchKeywordsは除外済み。 |
 
 ---
 
@@ -168,6 +168,11 @@ searchKeywords: TODO
 2026-07-09 v0.5.7-audit
 - Dr.Martens stagingをmerge-ready-auditedへ更新
 - 同期スクリプト `data/sync_dr_martens_v0.5.7.py` を正式手順として明記
+
+2026-07-10 v0.5.7
+- Dr.Martens 15モデルを本体JSONへ反映
+- Alias / searchKeywordsを同期
+- data/*.json と app/assets/data/*.json の一致を検証
 ```
 
 ---
@@ -175,12 +180,10 @@ searchKeywords: TODO
 ## Next Work
 
 ```text
-1. `python3 data/sync_dr_martens_v0.5.7.py` をリポジトリ実行環境で実行
-2. app/assets/data/*.json とのSHA一致確認
-3. Search MVPテストケース実施
-4. 次のTier Cブランドを1ブランド集中で追加
-5. SKECHERS / crocs の国内流通差分監査を継続
-6. Tier S / A / B のABC-MART差分監査を継続
+1. Search MVPテストケース実施
+2. 次のTier Cブランドを1ブランド集中で追加
+3. SKECHERS / crocs の国内流通差分監査を継続
+4. Tier S / A / B のABC-MART差分監査を継続
 ```
 
 ---
