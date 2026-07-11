@@ -1826,6 +1826,7 @@ class _StickerBoardExportView extends StatelessWidget {
                                 targetWidthOverride: _exportTargetWidth,
                                 onImageLoaded: () =>
                                     onArtworkLoaded(item.stickerId),
+                                useDevicePixelRatio: true,
                               ),
                             ),
                           ),
@@ -1903,6 +1904,7 @@ class _StickerLineExportView extends StatelessWidget {
               imagePathOverride: asset.stickerPath,
               targetWidthOverride: _exportTargetWidth,
               onImageLoaded: onArtworkLoaded,
+              useDevicePixelRatio: true,
             ),
           ),
         ),
@@ -2095,6 +2097,7 @@ class _StickerArtwork extends StatefulWidget {
     this.imagePathOverride,
     this.targetWidthOverride,
     this.onImageLoaded,
+    this.useDevicePixelRatio = false,
   });
 
   final StickerAsset asset;
@@ -2109,6 +2112,10 @@ class _StickerArtwork extends StatefulWidget {
   // デコード完了時点ではまだ縁取りが描画されていないため、ここより早く
   // 通知すると書き出し画像で縁取りが欠けることがある。
   final VoidCallback? onImageLoaded;
+  // trueの場合のみ、キャッシュ生成時にdevicePixelRatioを考慮した解像度で
+  // ラスタライズする(共有・LINEスタンプ書き出しの2箇所限定)。ボード表示・
+  // デザイン編集画面はGPUメモリ消費を増やさないため既定のfalseのまま。
+  final bool useDevicePixelRatio;
 
   @override
   State<_StickerArtwork> createState() => _StickerArtworkState();
@@ -2192,8 +2199,16 @@ class _StickerArtworkState extends State<_StickerArtwork> {
     final size = widget.size;
     final height = size * .72;
     final width = size * 1.25;
+    // 共有・LINEスタンプ書き出しの2箇所(useDevicePixelRatio: true)だけ、
+    // 端末のdevicePixelRatio分だけ高解像度でラスタライズする。ボード表示・
+    // デザイン編集画面はGPUメモリ消費を増やさないよう従来通り(dpr=1)のまま。
+    // 極端に高いdprの端末でメモリを使い過ぎないよう3倍を上限にクランプする。
+    final double dpr = widget.useDevicePixelRatio
+        ? MediaQuery.devicePixelRatioOf(context).clamp(1.0, 3.0).toDouble()
+        : 1.0;
     final recorder = ui.PictureRecorder();
     final canvas = Canvas(recorder);
+    canvas.scale(dpr);
     _StickerArtworkPainter(
       image: image,
       shadowEnabled: asset.shadowEnabled,
@@ -2202,7 +2217,10 @@ class _StickerArtworkState extends State<_StickerArtwork> {
       artworkSize: size,
     ).paint(canvas, Size(width, height));
     final picture = recorder.endRecording();
-    final rasterImage = await picture.toImage(width.ceil(), height.ceil());
+    final rasterImage = await picture.toImage(
+      (width * dpr).ceil(),
+      (height * dpr).ceil(),
+    );
     picture.dispose();
     if (!mounted || generation != _cacheBuildGeneration || image != _image) {
       // widgetが既に破棄された、またはこの結果がすでに古い(別の再生成が
@@ -2389,7 +2407,17 @@ class _CachedArtworkPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    canvas.drawImage(image, Offset.zero, Paint());
+    // キャッシュ画像がdevicePixelRatio分だけ高解像度な場合があるため、
+    // 実際の表示サイズ(size)へ縮小描画する。等倍キャッシュの場合も
+    // srcRect=dstRectと同じ比率になるだけで結果は変わらない。
+    final srcRect = Rect.fromLTWH(
+      0,
+      0,
+      image.width.toDouble(),
+      image.height.toDouble(),
+    );
+    final dstRect = Rect.fromLTWH(0, 0, size.width, size.height);
+    canvas.drawImageRect(image, srcRect, dstRect, Paint());
   }
 
   @override
