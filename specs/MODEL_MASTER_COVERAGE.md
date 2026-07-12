@@ -93,7 +93,7 @@ TODO
 | Brand | Model Coverage | Alias | searchKeywords | Canonical Name | Status | Notes |
 |---|---|---|---|---|---|---|
 | SKECHERS | PASS 16 | PASS | PASS | PASS | PASS | 16件へ拡張。一般語単体は除外し、識別性の高いフル名称・ブランド連結語のみ採用。 |
-| crocs | PARTIAL | PASS | PASS | PASS | MODEL_STARTED | 日本公式クロッグページ確認ベースで4件追加。`Classic` / `Clog` / `Bae` / `Echo` 単体は未追加。 |
+| Tier C | crocs | PASS | 10 | v0.5.9 audited expansion |
 | Dr.Martens | PASS 15 | PASS | PASS | PASS | PASS | 15モデルを本体JSONとapp/assets/dataへ同期済み。広すぎるAlias/searchKeywordsは除外済み。 |
 
 ---

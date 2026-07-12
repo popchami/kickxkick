@@ -556,3 +556,10 @@ Doc Martens
 - Full distinctive family names are allowed.
 - Standalone generic words such as Walk, Run, Sport, Street, Golf, Comfort, Cushion, Arch and Flex are blocked.
 - Summits, Equalizer and Reggae are only allowed with the SKECHERS brand in Alias/searchKeywords.
+
+## v0.5.9追加監査
+
+- staging内のAlias/searchKeywordsが禁止広義語と完全一致した場合は同期を失敗させる
+- 全Alias/searchKeywordsのmodelIdがmodels.jsonに存在すること
+- model IDは全体で一意であること
+- `data/*.json`と`app/assets/data/*.json`はバイト一致すること

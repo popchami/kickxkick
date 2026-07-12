@@ -1,5 +1,28 @@
 # Kick×Kick Data Changelog
 
+
+## 2026-07-12 v0.5.9 crocs expansion
+
+### Added / Updated
+
+- crocsを4モデルから10モデルへ拡張
+- 追加: `Classic Platform Clog` / `Classic Crush Clog` / `Mega Crush Clog` / `Mellow Recovery Clog` / `Dylan Clog` / `LiteRide 360 Clog`
+- モデル固有のAliasと、ブランド名を含む日本語searchKeywordsを追加
+- `data/*.json` と `app/assets/data/*.json` をv0.5.9へ同期
+
+### Audited
+
+- モデルID重複、Alias/searchKeywords参照先、JSON構文、data/app assets一致を検証
+- `Clog` / `Classic` / `Platform` / `Crush` / `Recovery` / `LiteRide` / `Crocs`単体は広すぎるため除外
+
+### Remaining
+
+- Search MVP実動作テスト
+- Tier S〜Bの国内流通差分監査
+- 次のTier Cブランド集中拡張
+
+---
+
 このファイルは、`data/` 配下の実データ資産の変更履歴を管理する。
 
 ---

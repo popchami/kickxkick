@@ -195,3 +195,12 @@ TODO
 - [x] data / app assets同期
 - [ ] Search MVP実動作テスト
 - [ ] crocs集中拡張
+
+## 2026-07-12 crocs v0.5.9
+
+- [x] crocsを10モデルへ拡張
+- [x] Alias / searchKeywords高純度監査
+- [x] data / app assets同期
+- [x] README / validation / CHANGELOG / Coverage整合
+- [ ] Search MVP実動作テスト
+- [ ] 次ブランド集中拡張

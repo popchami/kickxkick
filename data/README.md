@@ -286,3 +286,10 @@ searchKeywordsに入れないもの:
 - 8 high-confidence SKECHERS families were added, bringing coverage to 16 entries.
 - Root JSON and app assets are synchronized deterministically.
 - Generic standalone terms remain excluded.
+
+## v0.5.9 crocs同期
+
+- crocs: 10モデル（既存4 + 追加6）
+- root JSONと`app/assets/data`は同一内容で同期する
+- Alias/searchKeywordsはモデル固有の複合語のみ採用し、広すぎる単独語は除外する
+- 同期: `python3 data/sync_crocs_v0.5.9.py`
