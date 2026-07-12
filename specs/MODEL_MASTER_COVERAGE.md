@@ -93,7 +93,7 @@ TODO
 | Brand | Model Coverage | Alias | searchKeywords | Canonical Name | Status | Notes |
 |---|---|---|---|---|---|---|
 | SKECHERS | PASS 16 | PASS | PASS | PASS | PASS | 16件へ拡張。一般語単体は除外し、識別性の高いフル名称・ブランド連結語のみ採用。 |
-| Tier C | crocs | PASS | 10 | v0.5.9 audited expansion |
+| crocs | PASS 10 | PASS | PASS | PASS | PASS | 10件へ拡張。モデル固有の複合語のみ採用し、広すぎる単独語は除外。 |
 | Dr.Martens | PASS 15 | PASS | PASS | PASS | PASS | 15モデルを本体JSONとapp/assets/dataへ同期済み。広すぎるAlias/searchKeywordsは除外済み。 |
 
 ---
