@@ -8,6 +8,7 @@ on:
       - data/staging_crocs_v0.5.9.json
       - data/sync_crocs_v0.5.9.py
       - data/finalize_crocs_v0.5.9.py
+      - data/fix_crocs_coverage_v0.5.9.py
       - .github/workflows/sync-crocs-v0.5.9.yml
   workflow_dispatch:
 
@@ -30,12 +31,14 @@ jobs:
         run: |
           python3 data/sync_crocs_v0.5.9.py
           python3 data/finalize_crocs_v0.5.9.py
+          python3 data/fix_crocs_coverage_v0.5.9.py
           python3 -m json.tool data/models.json >/dev/null
           python3 -m json.tool data/aliases.json >/dev/null
           python3 -m json.tool data/search_keywords.json >/dev/null
           cmp data/models.json app/assets/data/models.json
           cmp data/aliases.json app/assets/data/aliases.json
           cmp data/search_keywords.json app/assets/data/search_keywords.json
+          grep -F '| crocs | PASS 10 | PASS | PASS | PASS | PASS |' specs/MODEL_MASTER_COVERAGE.md
       - name: Commit generated data and docs
         run: |
           paths='data/models.json data/aliases.json data/search_keywords.json app/assets/data/models.json app/assets/data/aliases.json app/assets/data/search_keywords.json data/README.md data/validation_rules.md data/CHANGELOG.md specs/MODEL_MASTER_COVERAGE.md specs/KICKXKICK_TASK_BOARD.md'
@@ -46,5 +49,5 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add $paths
-          git commit -m 'data: sync audited crocs masters v0.5.9'
+          git commit -m 'docs: fix crocs v0.5.9 coverage schema'
           git push origin HEAD:agent/dr-martens-v0.5.7-sync
