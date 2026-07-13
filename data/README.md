@@ -293,3 +293,9 @@ searchKeywordsに入れないもの:
 - root JSONと`app/assets/data`は同一内容で同期する
 - Alias/searchKeywordsはモデル固有の複合語のみ採用し、広すぎる単独語は除外する
 - 同期: `python3 data/sync_crocs_v0.5.9.py`
+
+
+## v0.6.0 Timberland
+- 6 high-confidence models added and mirrored to app assets.
+- Model-specific aliases and Japanese full-name search keywords only.
+- Broad standalone terms such as Boot, Waterproof, Motion and Timberland are blocked.

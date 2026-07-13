@@ -1,4 +1,4 @@
-# Kick×Kick Task Board v2.8
+# Kick×Kick Task Board v2.9
 
 ## 目的
 
@@ -61,7 +61,7 @@ docs/HANDOFF_BRAND_MODEL_SEARCH.md
 状態:
 
 ```text
-ACTIVE / MVP DATA PASS / MARKET REFERENCE GROWTH / DATA v0.5.4 SYNCED / DR.MARTENS v0.5.7 MERGE-READY-AUDITED
+ACTIVE / MVP DATA PASS / MARKET REFERENCE GROWTH / DATA v0.6.0 SYNCED / TIMBERLAND PASS 6
 ```
 
 - [x] BRAND_MASTER.md 作成
@@ -204,3 +204,11 @@ TODO
 - [x] README / validation / CHANGELOG / Coverage整合
 - [ ] Search MVP実動作テスト
 - [ ] 次ブランド集中拡張
+
+
+## 2026-07-13 Timberland v0.6.0
+- [x] Timberland 6モデル追加
+- [x] Alias / searchKeywords高純度監査
+- [x] data / app assets同期
+- [x] README / validation / CHANGELOG / Coverage整合
+- [ ] Search MVP実動作テスト

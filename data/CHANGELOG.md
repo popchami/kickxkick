@@ -263,3 +263,10 @@
 - Expanded SKECHERS from 8 to 16 audited model families.
 - Added Arch Fit, Max Cushioning, Hands Free Slip-ins, Glide-Step, Summits, Ultra Flex, Equalizer and Reggae.
 - Synchronized data JSON with app assets and retained broad-term exclusions.
+
+
+## 0.6.0 - 2026-07-13
+- Added 6 audited Timberland models.
+- Added high-precision aliases and search keywords.
+- Synced root data and Flutter app assets.
+- Updated README, validation rules, coverage and task board.

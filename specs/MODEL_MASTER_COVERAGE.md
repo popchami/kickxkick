@@ -1,4 +1,4 @@
-# Kick×Kick Model Master Coverage v2.6
+# Kick×Kick Model Master Coverage v2.7
 
 ## Purpose
 
@@ -95,6 +95,7 @@ TODO
 | SKECHERS | PASS 16 | PASS | PASS | PASS | PASS | 16件へ拡張。一般語単体は除外し、識別性の高いフル名称・ブランド連結語のみ採用。 |
 | crocs | PASS 10 | PASS | PASS | PASS | PASS | 10件へ拡張。モデル固有の複合語のみ採用し、広すぎる単独語は除外。 |
 | Dr.Martens | PASS 15 | PASS | PASS | PASS | PASS | 15モデルを本体JSONとapp/assets/dataへ同期済み。広すぎるAlias/searchKeywordsは除外済み。 |
+| Timberland | PASS 6 | PASS | PASS | PASS | PASS | 公式・主要流通で識別可能な6モデルを追加。一般語単体は除外。 |
 
 ---
 
@@ -181,7 +182,7 @@ searchKeywords: TODO
 
 ```text
 1. Search MVPテストケース実施
-2. 次のTier Cブランドを1ブランド集中で追加
+2. 次のTier Cブランドを1ブランド集中で追加（Timberland完了後）
 3. SKECHERS / crocs の国内流通差分監査を継続
 4. Tier S / A / B のABC-MART差分監査を継続
 ```
@@ -198,3 +199,9 @@ searchKeywords: TODO
 2026-07-11 v0.5.8
 - SKECHERSを16モデルへ拡張
 - data/*.json と app/assets/data/*.json の一致を検証
+
+
+2026-07-13 v0.6.0
+- Timberland 6モデルを追加
+- Alias / searchKeywordsを高純度監査
+- data/*.json と app/assets/data/*.json を同期

@@ -563,3 +563,7 @@ Doc Martens
 - 全Alias/searchKeywordsのmodelIdがmodels.jsonに存在すること
 - model IDは全体で一意であること
 - `data/*.json`と`app/assets/data/*.json`はバイト一致すること
+
+
+## Timberland v0.6.0 audit
+Standalone category, feature, position and brand terms are rejected. Full canonical names and brand-qualified Japanese phrases are allowed.
