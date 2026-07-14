@@ -1,0 +1,48 @@
+{
+  "version": "0.6.1-merge-ready-audited",
+  "updatedAt": "2026-07-14",
+  "brandId": "fila",
+  "brandName": "FILA",
+  "status": "merge_ready_expanded_audited",
+  "purpose": "High-confidence FILA model data staged for deterministic merge into root JSON masters.",
+  "models": [
+    {"id":"fila_disruptor_2","brandId":"fila","modelName":"Disruptor 2","category":"lifestyle","source":"master"},
+    {"id":"fila_ray_tracer","brandId":"fila","modelName":"Ray Tracer","category":"lifestyle","source":"master"},
+    {"id":"fila_renno","brandId":"fila","modelName":"Renno","category":"lifestyle","source":"master"},
+    {"id":"fila_grant_hill_2","brandId":"fila","modelName":"Grant Hill 2","category":"basketball","source":"master"},
+    {"id":"fila_original_fitness","brandId":"fila","modelName":"Original Fitness","category":"lifestyle","source":"master"},
+    {"id":"fila_fx_100","brandId":"fila","modelName":"FX-100","category":"basketball","source":"master"}
+  ],
+  "aliases": [
+    {"modelId":"fila_disruptor_2","alias":"FILADisruptor2"},
+    {"modelId":"fila_ray_tracer","alias":"FILARayTracer"},
+    {"modelId":"fila_renno","alias":"FILARenno"},
+    {"modelId":"fila_grant_hill_2","alias":"FILAGrantHill2"},
+    {"modelId":"fila_original_fitness","alias":"FILAOriginalFitness"},
+    {"modelId":"fila_fx_100","alias":"FILAFX100"}
+  ],
+  "searchKeywords": [
+    {"modelId":"fila_disruptor_2","keyword":"FILA Disruptor 2"},
+    {"modelId":"fila_disruptor_2","keyword":"フィラ ディスラプター 2"},
+    {"modelId":"fila_ray_tracer","keyword":"FILA Ray Tracer"},
+    {"modelId":"fila_ray_tracer","keyword":"フィラ レイ トレーサー"},
+    {"modelId":"fila_renno","keyword":"FILA Renno"},
+    {"modelId":"fila_renno","keyword":"フィラ レノ"},
+    {"modelId":"fila_grant_hill_2","keyword":"FILA Grant Hill 2"},
+    {"modelId":"fila_grant_hill_2","keyword":"フィラ グラント ヒル 2"},
+    {"modelId":"fila_original_fitness","keyword":"FILA Original Fitness"},
+    {"modelId":"fila_original_fitness","keyword":"フィラ オリジナル フィットネス"},
+    {"modelId":"fila_fx_100","keyword":"FILA FX-100"},
+    {"modelId":"fila_fx_100","keyword":"フィラ FX-100"}
+  ],
+  "excludedBroadTerms": ["FILA","Disruptor","Ray","Tracer","Grant","Hill","Original","Fitness","Basketball","Lifestyle"],
+  "audit": {
+    "addedToRootJson": false,
+    "readyForRootJsonMerge": true,
+    "sourceNotes": [
+      "Only established FILA footwear model families with stable, recognizable canonical names are included.",
+      "Standalone brand, person-name fragments, category and generic product terms are excluded from aliases and search keywords.",
+      "Japanese keywords retain the brand plus full model name to reduce cross-brand false positives."
+    ]
+  }
+}
