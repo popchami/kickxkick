@@ -299,3 +299,8 @@ searchKeywordsに入れないもの:
 - 6 high-confidence models added and mirrored to app assets.
 - Model-specific aliases and Japanese full-name search keywords only.
 - Broad standalone terms such as Boot, Waterproof, Motion and Timberland are blocked.
+
+## v0.6.1 FILA
+- 6 high-confidence models added and mirrored to app assets.
+- Only brand-qualified aliases and full-name Japanese search keywords were added.
+- Broad standalone terms such as FILA, Original, Fitness, Grant and Hill are blocked.

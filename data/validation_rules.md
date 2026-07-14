@@ -567,3 +567,6 @@ Doc Martens
 
 ## Timberland v0.6.0 audit
 Standalone category, feature, position and brand terms are rejected. Full canonical names and brand-qualified Japanese phrases are allowed.
+
+## FILA v0.6.1 audit
+Standalone brand, person-name fragments, category and generic product terms are rejected. Full canonical names and brand-qualified Japanese phrases are allowed.

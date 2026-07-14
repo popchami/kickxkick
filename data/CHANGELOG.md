@@ -270,3 +270,9 @@
 - Added high-precision aliases and search keywords.
 - Synced root data and Flutter app assets.
 - Updated README, validation rules, coverage and task board.
+
+## 0.6.1 - 2026-07-14
+- Added 6 audited FILA models.
+- Added high-precision aliases and search keywords.
+- Synced root data and Flutter app assets.
+- Updated README, validation rules, coverage and task board.
