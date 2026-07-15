@@ -1,0 +1,49 @@
+{
+  "version": "0.6.2-merge-ready-audited",
+  "updatedAt": "2026-07-15",
+  "brandId": "danner",
+  "brandName": "Danner",
+  "status": "merge_ready_expanded_audited",
+  "purpose": "High-confidence Danner model data staged for deterministic merge into root JSON masters.",
+  "models": [
+    {"id":"danner_danner_light","brandId":"danner","modelName":"Danner Light","category":"hiking","source":"master"},
+    {"id":"danner_mountain_light","brandId":"danner","modelName":"Mountain Light","category":"hiking","source":"master"},
+    {"id":"danner_field","brandId":"danner","modelName":"Danner Field","category":"hiking","source":"master"},
+    {"id":"danner_trail_2650","brandId":"danner","modelName":"Trail 2650","category":"hiking","source":"master"},
+    {"id":"danner_jag","brandId":"danner","modelName":"Jag","category":"hiking","source":"master"},
+    {"id":"danner_cascade_crest","brandId":"danner","modelName":"Cascade Crest","category":"hiking","source":"master"}
+  ],
+  "aliases": [
+    {"modelId":"danner_danner_light","alias":"DannerLight"},
+    {"modelId":"danner_mountain_light","alias":"DannerMountainLight"},
+    {"modelId":"danner_field","alias":"DannerField"},
+    {"modelId":"danner_trail_2650","alias":"DannerTrail2650"},
+    {"modelId":"danner_jag","alias":"DannerJag"},
+    {"modelId":"danner_cascade_crest","alias":"DannerCascadeCrest"}
+  ],
+  "searchKeywords": [
+    {"modelId":"danner_danner_light","keyword":"Danner Danner Light"},
+    {"modelId":"danner_danner_light","keyword":"ダナー ダナーライト"},
+    {"modelId":"danner_mountain_light","keyword":"Danner Mountain Light"},
+    {"modelId":"danner_mountain_light","keyword":"ダナー マウンテンライト"},
+    {"modelId":"danner_field","keyword":"Danner Field"},
+    {"modelId":"danner_field","keyword":"ダナー フィールド"},
+    {"modelId":"danner_trail_2650","keyword":"Danner Trail 2650"},
+    {"modelId":"danner_trail_2650","keyword":"ダナー トレイル 2650"},
+    {"modelId":"danner_jag","keyword":"Danner Jag"},
+    {"modelId":"danner_jag","keyword":"ダナー ジャグ"},
+    {"modelId":"danner_cascade_crest","keyword":"Danner Cascade Crest"},
+    {"modelId":"danner_cascade_crest","keyword":"ダナー カスケード クレスト"}
+  ],
+  "excludedBroadTerms": ["Danner","Light","Mountain","Field","Trail","Jag","Cascade","Crest","Boot","Boots","Hiking","Waterproof"],
+  "audit": {
+    "addedToRootJson": false,
+    "readyForRootJsonMerge": true,
+    "sourceNotes": [
+      "Danner Light is confirmed on the official Danner product site as a named model.",
+      "Only stable, recognizable Danner model-family names are included.",
+      "Standalone brand, category and generic footwear terms are excluded from aliases and search keywords.",
+      "Japanese keywords retain the brand plus full model name to reduce cross-brand false positives."
+    ]
+  }
+}
