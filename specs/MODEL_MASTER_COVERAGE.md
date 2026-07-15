@@ -1,4 +1,4 @@
-# Kick×Kick Model Master Coverage v2.8
+# Kick×Kick Model Master Coverage v2.9
 
 ## Purpose
 
@@ -97,6 +97,7 @@ TODO
 | Dr.Martens | PASS 15 | PASS | PASS | PASS | PASS | 15モデルを本体JSONとapp/assets/dataへ同期済み。広すぎるAlias/searchKeywordsは除外済み。 |
 | Timberland | PASS 6 | PASS | PASS | PASS | PASS | 公式・主要流通で識別可能な6モデルを追加。一般語単体は除外。 |
 | FILA | PASS 6 | PASS | PASS | PASS | PASS | 高確度6モデルを追加。ブランド・一般語単体は除外。 |
+| Danner | PASS 6 | PASS | PASS | PASS | PASS | 高確度6モデルを追加。ブランド・一般語単体は除外。 |
 
 ---
 
@@ -183,7 +184,7 @@ searchKeywords: TODO
 
 ```text
 1. Search MVPテストケース実施
-2. 次のTier Cブランドを1ブランド集中で追加（FILA完了後）
+2. 次のTier Cブランドを1ブランド集中で追加（Danner完了後）
 3. SKECHERS / crocs の国内流通差分監査を継続
 4. Tier S / A / B のABC-MART差分監査を継続
 ```
@@ -209,5 +210,10 @@ searchKeywords: TODO
 
 2026-07-14 v0.6.1
 - FILA 6モデルを追加
+- Alias / searchKeywordsを高純度監査
+- data/*.json と app/assets/data/*.json を同期
+
+2026-07-15 v0.6.2
+- Danner 6モデルを追加
 - Alias / searchKeywordsを高純度監査
 - data/*.json と app/assets/data/*.json を同期

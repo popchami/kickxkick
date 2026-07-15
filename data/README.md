@@ -304,3 +304,8 @@ searchKeywordsに入れないもの:
 - 6 high-confidence models added and mirrored to app assets.
 - Only brand-qualified aliases and full-name Japanese search keywords were added.
 - Broad standalone terms such as FILA, Original, Fitness, Grant and Hill are blocked.
+
+## v0.6.2 Danner
+- 6 high-confidence models added and mirrored to app assets.
+- Only brand-qualified aliases and full-name Japanese search keywords were added.
+- Broad standalone terms such as Danner, Light, Field, Trail, Boot and Waterproof are blocked.

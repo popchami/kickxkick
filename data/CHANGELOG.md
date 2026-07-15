@@ -276,3 +276,9 @@
 - Added high-precision aliases and search keywords.
 - Synced root data and Flutter app assets.
 - Updated README, validation rules, coverage and task board.
+
+## 0.6.2 - 2026-07-15
+- Added 6 audited Danner models.
+- Added high-precision aliases and search keywords.
+- Synced root data and Flutter app assets.
+- Updated README, validation rules, coverage and task board.

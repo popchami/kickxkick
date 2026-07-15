@@ -1,4 +1,4 @@
-# Kick×Kick Task Board v3.0
+# Kick×Kick Task Board v3.1
 
 ## 目的
 
@@ -61,7 +61,7 @@ docs/HANDOFF_BRAND_MODEL_SEARCH.md
 状態:
 
 ```text
-ACTIVE / MVP DATA PASS / MARKET REFERENCE GROWTH / DATA v0.6.1 SYNCED / FILA PASS 6
+ACTIVE / MVP DATA PASS / MARKET REFERENCE GROWTH / DATA v0.6.2 SYNCED / DANNER PASS 6
 ```
 
 - [x] BRAND_MASTER.md 作成
@@ -215,6 +215,13 @@ TODO
 
 ## 2026-07-14 FILA v0.6.1
 - [x] FILA 6モデル追加
+- [x] Alias / searchKeywords高純度監査
+- [x] data / app assets同期
+- [x] README / validation / CHANGELOG / Coverage整合
+- [ ] Search MVP実動作テスト
+
+## 2026-07-15 Danner v0.6.2
+- [x] Danner 6モデル追加
 - [x] Alias / searchKeywords高純度監査
 - [x] data / app assets同期
 - [x] README / validation / CHANGELOG / Coverage整合
