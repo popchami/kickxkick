@@ -1,6 +1,6 @@
 {
   "version": "0.6.2-merge-ready-audited",
-  "updatedAt": "2026-07-15",
+  "updatedAt": "2026-07-16",
   "brandId": "danner",
   "brandName": "Danner",
   "status": "merge_ready_expanded_audited",
@@ -22,8 +22,8 @@
     {"modelId":"danner_cascade_crest","alias":"DannerCascadeCrest"}
   ],
   "searchKeywords": [
-    {"modelId":"danner_danner_light","keyword":"Danner Danner Light"},
-    {"modelId":"danner_danner_light","keyword":"ダナー ダナーライト"},
+    {"modelId":"danner_danner_light","keyword":"Danner Light"},
+    {"modelId":"danner_danner_light","keyword":"ダナーライト"},
     {"modelId":"danner_mountain_light","keyword":"Danner Mountain Light"},
     {"modelId":"danner_mountain_light","keyword":"ダナー マウンテンライト"},
     {"modelId":"danner_field","keyword":"Danner Field"},
@@ -40,10 +40,12 @@
     "addedToRootJson": false,
     "readyForRootJsonMerge": true,
     "sourceNotes": [
-      "Danner Light is confirmed on the official Danner product site as a named model.",
-      "Only stable, recognizable Danner model-family names are included.",
-      "Standalone brand, category and generic footwear terms are excluded from aliases and search keywords.",
-      "Japanese keywords retain the brand plus full model name to reduce cross-brand false positives."
+      "Danner Light and Mountain Light were confirmed on official Danner Japan and global product pages.",
+      "Danner Field was confirmed on the official Danner Japan product page.",
+      "Trail 2650, Jag and Cascade Crest were confirmed on official Danner product-family or product pages.",
+      "The duplicated search phrase 'Danner Danner Light' was corrected to the canonical 'Danner Light'.",
+      "Standalone brand, category and generic footwear terms remain excluded from aliases and search keywords.",
+      "Japanese keywords retain the full model name and, where needed, the brand to reduce cross-brand false positives."
     ]
   }
 }
