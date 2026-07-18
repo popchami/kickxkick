@@ -1,4 +1,4 @@
-# Kick×Kick Model Master Coverage v3.0
+# Kick×Kick Model Master Coverage v3.1
 
 ## Purpose
 
@@ -99,6 +99,7 @@ TODO
 | FILA | PASS 6 | PASS | PASS | PASS | PASS | 高確度6モデルを追加。ブランド・一般語単体は除外。 |
 | Danner | PASS 6 | PASS | PASS | PASS | PASS | 高確度6モデルを追加。ブランド・一般語単体は除外。 |
 | RED WING | PASS 6 | PASS | PASS | PASS | PASS | 公式日本カタログで確認した6モデル系列を追加。品番・素材違いは別モデルとして数えない。 |
+| HAWKINS | PASS 8 | PASS | PASS | PASS | PASS | ABC-MART公式商品ページで確認した8系列を追加。色・サイズ・品番改訂は別モデルとして数えない。 |
 
 ---
 
@@ -185,7 +186,7 @@ searchKeywords: TODO
 
 ```text
 1. Search MVPテストケース実施
-2. 次のTier Cブランドを1ブランド集中で追加（RED WING完了後）
+2. 次のTier Cブランドを1ブランド集中で追加（HAWKINS完了後）
 3. SKECHERS / crocs の国内流通差分監査を継続
 4. Tier S / A / B のABC-MART差分監査を継続
 ```
@@ -221,5 +222,10 @@ searchKeywords: TODO
 
 2026-07-17 v0.6.3
 - RED WING 6モデル系列を追加
+- Alias / searchKeywordsを高純度監査
+- data/*.json と app/assets/data/*.json を同期
+
+2026-07-18 v0.6.4
+- HAWKINS 8モデル系列を追加
 - Alias / searchKeywordsを高純度監査
 - data/*.json と app/assets/data/*.json を同期

@@ -315,3 +315,9 @@ searchKeywordsに入れないもの:
 - Official Japanese catalog naming was used; color, leather and style-number variants were not counted as separate models.
 - Only brand-qualified aliases and complete English/Japanese search phrases were added.
 - Broad standalone terms such as RED WING, Classic, Moc, Iron, Ranger, Postman, Oxford, Chelsea and Boot are blocked.
+
+## v0.6.4 HAWKINS
+- 8 high-confidence product families were confirmed against ABC-MART official product pages and mirrored to app assets.
+- Colors, sizes and manufacturer-number revisions were not counted as separate models.
+- Only brand-qualified aliases and complete English/Japanese search phrases were added.
+- Broad standalone terms such as HAWKINS, Boot, Shoe, Sneaker, Sandal, Waterproof and partial model-name fragments are blocked.

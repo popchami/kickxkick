@@ -576,3 +576,6 @@ Standalone brand, partial model-name fragments, category and generic footwear te
 
 ## RED WING v0.6.3 audit
 Standalone brand names, category words and partial family-name fragments are rejected. Complete canonical family names and brand-qualified English/Japanese phrases are allowed. Product style numbers, colors and leather variants are not promoted to independent model records.
+
+## HAWKINS v0.6.4 audit
+Standalone brand names, category words and partial product-name fragments are rejected. Complete product-family names and brand-qualified English/Japanese phrases are allowed. Colors, sizes and manufacturer-number revisions are not promoted to independent model records.

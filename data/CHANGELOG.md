@@ -289,3 +289,10 @@
 - Avoided duplicate model inflation from color, leather and style-number variants.
 - Synced root data and Flutter app assets.
 - Updated README, validation rules, coverage and task board.
+
+## 0.6.4 - 2026-07-18
+- Added 8 audited HAWKINS product families confirmed on ABC-MART official pages.
+- Added high-precision aliases and search keywords.
+- Avoided duplicate model inflation from colors, sizes and manufacturer-number revisions.
+- Synced root data and Flutter app assets.
+- Updated README, validation rules, coverage and task board.
