@@ -309,3 +309,9 @@ searchKeywordsに入れないもの:
 - 6 high-confidence models added and mirrored to app assets.
 - Only brand-qualified aliases and full-name Japanese search keywords were added.
 - Broad standalone terms such as Danner, Light, Field, Trail, Boot and Waterproof are blocked.
+
+## v0.6.3 RED WING
+- 6 high-confidence model families were added and mirrored to app assets.
+- Official Japanese catalog naming was used; color, leather and style-number variants were not counted as separate models.
+- Only brand-qualified aliases and complete English/Japanese search phrases were added.
+- Broad standalone terms such as RED WING, Classic, Moc, Iron, Ranger, Postman, Oxford, Chelsea and Boot are blocked.

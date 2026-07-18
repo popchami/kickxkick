@@ -282,3 +282,10 @@
 - Added high-precision aliases and search keywords.
 - Synced root data and Flutter app assets.
 - Updated README, validation rules, coverage and task board.
+
+## 0.6.3 - 2026-07-17
+- Added 6 audited RED WING model families.
+- Added high-precision aliases and search keywords.
+- Avoided duplicate model inflation from color, leather and style-number variants.
+- Synced root data and Flutter app assets.
+- Updated README, validation rules, coverage and task board.

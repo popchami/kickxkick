@@ -573,3 +573,6 @@ Standalone brand, person-name fragments, category and generic product terms are 
 
 ## Danner v0.6.2 audit
 Standalone brand, partial model-name fragments, category and generic footwear terms are rejected. Full canonical names and brand-qualified Japanese phrases are allowed.
+
+## RED WING v0.6.3 audit
+Standalone brand names, category words and partial family-name fragments are rejected. Complete canonical family names and brand-qualified English/Japanese phrases are allowed. Product style numbers, colors and leather variants are not promoted to independent model records.
