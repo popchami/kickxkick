@@ -1,0 +1,49 @@
+name: Sync HAWKINS v0.6.4
+
+on:
+  push:
+    branches:
+      - agent/dr-martens-v0.5.7-sync
+    paths:
+      - data/staging_hawkins_v0.6.4.json
+      - data/sync_hawkins_v0.6.4.py
+      - .github/workflows/sync-hawkins-v0.6.4.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/dr-martens-v0.5.7-sync
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Merge and validate HAWKINS data
+        run: |
+          python3 data/sync_hawkins_v0.6.4.py
+          python3 -m json.tool data/models.json >/dev/null
+          python3 -m json.tool data/aliases.json >/dev/null
+          python3 -m json.tool data/search_keywords.json >/dev/null
+          cmp data/models.json app/assets/data/models.json
+          cmp data/aliases.json app/assets/data/aliases.json
+          cmp data/search_keywords.json app/assets/data/search_keywords.json
+          grep -F '| HAWKINS | PASS 8 | PASS | PASS | PASS | PASS |' specs/MODEL_MASTER_COVERAGE.md
+      - name: Commit generated data and docs
+        run: |
+          paths='data/models.json data/aliases.json data/search_keywords.json app/assets/data/models.json app/assets/data/aliases.json app/assets/data/search_keywords.json data/README.md data/validation_rules.md data/CHANGELOG.md specs/MODEL_MASTER_COVERAGE.md specs/KICKXKICK_TASK_BOARD.md'
+          if git diff --quiet -- $paths; then
+            echo 'No generated changes'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add $paths
+          git commit -m 'data: sync audited HAWKINS masters v0.6.4'
+          git push origin HEAD:agent/dr-martens-v0.5.7-sync
