@@ -296,3 +296,10 @@
 - Avoided duplicate model inflation from colors, sizes and manufacturer-number revisions.
 - Synced root data and Flutter app assets.
 - Updated README, validation rules, coverage and task board.
+
+## 0.6.5 - 2026-07-20
+- Added 12 audited BIRKENSTOCK model families confirmed in the official Japan catalog.
+- Added high-precision aliases and search keywords.
+- Avoided duplicate model inflation from colors, materials, widths, EVA variants and footbed variants.
+- Synced root data and Flutter app assets.
+- Updated README, validation rules, coverage and task board.

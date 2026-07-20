@@ -579,3 +579,6 @@ Standalone brand names, category words and partial family-name fragments are rej
 
 ## HAWKINS v0.6.4 audit
 Standalone brand names, category words and partial product-name fragments are rejected. Complete product-family names and brand-qualified English/Japanese phrases are allowed. Colors, sizes and manufacturer-number revisions are not promoted to independent model records.
+
+## BIRKENSTOCK v0.6.5 audit
+Standalone brand names, model-family names, category words and material words are rejected. Complete brand-qualified English/Japanese phrases are allowed. Colors, materials, widths, EVA variants and footbed variants are not promoted to independent model records.

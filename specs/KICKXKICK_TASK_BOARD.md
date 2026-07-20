@@ -1,4 +1,4 @@
-# Kick×Kick Task Board v3.3
+# Kick×Kick Task Board v3.4
 
 ## 目的
 
@@ -61,7 +61,7 @@ docs/HANDOFF_BRAND_MODEL_SEARCH.md
 状態:
 
 ```text
-ACTIVE / MVP DATA PASS / MARKET REFERENCE GROWTH / DATA v0.6.4 SYNCED / HAWKINS PASS 8
+ACTIVE / MVP DATA PASS / MARKET REFERENCE GROWTH / DATA v0.6.5 SYNCED / BIRKENSTOCK PASS 12
 ```
 
 - [x] BRAND_MASTER.md 作成
@@ -236,6 +236,13 @@ TODO
 
 ## 2026-07-18 HAWKINS v0.6.4
 - [x] HAWKINS 8モデル系列追加
+- [x] Alias / searchKeywords高純度監査
+- [x] data / app assets同期
+- [x] README / validation / CHANGELOG / Coverage整合
+- [ ] Search MVP実動作テスト
+
+## 2026-07-20 BIRKENSTOCK v0.6.5
+- [x] BIRKENSTOCK 12モデル系列追加
 - [x] Alias / searchKeywords高純度監査
 - [x] data / app assets同期
 - [x] README / validation / CHANGELOG / Coverage整合

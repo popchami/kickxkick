@@ -321,3 +321,9 @@ searchKeywordsに入れないもの:
 - Colors, sizes and manufacturer-number revisions were not counted as separate models.
 - Only brand-qualified aliases and complete English/Japanese search phrases were added.
 - Broad standalone terms such as HAWKINS, Boot, Shoe, Sneaker, Sandal, Waterproof and partial model-name fragments are blocked.
+
+## v0.6.5 BIRKENSTOCK
+- 12 high-confidence model families were confirmed against the official BIRKENSTOCK Japan catalog and mirrored to app assets.
+- Colors, materials, widths, EVA editions and soft-footbed editions were not counted as separate models.
+- Only brand-qualified aliases and complete English/Japanese search phrases were added.
+- Broad standalone terms such as BIRKENSTOCK, model-family names, Sandal, Clog, EVA, Leather and Suede are blocked.
