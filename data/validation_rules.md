@@ -582,3 +582,6 @@ Standalone brand names, category words and partial product-name fragments are re
 
 ## BIRKENSTOCK v0.6.5 audit
 Standalone brand names, model-family names, category words and material words are rejected. Complete brand-qualified English/Japanese phrases are allowed. Colors, materials, widths, EVA variants and footbed variants are not promoted to independent model records.
+
+## CLARKS v0.6.6 audit
+Standalone brand names, partial model words, category words and technology words are rejected. Complete brand-qualified English/Japanese phrases are allowed. Colors, materials, gender and seasonal editions are not promoted to independent model records.

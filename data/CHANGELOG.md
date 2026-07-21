@@ -303,3 +303,10 @@
 - Avoided duplicate model inflation from colors, materials, widths, EVA variants and footbed variants.
 - Synced root data and Flutter app assets.
 - Updated README, validation rules, coverage and task board.
+
+## 0.6.6 - 2026-07-21
+- Added eight audited CLARKS model families confirmed in the official Japan catalog.
+- Added high-precision aliases and search keywords.
+- Avoided duplicate model inflation from colors, materials, gender and seasonal editions.
+- Synced root data and Flutter app assets.
+- Updated README, validation rules, coverage and task board.

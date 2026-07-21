@@ -327,3 +327,9 @@ searchKeywordsに入れないもの:
 - Colors, materials, widths, EVA editions and soft-footbed editions were not counted as separate models.
 - Only brand-qualified aliases and complete English/Japanese search phrases were added.
 - Broad standalone terms such as BIRKENSTOCK, model-family names, Sandal, Clog, EVA, Leather and Suede are blocked.
+
+## v0.6.6 CLARKS
+- Eight high-confidence model families were confirmed against the official CLARKS Japan catalog and mirrored to app assets.
+- Colors, materials, gender and seasonal editions were not counted as separate models.
+- Only brand-qualified aliases and complete English/Japanese search phrases were added.
+- Broad standalone terms such as CLARKS, Wallabee, Boot, Desert, Trek, Torhill and GTX are blocked.
