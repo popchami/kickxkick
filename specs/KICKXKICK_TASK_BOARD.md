@@ -1,4 +1,4 @@
-# Kick×Kick Task Board v3.5
+# Kick×Kick Task Board v3.6
 
 ## 目的
 
@@ -59,7 +59,7 @@ docs/HANDOFF_BRAND_MODEL_SEARCH.md
 状態:
 
 ```text
-ACTIVE / MVP DATA PASS / MARKET REFERENCE GROWTH / DATA v0.6.6 SYNCED / CLARKS PASS 8
+ACTIVE / MVP DATA PASS / MARKET REFERENCE GROWTH / DATA v0.6.7 SYNCED / TEVA PASS 8
 ```
 
 - [x] BRAND_MASTER.md 作成
@@ -248,6 +248,13 @@ TODO
 
 ## 2026-07-21 CLARKS v0.6.6
 - [x] CLARKS 8モデル系列追加
+- [x] Alias / searchKeywords高純度監査
+- [x] data / app assets同期
+- [x] README / validation / CHANGELOG / Coverage整合
+- [ ] Search MVP実動作テスト
+
+## 2026-07-23 TEVA v0.6.7
+- [x] TEVA 8モデル系列追加
 - [x] Alias / searchKeywords高純度監査
 - [x] data / app assets同期
 - [x] README / validation / CHANGELOG / Coverage整合

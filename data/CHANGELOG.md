@@ -310,3 +310,10 @@
 - Avoided duplicate model inflation from colors, materials, gender and seasonal editions.
 - Synced root data and Flutter app assets.
 - Updated README, validation rules, coverage and task board.
+
+## 0.6.7 - 2026-07-23
+- Added eight audited TEVA model families confirmed in official catalogs.
+- Added high-precision aliases and search keywords.
+- Avoided duplicate model inflation from colors, collaborations, gender, size and seasonal strap patterns.
+- Synced root data and Flutter app assets.
+- Updated README, validation rules, coverage and task board.

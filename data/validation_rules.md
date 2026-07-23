@@ -585,3 +585,6 @@ Standalone brand names, model-family names, category words and material words ar
 
 ## CLARKS v0.6.6 audit
 Standalone brand names, partial model words, category words and technology words are rejected. Complete brand-qualified English/Japanese phrases are allowed. Colors, materials, gender and seasonal editions are not promoted to independent model records.
+
+## TEVA v0.6.7 audit
+Standalone brand names, partial model words, category words and generic outdoor terms are rejected. Complete brand-qualified English/Japanese phrases are allowed. Colors, collaborations, gender, size and seasonal strap patterns are not promoted to independent model records.
