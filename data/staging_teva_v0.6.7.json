@@ -1,0 +1,57 @@
+{
+  "version": "0.6.7-merge-ready-audited",
+  "updatedAt": "2026-07-23",
+  "brandId": "teva",
+  "brandName": "TEVA",
+  "status": "merge_ready_expanded_audited",
+  "purpose": "High-confidence TEVA model-family data confirmed against official Japan and global catalogs and staged for deterministic merge.",
+  "models": [
+    {"id":"teva_hurricane_xlt3","brandId":"teva","modelName":"HURRICANE XLT3","category":"sandals","source":"master"},
+    {"id":"teva_hurricane_xlt3_ct","brandId":"teva","modelName":"HURRICANE XLT3 CT","category":"sandals","source":"master"},
+    {"id":"teva_hurricane_xlt2_ampsole","brandId":"teva","modelName":"HURRICANE XLT2 AMPSOLE","category":"sandals","source":"master"},
+    {"id":"teva_hurricane_trailsetter","brandId":"teva","modelName":"HURRICANE TRAILSETTER","category":"sandals","source":"master"},
+    {"id":"teva_original_universal","brandId":"teva","modelName":"ORIGINAL UNIVERSAL","category":"sandals","source":"master"},
+    {"id":"teva_midform_universal","brandId":"teva","modelName":"MIDFORM UNIVERSAL","category":"sandals","source":"master"},
+    {"id":"teva_terra_fi_5_universal","brandId":"teva","modelName":"TERRA FI 5 UNIVERSAL","category":"sandals","source":"master"},
+    {"id":"teva_reember_terrain","brandId":"teva","modelName":"ReEmber Terrain","category":"lifestyle","source":"master"}
+  ],
+  "aliases": [
+    {"modelId":"teva_hurricane_xlt3","alias":"TevaHurricaneXLT3"},
+    {"modelId":"teva_hurricane_xlt3_ct","alias":"TevaHurricaneXLT3CT"},
+    {"modelId":"teva_hurricane_xlt2_ampsole","alias":"TevaHurricaneXLT2Ampsole"},
+    {"modelId":"teva_hurricane_trailsetter","alias":"TevaHurricaneTrailsetter"},
+    {"modelId":"teva_original_universal","alias":"TevaOriginalUniversal"},
+    {"modelId":"teva_midform_universal","alias":"TevaMidformUniversal"},
+    {"modelId":"teva_terra_fi_5_universal","alias":"TevaTerraFi5Universal"},
+    {"modelId":"teva_reember_terrain","alias":"TevaReEmberTerrain"}
+  ],
+  "searchKeywords": [
+    {"modelId":"teva_hurricane_xlt3","keyword":"TEVA HURRICANE XLT3"},
+    {"modelId":"teva_hurricane_xlt3","keyword":"テバ ハリケーン XLT3"},
+    {"modelId":"teva_hurricane_xlt3_ct","keyword":"TEVA HURRICANE XLT3 CT"},
+    {"modelId":"teva_hurricane_xlt3_ct","keyword":"テバ ハリケーン XLT3 CT"},
+    {"modelId":"teva_hurricane_xlt2_ampsole","keyword":"TEVA HURRICANE XLT2 AMPSOLE"},
+    {"modelId":"teva_hurricane_xlt2_ampsole","keyword":"テバ ハリケーン XLT2 アンプソール"},
+    {"modelId":"teva_hurricane_trailsetter","keyword":"TEVA HURRICANE TRAILSETTER"},
+    {"modelId":"teva_hurricane_trailsetter","keyword":"テバ ハリケーン トレイルセッター"},
+    {"modelId":"teva_original_universal","keyword":"TEVA ORIGINAL UNIVERSAL"},
+    {"modelId":"teva_original_universal","keyword":"テバ オリジナル ユニバーサル"},
+    {"modelId":"teva_midform_universal","keyword":"TEVA MIDFORM UNIVERSAL"},
+    {"modelId":"teva_midform_universal","keyword":"テバ ミッドフォーム ユニバーサル"},
+    {"modelId":"teva_terra_fi_5_universal","keyword":"TEVA TERRA FI 5 UNIVERSAL"},
+    {"modelId":"teva_terra_fi_5_universal","keyword":"テバ テラファイ 5 ユニバーサル"},
+    {"modelId":"teva_reember_terrain","keyword":"TEVA ReEmber Terrain"},
+    {"modelId":"teva_reember_terrain","keyword":"テバ リエンバー テレイン"}
+  ],
+  "excludedBroadTerms": ["TEVA","Teva","テバ","Hurricane","ハリケーン","Universal","ユニバーサル","XLT3","XLT2","CT","Ampsole","Trailsetter","Original","Midform","Terra","Terrain","Sandal","Sandals","Outdoor"],
+  "audit": {
+    "addedToRootJson": false,
+    "readyForRootJsonMerge": true,
+    "sourceNotes": [
+      "The official TEVA Japan catalog confirms HURRICANE XLT3, HURRICANE XLT3 CT, HURRICANE XLT2 AMPSOLE and HURRICANE TRAILSETTER as independent current model families.",
+      "Official TEVA product pages confirm ORIGINAL UNIVERSAL, MIDFORM UNIVERSAL, TERRA FI 5 UNIVERSAL and ReEmber Terrain as distinct named model families.",
+      "Colors, collaborations, gender, size and seasonal strap patterns were not promoted to separate model records.",
+      "Aliases and search keywords retain the complete model name with the brand attached."
+    ]
+  }
+}

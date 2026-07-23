@@ -1,4 +1,4 @@
-# Kick×Kick Model Master Coverage v2.4
+# Kick×Kick Model Master Coverage v3.4
 
 ## Purpose
 
@@ -92,9 +92,17 @@ TODO
 
 | Brand | Model Coverage | Alias | searchKeywords | Canonical Name | Status | Notes |
 |---|---|---|---|---|---|---|
-| SKECHERS | PARTIAL | PASS | PASS | PASS | MODEL_STARTED | 公式Collections確認ベースで8件追加。`Uno` / `Walk` / `Run` / `BOBS` / `Street` / `Golf` 単体は未追加。 |
-| crocs | PARTIAL | PASS | PASS | PASS | MODEL_STARTED | 日本公式クロッグページ確認ベースで4件追加。`Classic` / `Clog` / `Bae` / `Echo` 単体は未追加。 |
-| Dr.Martens | STAGED 15 | STAGED | STAGED | STAGED | MERGE_READY_AUDITED | 15モデルへ拡張済み。同期スクリプト `data/sync_dr_martens_v0.5.7.py` あり。`Docs` / `DMs` / `Boot` / `Shoe` / `Loafer` / `Sandal` / `Mule` / `Chelsea` / `Platform` / `Martens` 単体は未追加。本体JSON反映待ち。 |
+| SKECHERS | PASS 16 | PASS | PASS | PASS | PASS | 16件へ拡張。一般語単体は除外し、識別性の高いフル名称・ブランド連結語のみ採用。 |
+| crocs | PASS 10 | PASS | PASS | PASS | PASS | 10件へ拡張。モデル固有の複合語のみ採用し、広すぎる単独語は除外。 |
+| Dr.Martens | PASS 15 | PASS | PASS | PASS | PASS | 15モデルを本体JSONとapp/assets/dataへ同期済み。広すぎるAlias/searchKeywordsは除外済み。 |
+| Timberland | PASS 6 | PASS | PASS | PASS | PASS | 公式・主要流通で識別可能な6モデルを追加。一般語単体は除外。 |
+| FILA | PASS 6 | PASS | PASS | PASS | PASS | 高確度6モデルを追加。ブランド・一般語単体は除外。 |
+| Danner | PASS 6 | PASS | PASS | PASS | PASS | 高確度6モデルを追加。ブランド・一般語単体は除外。 |
+| RED WING | PASS 6 | PASS | PASS | PASS | PASS | 公式日本カタログで確認した6モデル系列を追加。品番・素材違いは別モデルとして数えない。 |
+| HAWKINS | PASS 8 | PASS | PASS | PASS | PASS | ABC-MART公式商品ページで確認した8系列を追加。色・サイズ・品番改訂は別モデルとして数えない。 |
+| BIRKENSTOCK | PASS 12 | PASS | PASS | PASS | PASS | 公式日本カタログで確認した12モデル系列を追加。色・素材・幅・EVA・フットベッド違いは別モデルとして数えない。 |
+| CLARKS | PASS 8 | PASS | PASS | PASS | PASS | 公式日本カタログで確認した8モデル系列を追加。色・素材・性別・季節仕様は別モデルとして数えない。 |
+| TEVA | PASS 8 | PASS | PASS | PASS | PASS | 公式カタログで確認した8モデル系列を追加。色・コラボ・性別・季節柄は別モデルとして数えない。 |
 
 ---
 
@@ -168,6 +176,11 @@ searchKeywords: TODO
 2026-07-09 v0.5.7-audit
 - Dr.Martens stagingをmerge-ready-auditedへ更新
 - 同期スクリプト `data/sync_dr_martens_v0.5.7.py` を正式手順として明記
+
+2026-07-10 v0.5.7
+- Dr.Martens 15モデルを本体JSONへ反映
+- Alias / searchKeywordsを同期
+- data/*.json と app/assets/data/*.json の一致を検証
 ```
 
 ---
@@ -175,12 +188,10 @@ searchKeywords: TODO
 ## Next Work
 
 ```text
-1. `python3 data/sync_dr_martens_v0.5.7.py` をリポジトリ実行環境で実行
-2. app/assets/data/*.json とのSHA一致確認
-3. Search MVPテストケース実施
-4. 次のTier Cブランドを1ブランド集中で追加
-5. SKECHERS / crocs の国内流通差分監査を継続
-6. Tier S / A / B のABC-MART差分監査を継続
+1. Search MVPテストケース実施
+2. 次のTier Cブランドを1ブランド集中で追加（TEVA完了後）
+3. SKECHERS / crocs の国内流通差分監査を継続
+4. Tier S / A / B のABC-MART差分監査を継続
 ```
 
 ---
@@ -190,3 +201,49 @@ searchKeywords: TODO
 代表モデルだけで止めず、国内流通リファレンスのブランド・モデル量に近づける。
 
 ただし、低確度モデルや広すぎるAlias/searchKeywordsは追加しない。
+
+
+2026-07-11 v0.5.8
+- SKECHERSを16モデルへ拡張
+- data/*.json と app/assets/data/*.json の一致を検証
+
+
+2026-07-13 v0.6.0
+- Timberland 6モデルを追加
+- Alias / searchKeywordsを高純度監査
+- data/*.json と app/assets/data/*.json を同期
+
+2026-07-14 v0.6.1
+- FILA 6モデルを追加
+- Alias / searchKeywordsを高純度監査
+- data/*.json と app/assets/data/*.json を同期
+
+2026-07-15 v0.6.2
+- Danner 6モデルを追加
+- Alias / searchKeywordsを高純度監査
+- data/*.json と app/assets/data/*.json を同期
+
+2026-07-17 v0.6.3
+- RED WING 6モデル系列を追加
+- Alias / searchKeywordsを高純度監査
+- data/*.json と app/assets/data/*.json を同期
+
+2026-07-18 v0.6.4
+- HAWKINS 8モデル系列を追加
+- Alias / searchKeywordsを高純度監査
+- data/*.json と app/assets/data/*.json を同期
+
+2026-07-20 v0.6.5
+- BIRKENSTOCK 12モデル系列を追加
+- Alias / searchKeywordsを高純度監査
+- data/*.json と app/assets/data/*.json を同期
+
+2026-07-21 v0.6.6
+- CLARKS 8モデル系列を追加
+- Alias / searchKeywordsを高純度監査
+- data/*.json と app/assets/data/*.json を同期
+
+2026-07-23 v0.6.7
+- TEVA 8モデル系列を追加
+- Alias / searchKeywordsを高純度監査
+- data/*.json と app/assets/data/*.json を同期

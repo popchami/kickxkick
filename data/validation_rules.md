@@ -543,3 +543,48 @@ Doc Martens
 - app/assets/data 側と同期済みと誤記する
 - 未検証モデルをまとめて投入する
 ```
+
+## Dr.Martens v0.5.7 audit rule
+
+- Accept model-specific forms such as `DrMartens1460` and `ドクターマーチン1460`.
+- Reject broad standalone terms including `Docs`, `DMs`, `Boot`, `Shoe`, `Loafer`, `Sandal`, `Mule`, `Chelsea`, `Platform`, and `Martens`.
+- Require every Alias/searchKeyword modelId to resolve to a model in `models.json`.
+
+
+## v0.5.8 SKECHERS audit
+
+- Full distinctive family names are allowed.
+- Standalone generic words such as Walk, Run, Sport, Street, Golf, Comfort, Cushion, Arch and Flex are blocked.
+- Summits, Equalizer and Reggae are only allowed with the SKECHERS brand in Alias/searchKeywords.
+
+## v0.5.9追加監査
+
+- staging内のAlias/searchKeywordsが禁止広義語と完全一致した場合は同期を失敗させる
+- 全Alias/searchKeywordsのmodelIdがmodels.jsonに存在すること
+- model IDは全体で一意であること
+- `data/*.json`と`app/assets/data/*.json`はバイト一致すること
+
+
+## Timberland v0.6.0 audit
+Standalone category, feature, position and brand terms are rejected. Full canonical names and brand-qualified Japanese phrases are allowed.
+
+## FILA v0.6.1 audit
+Standalone brand, person-name fragments, category and generic product terms are rejected. Full canonical names and brand-qualified Japanese phrases are allowed.
+
+## Danner v0.6.2 audit
+Standalone brand, partial model-name fragments, category and generic footwear terms are rejected. Full canonical names and brand-qualified Japanese phrases are allowed.
+
+## RED WING v0.6.3 audit
+Standalone brand names, category words and partial family-name fragments are rejected. Complete canonical family names and brand-qualified English/Japanese phrases are allowed. Product style numbers, colors and leather variants are not promoted to independent model records.
+
+## HAWKINS v0.6.4 audit
+Standalone brand names, category words and partial product-name fragments are rejected. Complete product-family names and brand-qualified English/Japanese phrases are allowed. Colors, sizes and manufacturer-number revisions are not promoted to independent model records.
+
+## BIRKENSTOCK v0.6.5 audit
+Standalone brand names, model-family names, category words and material words are rejected. Complete brand-qualified English/Japanese phrases are allowed. Colors, materials, widths, EVA variants and footbed variants are not promoted to independent model records.
+
+## CLARKS v0.6.6 audit
+Standalone brand names, partial model words, category words and technology words are rejected. Complete brand-qualified English/Japanese phrases are allowed. Colors, materials, gender and seasonal editions are not promoted to independent model records.
+
+## TEVA v0.6.7 audit
+Standalone brand names, partial model words, category words and generic outdoor terms are rejected. Complete brand-qualified English/Japanese phrases are allowed. Colors, collaborations, gender, size and seasonal strap patterns are not promoted to independent model records.

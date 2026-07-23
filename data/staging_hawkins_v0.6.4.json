@@ -1,0 +1,58 @@
+{
+  "version": "0.6.4-merge-ready-audited",
+  "updatedAt": "2026-07-18",
+  "brandId": "hawkins",
+  "brandName": "HAWKINS",
+  "status": "merge_ready_expanded_audited",
+  "purpose": "High-confidence HAWKINS product-family data confirmed against ABC-MART official product pages and staged for deterministic merge.",
+  "models": [
+    {"id":"hawkins_tkm_moc_it","brandId":"hawkins","modelName":"TKM MOC IT","category":"shoes","source":"master"},
+    {"id":"hawkins_mula","brandId":"hawkins","modelName":"MULA","category":"sandals","source":"master"},
+    {"id":"hawkins_emily","brandId":"hawkins","modelName":"EMILY","category":"sneakers","source":"master"},
+    {"id":"hawkins_hc_adela_3","brandId":"hawkins","modelName":"HC ADELA 3","category":"boots","source":"master"},
+    {"id":"hawkins_mana_ih15","brandId":"hawkins","modelName":"MANA I/H1.5","category":"boots","source":"master"},
+    {"id":"hawkins_mach_gt950","brandId":"hawkins","modelName":"MACH.GT950","category":"sneakers","source":"master"},
+    {"id":"hawkins_keely_4","brandId":"hawkins","modelName":"KEELY 4","category":"boots","source":"master"},
+    {"id":"hawkins_alfl_loafer_wide","brandId":"hawkins","modelName":"ALFL LOAFER WIDE","category":"shoes","source":"master"}
+  ],
+  "aliases": [
+    {"modelId":"hawkins_tkm_moc_it","alias":"HawkinsTkmMocIt"},
+    {"modelId":"hawkins_mula","alias":"HawkinsMula"},
+    {"modelId":"hawkins_emily","alias":"HawkinsEmily"},
+    {"modelId":"hawkins_hc_adela_3","alias":"HawkinsHcAdela3"},
+    {"modelId":"hawkins_mana_ih15","alias":"HawkinsManaIH15"},
+    {"modelId":"hawkins_mach_gt950","alias":"HawkinsMachGT950"},
+    {"modelId":"hawkins_keely_4","alias":"HawkinsKeely4"},
+    {"modelId":"hawkins_alfl_loafer_wide","alias":"HawkinsAlflLoaferWide"}
+  ],
+  "searchKeywords": [
+    {"modelId":"hawkins_tkm_moc_it","keyword":"HAWKINS TKM MOC IT"},
+    {"modelId":"hawkins_tkm_moc_it","keyword":"ホーキンス タクミモック アイティー"},
+    {"modelId":"hawkins_mula","keyword":"HAWKINS MULA"},
+    {"modelId":"hawkins_mula","keyword":"ホーキンス ムラ"},
+    {"modelId":"hawkins_emily","keyword":"HAWKINS EMILY"},
+    {"modelId":"hawkins_emily","keyword":"ホーキンス エミリー"},
+    {"modelId":"hawkins_hc_adela_3","keyword":"HAWKINS HC ADELA 3"},
+    {"modelId":"hawkins_hc_adela_3","keyword":"ホーキンス HC アデラ 3"},
+    {"modelId":"hawkins_mana_ih15","keyword":"HAWKINS MANA I/H1.5"},
+    {"modelId":"hawkins_mana_ih15","keyword":"ホーキンス マナ I/H1.5"},
+    {"modelId":"hawkins_mach_gt950","keyword":"HAWKINS MACH.GT950"},
+    {"modelId":"hawkins_mach_gt950","keyword":"ホーキンス マッハ GT950"},
+    {"modelId":"hawkins_keely_4","keyword":"HAWKINS KEELY 4"},
+    {"modelId":"hawkins_keely_4","keyword":"ホーキンス キーリー 4"},
+    {"modelId":"hawkins_alfl_loafer_wide","keyword":"HAWKINS ALFL LOAFER WIDE"},
+    {"modelId":"hawkins_alfl_loafer_wide","keyword":"ホーキンス エアライトフレックス ローファー ワイド"}
+  ],
+  "excludedBroadTerms": ["HAWKINS","Hawkins","ホーキンス","MOC","MULA","EMILY","ADELA","MANA","MACH","KEELY","LOAFER","WIDE","Boot","Boots","Shoe","Shoes","Sneaker","Sneakers","Sandal","Sandals","Waterproof"],
+  "audit": {
+    "addedToRootJson": false,
+    "readyForRootJsonMerge": true,
+    "sourceNotes": [
+      "All eight names and manufacturer-number pairings were confirmed on ABC-MART official product pages.",
+      "Product colors, sizes and manufacturer-number revisions were not promoted to separate model records.",
+      "Aliases are brand-qualified concatenated forms only.",
+      "Search keywords retain the complete model name with the brand attached in English or Japanese.",
+      "Standalone brand, category and partial-name terms remain excluded."
+    ]
+  }
+}

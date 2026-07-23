@@ -1,5 +1,28 @@
 # Kick×Kick Data Changelog
 
+
+## 2026-07-12 v0.5.9 crocs expansion
+
+### Added / Updated
+
+- crocsを4モデルから10モデルへ拡張
+- 追加: `Classic Platform Clog` / `Classic Crush Clog` / `Mega Crush Clog` / `Mellow Recovery Clog` / `Dylan Clog` / `LiteRide 360 Clog`
+- モデル固有のAliasと、ブランド名を含む日本語searchKeywordsを追加
+- `data/*.json` と `app/assets/data/*.json` をv0.5.9へ同期
+
+### Audited
+
+- モデルID重複、Alias/searchKeywords参照先、JSON構文、data/app assets一致を検証
+- `Clog` / `Classic` / `Platform` / `Crush` / `Recovery` / `LiteRide` / `Crocs`単体は広すぎるため除外
+
+### Remaining
+
+- Search MVP実動作テスト
+- Tier S〜Bの国内流通差分監査
+- 次のTier Cブランド集中拡張
+
+---
+
 このファイルは、`data/` 配下の実データ資産の変更履歴を管理する。
 
 ---
@@ -227,3 +250,70 @@
 
 - HOKA Alias / searchKeywords を追加
 - `app/assets/data/aliases.json` / `app/assets/data/search_keywords.json` を同期更新
+
+## 0.5.7 - 2026-07-10
+
+- Merged 15 audited Dr.Martens models into root and app asset masters.
+- Added model-specific aliases and Japanese/connected search keywords.
+- Verified duplicate keys, referential integrity, JSON parsing, and root/app byte equality.
+
+
+## v0.5.8 - 2026-07-11
+
+- Expanded SKECHERS from 8 to 16 audited model families.
+- Added Arch Fit, Max Cushioning, Hands Free Slip-ins, Glide-Step, Summits, Ultra Flex, Equalizer and Reggae.
+- Synchronized data JSON with app assets and retained broad-term exclusions.
+
+
+## 0.6.0 - 2026-07-13
+- Added 6 audited Timberland models.
+- Added high-precision aliases and search keywords.
+- Synced root data and Flutter app assets.
+- Updated README, validation rules, coverage and task board.
+
+## 0.6.1 - 2026-07-14
+- Added 6 audited FILA models.
+- Added high-precision aliases and search keywords.
+- Synced root data and Flutter app assets.
+- Updated README, validation rules, coverage and task board.
+
+## 0.6.2 - 2026-07-15
+- Added 6 audited Danner models.
+- Added high-precision aliases and search keywords.
+- Synced root data and Flutter app assets.
+- Updated README, validation rules, coverage and task board.
+
+## 0.6.3 - 2026-07-17
+- Added 6 audited RED WING model families.
+- Added high-precision aliases and search keywords.
+- Avoided duplicate model inflation from color, leather and style-number variants.
+- Synced root data and Flutter app assets.
+- Updated README, validation rules, coverage and task board.
+
+## 0.6.4 - 2026-07-18
+- Added 8 audited HAWKINS product families confirmed on ABC-MART official pages.
+- Added high-precision aliases and search keywords.
+- Avoided duplicate model inflation from colors, sizes and manufacturer-number revisions.
+- Synced root data and Flutter app assets.
+- Updated README, validation rules, coverage and task board.
+
+## 0.6.5 - 2026-07-20
+- Added 12 audited BIRKENSTOCK model families confirmed in the official Japan catalog.
+- Added high-precision aliases and search keywords.
+- Avoided duplicate model inflation from colors, materials, widths, EVA variants and footbed variants.
+- Synced root data and Flutter app assets.
+- Updated README, validation rules, coverage and task board.
+
+## 0.6.6 - 2026-07-21
+- Added eight audited CLARKS model families confirmed in the official Japan catalog.
+- Added high-precision aliases and search keywords.
+- Avoided duplicate model inflation from colors, materials, gender and seasonal editions.
+- Synced root data and Flutter app assets.
+- Updated README, validation rules, coverage and task board.
+
+## 0.6.7 - 2026-07-23
+- Added eight audited TEVA model families confirmed in official catalogs.
+- Added high-precision aliases and search keywords.
+- Avoided duplicate model inflation from colors, collaborations, gender, size and seasonal strap patterns.
+- Synced root data and Flutter app assets.
+- Updated README, validation rules, coverage and task board.

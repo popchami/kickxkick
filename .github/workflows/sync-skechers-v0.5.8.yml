@@ -1,0 +1,72 @@
+name: Sync SKECHERS v0.5.8
+
+on:
+  push:
+    branches: [agent/dr-martens-v0.5.7-sync]
+    paths:
+      - data/staging_skechers_v0.5.8.json
+      - data/sync_skechers_v0.5.8.py
+      - .github/workflows/sync-skechers-v0.5.8.yml
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/dr-martens-v0.5.7-sync
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Sync JSON masters
+        run: python3 data/sync_skechers_v0.5.8.py
+      - name: Update documentation
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          def replace(path, old, new):
+              p=Path(path); text=p.read_text(encoding='utf-8')
+              if old not in text: raise SystemExit(f'missing marker in {path}: {old}')
+              p.write_text(text.replace(old,new),encoding='utf-8')
+
+          replace('data/README.md', 'sync_dr_martens_v0.5.7.py\n', 'sync_dr_martens_v0.5.7.py\nstaging_skechers_v0.5.8.json\nsync_skechers_v0.5.8.py\n')
+          replace('data/README.md', 'Tier C: brand-only registry + SKECHERS / crocs model-started + Dr.Martens expanded merge-ready audited', 'Tier C: brand-only registry + SKECHERS 16 models + crocs model-started + Dr.Martens 15 models')
+          replace('data/README.md', 'Tier Cはブランド名を先行登録済み。v0.5.3 で SKECHERS を8件まで拡張し、v0.5.4 で crocs の高確度クロッグモデル4件を追加した。', 'Tier Cはブランド名を先行登録済み。v0.5.8 で SKECHERS を16件まで拡張し、v0.5.4 で crocs の高確度クロッグモデル4件を追加した。')
+          p=Path('data/README.md'); t=p.read_text(encoding='utf-8'); t += '\n\n## v0.5.8 SKECHERS sync (2026-07-11)\n\n- 8 high-confidence SKECHERS families were added, bringing coverage to 16 entries.\n- Root JSON and app assets are synchronized deterministically.\n- Generic standalone terms remain excluded.\n'; p.write_text(t,encoding='utf-8')
+
+          for path in ['data/validation_rules.md']:
+              p=Path(path); t=p.read_text(encoding='utf-8'); t += '\n\n## v0.5.8 SKECHERS audit\n\n- Full distinctive family names are allowed.\n- Standalone generic words such as Walk, Run, Sport, Street, Golf, Comfort, Cushion, Arch and Flex are blocked.\n- Summits, Equalizer and Reggae are only allowed with the SKECHERS brand in Alias/searchKeywords.\n'; p.write_text(t,encoding='utf-8')
+
+          p=Path('data/CHANGELOG.md'); t=p.read_text(encoding='utf-8'); t += '\n\n## v0.5.8 - 2026-07-11\n\n- Expanded SKECHERS from 8 to 16 audited model families.\n- Added Arch Fit, Max Cushioning, Hands Free Slip-ins, Glide-Step, Summits, Ultra Flex, Equalizer and Reggae.\n- Synchronized data JSON with app assets and retained broad-term exclusions.\n'; p.write_text(t,encoding='utf-8')
+
+          replace('specs/MODEL_MASTER_COVERAGE.md', '| SKECHERS | PARTIAL | PASS | PASS | PASS | MODEL_STARTED | 公式Collections確認ベースで8件追加。`Uno` / `Walk` / `Run` / `BOBS` / `Street` / `Golf` 単体は未追加。 |', '| SKECHERS | PASS 16 | PASS | PASS | PASS | PASS | 16件へ拡張。一般語単体は除外し、識別性の高いフル名称・ブランド連結語のみ採用。 |')
+          p=Path('specs/MODEL_MASTER_COVERAGE.md'); t=p.read_text(encoding='utf-8'); t=t.replace('# Kick×Kick Model Master Coverage v2.5','# Kick×Kick Model Master Coverage v2.6'); t += '\n\n2026-07-11 v0.5.8\n- SKECHERSを16モデルへ拡張\n- data/*.json と app/assets/data/*.json の一致を検証\n'; p.write_text(t,encoding='utf-8')
+
+          p=Path('specs/KICKXKICK_TASK_BOARD.md'); t=p.read_text(encoding='utf-8'); t += '\n\n## Data v0.5.8\n- [x] SKECHERSを16件へ拡張\n- [x] Alias / searchKeywords広義語監査\n- [x] data / app assets同期\n- [ ] Search MVP実動作テスト\n- [ ] crocs集中拡張\n'; p.write_text(t,encoding='utf-8')
+          PY
+      - name: Validate
+        run: |
+          python3 - <<'PY'
+          import json, pathlib
+          pairs=['models.json','aliases.json','search_keywords.json']
+          for name in pairs:
+              a=pathlib.Path('data',name).read_bytes(); b=pathlib.Path('app/assets/data',name).read_bytes()
+              assert a==b, name
+              json.loads(a)
+          models=json.loads(pathlib.Path('data/models.json').read_text())['items']
+          ids=[x['id'] for x in models]
+          assert len(ids)==len(set(ids))
+          assert sum(x.get('brandId')=='skechers' for x in models)==16
+          print('validation ok')
+          PY
+      - name: Commit generated assets
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add data app/assets/data specs
+          git diff --cached --quiet || git commit -m "data: sync audited SKECHERS v0.5.8"
+          git push

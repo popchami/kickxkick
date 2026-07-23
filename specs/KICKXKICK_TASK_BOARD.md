@@ -1,4 +1,4 @@
-# Kick×Kick Task Board v2.8
+# Kick×Kick Task Board v3.6
 
 ## 目的
 
@@ -12,13 +12,11 @@ Kick×Kick開発の現在地を管理する。
 
 ```text
 ブランド・モデル・検索基盤はMVPリリース可能ライン。
-Tier S / Tier A はPASS。
-Tier BはHOKA / Saucony / SALOMON / MERRELL / BROOKSを追加し、Alias / searchKeywords までPASS化済み。
-Tier Cはブランド名先行登録済み。SKECHERSはv0.5.3で8モデルまで拡張。crocsはv0.5.4で4モデル追加開始。
-Dr.Martensはv0.5.7-merge-ready-auditedとして15モデルを検証済みステージング化。同期スクリプトあり。本体JSON反映待ち。
-ABC-MARTなど国内流通リファレンスを基準に、今後もデータ資産を継続育成する。
-data/models.json・aliases.json・search_keywords.json と app/assets/data 側は v0.5.4 として同期済み。
-次はリポジトリ実行環境で Dr.Martens 同期スクリプトを実行し、data/*.json と app/assets/data/*.json のSHA一致を確認する。
+Tier S / Tier A / Tier B はモデル・Alias・searchKeywordsまでPASS。
+Tier Cはブランド名を先行登録済みで、SKECHERS 16、crocs 10、Dr.Martens 15、Timberland 6、FILA 6、Danner 6、RED WING 6、HAWKINS 8、BIRKENSTOCK 12モデル系列までPASS。
+ABC-MARTなど国内流通リファレンスと各ブランド公式情報を基準に、色・素材・サイズ違いを水増しせずデータ資産を継続育成する。
+data/models.json・aliases.json・search_keywords.json と app/assets/data 側は v0.6.5 として同期済み。
+次はSearch MVP実動作テスト、Tier S〜Bの国内流通差分監査、次のTier Cブランド集中拡張を進める。
 ```
 
 引き継ぎ:
@@ -61,7 +59,7 @@ docs/HANDOFF_BRAND_MODEL_SEARCH.md
 状態:
 
 ```text
-ACTIVE / MVP DATA PASS / MARKET REFERENCE GROWTH / DATA v0.5.4 SYNCED / DR.MARTENS v0.5.7 MERGE-READY-AUDITED
+ACTIVE / MVP DATA PASS / MARKET REFERENCE GROWTH / DATA v0.6.7 SYNCED / TEVA PASS 8
 ```
 
 - [x] BRAND_MASTER.md 作成
@@ -161,9 +159,9 @@ ACTIVE / MVP DATA PASS / MARKET REFERENCE GROWTH / DATA v0.5.4 SYNCED / DR.MARTE
 
 保留:
 
-- [ ] `python3 data/sync_dr_martens_v0.5.7.py` 実行
-- [ ] Dr.Martens app/assets/data/*.json 同期
-- [ ] 実行後の data/*.json / app/assets/data/*.json SHA一致確認
+- [x] `python3 data/sync_dr_martens_v0.5.7.py` 実行
+- [x] Dr.Martens app/assets/data/*.json 同期
+- [x] 実行後の data/*.json / app/assets/data/*.json SHA一致確認
 - [ ] Search MVPテストケース実施
 - [ ] Tier S / A / B のABC-MART差分監査
 - [ ] Tier Cブランドのモデル追加継続
@@ -178,3 +176,86 @@ ACTIVE / MVP DATA PASS / MARKET REFERENCE GROWTH / DATA v0.5.4 SYNCED / DR.MARTE
 ```text
 TODO
 ```
+
+## Data asset update — 2026-07-10
+
+- [x] Merge Dr.Martens 15-model staging into root JSON masters
+- [x] Sync `app/assets/data/*.json`
+- [x] Audit broad Alias/searchKeyword exclusions
+- [x] Verify JSON integrity and root/app equality
+- [ ] Run Search MVP behavioral tests
+- [ ] Continue next single-brand Tier C expansion
+
+
+## Data v0.5.8
+- [x] SKECHERSを16件へ拡張
+- [x] Alias / searchKeywords広義語監査
+- [x] data / app assets同期
+- [ ] Search MVP実動作テスト
+- [ ] crocs集中拡張
+
+## 2026-07-12 crocs v0.5.9
+
+- [x] crocsを10モデルへ拡張
+- [x] Alias / searchKeywords高純度監査
+- [x] data / app assets同期
+- [x] README / validation / CHANGELOG / Coverage整合
+- [ ] Search MVP実動作テスト
+- [ ] 次ブランド集中拡張
+
+
+## 2026-07-13 Timberland v0.6.0
+- [x] Timberland 6モデル追加
+- [x] Alias / searchKeywords高純度監査
+- [x] data / app assets同期
+- [x] README / validation / CHANGELOG / Coverage整合
+- [ ] Search MVP実動作テスト
+
+## 2026-07-14 FILA v0.6.1
+- [x] FILA 6モデル追加
+- [x] Alias / searchKeywords高純度監査
+- [x] data / app assets同期
+- [x] README / validation / CHANGELOG / Coverage整合
+- [ ] Search MVP実動作テスト
+
+## 2026-07-15 Danner v0.6.2
+- [x] Danner 6モデル追加
+- [x] Alias / searchKeywords高純度監査
+- [x] data / app assets同期
+- [x] README / validation / CHANGELOG / Coverage整合
+- [ ] Search MVP実動作テスト
+
+## 2026-07-17 RED WING v0.6.3
+- [x] RED WING 6モデル系列追加
+- [x] Alias / searchKeywords高純度監査
+- [x] data / app assets同期
+- [x] README / validation / CHANGELOG / Coverage整合
+- [ ] Search MVP実動作テスト
+
+## 2026-07-18 HAWKINS v0.6.4
+- [x] HAWKINS 8モデル系列追加
+- [x] Alias / searchKeywords高純度監査
+- [x] data / app assets同期
+- [x] README / validation / CHANGELOG / Coverage整合
+- [ ] Search MVP実動作テスト
+
+## 2026-07-20 BIRKENSTOCK v0.6.5
+- [x] BIRKENSTOCK 12モデル系列追加
+- [x] Alias / searchKeywords高純度監査
+- [x] data / app assets同期
+- [x] README / validation / CHANGELOG / Coverage整合
+- [ ] Search MVP実動作テスト
+
+## 2026-07-21 CLARKS v0.6.6
+- [x] CLARKS 8モデル系列追加
+- [x] Alias / searchKeywords高純度監査
+- [x] data / app assets同期
+- [x] README / validation / CHANGELOG / Coverage整合
+- [ ] Search MVP実動作テスト
+
+## 2026-07-23 TEVA v0.6.7
+- [x] TEVA 8モデル系列追加
+- [x] Alias / searchKeywords高純度監査
+- [x] data / app assets同期
+- [x] README / validation / CHANGELOG / Coverage整合
+- [ ] Search MVP実動作テスト
