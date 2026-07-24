@@ -317,3 +317,10 @@
 - Avoided duplicate model inflation from colors, collaborations, gender, size and seasonal strap patterns.
 - Synced root data and Flutter app assets.
 - Updated README, validation rules, coverage and task board.
+
+## 0.6.8 - 2026-07-24
+- Added eight audited UNDER ARMOUR footwear model families confirmed on official Japan pages.
+- Added high-precision aliases and search keywords.
+- Avoided duplicate model inflation from colors, gender, size, athlete editions and seasonal color stories.
+- Synced root data and Flutter app assets.
+- Updated README, validation rules, coverage and task board.

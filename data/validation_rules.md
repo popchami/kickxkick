@@ -588,3 +588,6 @@ Standalone brand names, partial model words, category words and technology words
 
 ## TEVA v0.6.7 audit
 Standalone brand names, partial model words, category words and generic outdoor terms are rejected. Complete brand-qualified English/Japanese phrases are allowed. Colors, collaborations, gender, size and seasonal strap patterns are not promoted to independent model records.
+
+## UNDER ARMOUR v0.6.8 audit
+Standalone brand names, abbreviations, partial model words, category words and generic footwear terms are rejected. Complete brand-qualified English/Japanese phrases are allowed. Colors, gender, size, athlete editions and seasonal color stories are not promoted to independent model records.

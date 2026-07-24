@@ -339,3 +339,9 @@ searchKeywordsに入れないもの:
 - Colors, collaborations, gender, size and seasonal strap patterns were not counted as separate models.
 - Only brand-qualified aliases and complete English/Japanese search phrases were added.
 - Broad standalone terms such as TEVA, Hurricane, Universal, XLT, Sandal and Outdoor are blocked.
+
+## v0.6.8 UNDER ARMOUR
+- Eight high-confidence footwear model families were confirmed against official UNDER ARMOUR Japan pages and mirrored to app assets.
+- Colors, gender, size, athlete editions and seasonal color stories were not counted as separate models.
+- Only brand-qualified aliases and complete English/Japanese search phrases were added.
+- Broad standalone terms such as UNDER ARMOUR, UA, Curry, Elite, Pro, Running and Shoes are blocked.

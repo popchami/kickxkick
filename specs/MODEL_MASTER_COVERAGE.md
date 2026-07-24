@@ -1,4 +1,4 @@
-# Kick×Kick Model Master Coverage v3.4
+# Kick×Kick Model Master Coverage v3.5
 
 ## Purpose
 
@@ -103,6 +103,7 @@ TODO
 | BIRKENSTOCK | PASS 12 | PASS | PASS | PASS | PASS | 公式日本カタログで確認した12モデル系列を追加。色・素材・幅・EVA・フットベッド違いは別モデルとして数えない。 |
 | CLARKS | PASS 8 | PASS | PASS | PASS | PASS | 公式日本カタログで確認した8モデル系列を追加。色・素材・性別・季節仕様は別モデルとして数えない。 |
 | TEVA | PASS 8 | PASS | PASS | PASS | PASS | 公式カタログで確認した8モデル系列を追加。色・コラボ・性別・季節柄は別モデルとして数えない。 |
+| UNDER ARMOUR | PASS 8 | PASS | PASS | PASS | PASS | 公式日本カタログで確認した8モデル系列を追加。色・性別・サイズ・限定カラーは別モデルとして数えない。 |
 
 ---
 
@@ -189,7 +190,7 @@ searchKeywords: TODO
 
 ```text
 1. Search MVPテストケース実施
-2. 次のTier Cブランドを1ブランド集中で追加（TEVA完了後）
+2. 次のTier Cブランドを1ブランド集中で追加（UNDER ARMOUR完了後）
 3. SKECHERS / crocs の国内流通差分監査を継続
 4. Tier S / A / B のABC-MART差分監査を継続
 ```
@@ -245,5 +246,10 @@ searchKeywords: TODO
 
 2026-07-23 v0.6.7
 - TEVA 8モデル系列を追加
+- Alias / searchKeywordsを高純度監査
+- data/*.json と app/assets/data/*.json を同期
+
+2026-07-24 v0.6.8
+- UNDER ARMOUR 8モデル系列を追加
 - Alias / searchKeywordsを高純度監査
 - data/*.json と app/assets/data/*.json を同期
