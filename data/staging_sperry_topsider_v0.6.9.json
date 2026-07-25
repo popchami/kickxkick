@@ -1,0 +1,45 @@
+{
+  "version": "0.6.9-merge-ready-audited",
+  "updatedAt": "2026-07-25",
+  "brandId": "sperry_topsider",
+  "brandName": "SPERRY TOPSIDER",
+  "status": "merge_ready_expanded_audited",
+  "purpose": "High-confidence Sperry footwear model-family data confirmed against official product and collection pages and staged for deterministic merge.",
+  "models": [
+    {"id":"sperry_topsider_authentic_original_2_eye","brandId":"sperry_topsider","modelName":"Authentic Original 2-Eye Boat Shoe","category":"lifestyle","source":"master"},
+    {"id":"sperry_topsider_gold_cup_authentic_original_2_eye","brandId":"sperry_topsider","modelName":"Gold Cup Authentic Original 2-Eye Boat Shoe","category":"lifestyle","source":"master"},
+    {"id":"sperry_topsider_billfish_3_eye","brandId":"sperry_topsider","modelName":"Billfish 3-Eye Boat Shoe","category":"lifestyle","source":"master"},
+    {"id":"sperry_topsider_striper_ii_cvo","brandId":"sperry_topsider","modelName":"Striper II CVO Sneaker","category":"lifestyle","source":"master"},
+    {"id":"sperry_topsider_authentic_original_1_eye","brandId":"sperry_topsider","modelName":"Authentic Original 1-Eye Boat Shoe","category":"lifestyle","source":"master"}
+  ],
+  "aliases": [
+    {"modelId":"sperry_topsider_authentic_original_2_eye","alias":"SperryAuthenticOriginal2EyeBoatShoe"},
+    {"modelId":"sperry_topsider_gold_cup_authentic_original_2_eye","alias":"SperryGoldCupAuthenticOriginal2EyeBoatShoe"},
+    {"modelId":"sperry_topsider_billfish_3_eye","alias":"SperryBillfish3EyeBoatShoe"},
+    {"modelId":"sperry_topsider_striper_ii_cvo","alias":"SperryStriperIICVOSneaker"},
+    {"modelId":"sperry_topsider_authentic_original_1_eye","alias":"SperryAuthenticOriginal1EyeBoatShoe"}
+  ],
+  "searchKeywords": [
+    {"modelId":"sperry_topsider_authentic_original_2_eye","keyword":"SPERRY TOPSIDER Authentic Original 2-Eye Boat Shoe"},
+    {"modelId":"sperry_topsider_authentic_original_2_eye","keyword":"スペリー トップサイダー オーセンティック オリジナル 2アイ ボートシュー"},
+    {"modelId":"sperry_topsider_gold_cup_authentic_original_2_eye","keyword":"SPERRY TOPSIDER Gold Cup Authentic Original 2-Eye Boat Shoe"},
+    {"modelId":"sperry_topsider_gold_cup_authentic_original_2_eye","keyword":"スペリー トップサイダー ゴールドカップ オーセンティック オリジナル 2アイ ボートシュー"},
+    {"modelId":"sperry_topsider_billfish_3_eye","keyword":"SPERRY TOPSIDER Billfish 3-Eye Boat Shoe"},
+    {"modelId":"sperry_topsider_billfish_3_eye","keyword":"スペリー トップサイダー ビルフィッシュ 3アイ ボートシュー"},
+    {"modelId":"sperry_topsider_striper_ii_cvo","keyword":"SPERRY TOPSIDER Striper II CVO Sneaker"},
+    {"modelId":"sperry_topsider_striper_ii_cvo","keyword":"スペリー トップサイダー ストライパー2 CVO スニーカー"},
+    {"modelId":"sperry_topsider_authentic_original_1_eye","keyword":"SPERRY TOPSIDER Authentic Original 1-Eye Boat Shoe"},
+    {"modelId":"sperry_topsider_authentic_original_1_eye","keyword":"スペリー トップサイダー オーセンティック オリジナル 1アイ ボートシュー"}
+  ],
+  "excludedBroadTerms": ["SPERRY","SPERRY TOPSIDER","Sperry Top-Sider","スペリー","トップサイダー","Authentic","Original","Gold Cup","Billfish","Striper","CVO","Boat Shoe","Sneaker","1-Eye","2-Eye","3-Eye"],
+  "audit": {
+    "addedToRootJson": false,
+    "readyForRootJsonMerge": true,
+    "sourceNotes": [
+      "Official Sperry product pages confirm Authentic Original 2-Eye Boat Shoe, Gold Cup Authentic Original 2-Eye Boat Shoe, Billfish 3-Eye Boat Shoe and Striper II CVO Sneaker as separately named footwear models.",
+      "The official Authentic Original collection page identifies Authentic Original 1-Eye Boat Shoe as a distinct model.",
+      "Colors, materials, gender, width and style-code revisions were not promoted to separate model records.",
+      "Aliases and search keywords retain the complete model name with the brand attached; broad standalone terms are blocked."
+    ]
+  }
+}
