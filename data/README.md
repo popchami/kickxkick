@@ -345,3 +345,9 @@ searchKeywordsに入れないもの:
 - Colors, gender, size, athlete editions and seasonal color stories were not counted as separate models.
 - Only brand-qualified aliases and complete English/Japanese search phrases were added.
 - Broad standalone terms such as UNDER ARMOUR, UA, Curry, Elite, Pro, Running and Shoes are blocked.
+
+## v0.6.9 SPERRY TOPSIDER
+- Five high-confidence footwear model families were confirmed against official Sperry product and collection pages and mirrored to app assets.
+- Colors, materials, gender, width and style-code revisions were not counted as separate models.
+- Only brand-qualified aliases and complete English/Japanese search phrases were added.
+- Broad standalone terms such as SPERRY, Authentic, Original, Gold Cup, Billfish, Boat Shoe and Sneaker are blocked.

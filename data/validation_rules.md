@@ -591,3 +591,6 @@ Standalone brand names, partial model words, category words and generic outdoor 
 
 ## UNDER ARMOUR v0.6.8 audit
 Standalone brand names, abbreviations, partial model words, category words and generic footwear terms are rejected. Complete brand-qualified English/Japanese phrases are allowed. Colors, gender, size, athlete editions and seasonal color stories are not promoted to independent model records.
+
+## SPERRY TOPSIDER v0.6.9 audit
+Standalone brand names, partial model words, eye-count fragments, category words and generic footwear terms are rejected. Complete brand-qualified English/Japanese phrases are allowed. Colors, materials, gender, width and style-code revisions are not promoted to independent model records.

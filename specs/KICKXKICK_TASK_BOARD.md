@@ -1,4 +1,4 @@
-# Kick×Kick Task Board v3.7
+# Kick×Kick Task Board v3.8
 
 ## 目的
 
@@ -59,7 +59,7 @@ docs/HANDOFF_BRAND_MODEL_SEARCH.md
 状態:
 
 ```text
-ACTIVE / MVP DATA PASS / MARKET REFERENCE GROWTH / DATA v0.6.8 SYNCED / UNDER ARMOUR PASS 8
+ACTIVE / MVP DATA PASS / MARKET REFERENCE GROWTH / DATA v0.6.9 SYNCED / SPERRY TOPSIDER PASS 5
 ```
 
 - [x] BRAND_MASTER.md 作成
@@ -262,6 +262,13 @@ TODO
 
 ## 2026-07-24 UNDER ARMOUR v0.6.8
 - [x] UNDER ARMOUR 8モデル系列追加
+- [x] Alias / searchKeywords高純度監査
+- [x] data / app assets同期
+- [x] README / validation / CHANGELOG / Coverage整合
+- [ ] Search MVP実動作テスト
+
+## 2026-07-25 SPERRY TOPSIDER v0.6.9
+- [x] SPERRY TOPSIDER 5モデル系列追加
 - [x] Alias / searchKeywords高純度監査
 - [x] data / app assets同期
 - [x] README / validation / CHANGELOG / Coverage整合

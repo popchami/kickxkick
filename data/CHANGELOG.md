@@ -324,3 +324,10 @@
 - Avoided duplicate model inflation from colors, gender, size, athlete editions and seasonal color stories.
 - Synced root data and Flutter app assets.
 - Updated README, validation rules, coverage and task board.
+
+## 0.6.9 - 2026-07-25
+- Added five audited SPERRY TOPSIDER footwear model families confirmed on official Sperry pages.
+- Added high-precision aliases and search keywords.
+- Avoided duplicate model inflation from colors, materials, gender, width and style-code revisions.
+- Synced root data and Flutter app assets.
+- Updated README, validation rules, coverage and task board.
