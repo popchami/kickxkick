@@ -1,0 +1,50 @@
+{
+  "version": "0.6.3-merge-ready-audited",
+  "updatedAt": "2026-07-17",
+  "brandId": "red_wing",
+  "brandName": "RED WING",
+  "status": "merge_ready_expanded_audited",
+  "purpose": "High-confidence RED WING model-family data staged for deterministic merge into root JSON masters.",
+  "models": [
+    {"id":"red_wing_6_inch_classic_moc","brandId":"red_wing","modelName":"6-inch Classic Moc","category":"boots","source":"master"},
+    {"id":"red_wing_iron_ranger","brandId":"red_wing","modelName":"Iron Ranger","category":"boots","source":"master"},
+    {"id":"red_wing_blacksmith","brandId":"red_wing","modelName":"Blacksmith","category":"boots","source":"master"},
+    {"id":"red_wing_beckman","brandId":"red_wing","modelName":"Beckman","category":"boots","source":"master"},
+    {"id":"red_wing_postman_oxford","brandId":"red_wing","modelName":"Postman Oxford","category":"shoes","source":"master"},
+    {"id":"red_wing_classic_chelsea","brandId":"red_wing","modelName":"Classic Chelsea","category":"boots","source":"master"}
+  ],
+  "aliases": [
+    {"modelId":"red_wing_6_inch_classic_moc","alias":"RedWing6InchClassicMoc"},
+    {"modelId":"red_wing_iron_ranger","alias":"RedWingIronRanger"},
+    {"modelId":"red_wing_blacksmith","alias":"RedWingBlacksmith"},
+    {"modelId":"red_wing_beckman","alias":"RedWingBeckman"},
+    {"modelId":"red_wing_postman_oxford","alias":"RedWingPostmanOxford"},
+    {"modelId":"red_wing_classic_chelsea","alias":"RedWingClassicChelsea"}
+  ],
+  "searchKeywords": [
+    {"modelId":"red_wing_6_inch_classic_moc","keyword":"RED WING 6-inch Classic Moc"},
+    {"modelId":"red_wing_6_inch_classic_moc","keyword":"レッドウィング 6インチ クラシックモック"},
+    {"modelId":"red_wing_iron_ranger","keyword":"RED WING Iron Ranger"},
+    {"modelId":"red_wing_iron_ranger","keyword":"レッドウィング アイアンレンジャー"},
+    {"modelId":"red_wing_blacksmith","keyword":"RED WING Blacksmith"},
+    {"modelId":"red_wing_blacksmith","keyword":"レッドウィング ブラックスミス"},
+    {"modelId":"red_wing_beckman","keyword":"RED WING Beckman"},
+    {"modelId":"red_wing_beckman","keyword":"レッドウィング ベックマン"},
+    {"modelId":"red_wing_postman_oxford","keyword":"RED WING Postman Oxford"},
+    {"modelId":"red_wing_postman_oxford","keyword":"レッドウィング ポストマン オックスフォード"},
+    {"modelId":"red_wing_classic_chelsea","keyword":"RED WING Classic Chelsea"},
+    {"modelId":"red_wing_classic_chelsea","keyword":"レッドウィング クラシックチェルシー"}
+  ],
+  "excludedBroadTerms": ["RED WING","Red Wing","Classic","Moc","Iron","Ranger","Blacksmith","Beckman","Postman","Oxford","Chelsea","Boot","Boots","Shoe","Shoes"],
+  "audit": {
+    "addedToRootJson": false,
+    "readyForRootJsonMerge": true,
+    "sourceNotes": [
+      "All six model families were confirmed on the official RED WING Japan product catalog.",
+      "Color, leather and style-number variants were not counted as separate model families.",
+      "Aliases use brand-qualified concatenated forms only.",
+      "Search keywords use complete English or Japanese model names with the brand attached.",
+      "Standalone brand, category and partial model-name terms remain excluded."
+    ]
+  }
+}

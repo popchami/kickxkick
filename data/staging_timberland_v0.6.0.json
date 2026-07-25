@@ -1,0 +1,49 @@
+{
+  "version": "0.6.0-merge-ready-audited",
+  "updatedAt": "2026-07-13",
+  "brandId": "timberland",
+  "brandName": "Timberland",
+  "status": "merge_ready_expanded_audited",
+  "purpose": "High-confidence Timberland model data staged for deterministic merge into root JSON masters.",
+  "models": [
+    {"id":"timberland_premium_6_inch_waterproof_boot","brandId":"timberland","modelName":"Premium 6-Inch Waterproof Boot","category":"boots","source":"master"},
+    {"id":"timberland_3_eye_lug_handsewn_boat_shoe","brandId":"timberland","modelName":"3-Eye Lug Handsewn Boat Shoe","category":"lifestyle","source":"master"},
+    {"id":"timberland_euro_hiker","brandId":"timberland","modelName":"Euro Hiker","category":"hiking","source":"master"},
+    {"id":"timberland_field_boot","brandId":"timberland","modelName":"Field Boot","category":"boots","source":"master"},
+    {"id":"timberland_motion_access_low","brandId":"timberland","modelName":"Motion Access Low","category":"hiking","source":"master"},
+    {"id":"timberland_motion_access_mid_waterproof","brandId":"timberland","modelName":"Motion Access Mid Waterproof","category":"hiking","source":"master"}
+  ],
+  "aliases": [
+    {"modelId":"timberland_premium_6_inch_waterproof_boot","alias":"TimberlandPremium6InchWaterproofBoot"},
+    {"modelId":"timberland_premium_6_inch_waterproof_boot","alias":"Timberland6InchPremiumWaterproofBoot"},
+    {"modelId":"timberland_3_eye_lug_handsewn_boat_shoe","alias":"Timberland3EyeLugHandsewnBoatShoe"},
+    {"modelId":"timberland_euro_hiker","alias":"TimberlandEuroHiker"},
+    {"modelId":"timberland_field_boot","alias":"TimberlandFieldBoot"},
+    {"modelId":"timberland_motion_access_low","alias":"TimberlandMotionAccessLow"},
+    {"modelId":"timberland_motion_access_mid_waterproof","alias":"TimberlandMotionAccessMidWaterproof"}
+  ],
+  "searchKeywords": [
+    {"modelId":"timberland_premium_6_inch_waterproof_boot","keyword":"Premium 6-Inch Waterproof Boot"},
+    {"modelId":"timberland_premium_6_inch_waterproof_boot","keyword":"ティンバーランド プレミアム 6インチ ウォータープルーフ ブーツ"},
+    {"modelId":"timberland_3_eye_lug_handsewn_boat_shoe","keyword":"3-Eye Lug Handsewn Boat Shoe"},
+    {"modelId":"timberland_3_eye_lug_handsewn_boat_shoe","keyword":"ティンバーランド 3アイ ラグ ハンドソーン ボートシューズ"},
+    {"modelId":"timberland_euro_hiker","keyword":"Euro Hiker"},
+    {"modelId":"timberland_euro_hiker","keyword":"ティンバーランド ユーロハイカー"},
+    {"modelId":"timberland_field_boot","keyword":"Timberland Field Boot"},
+    {"modelId":"timberland_field_boot","keyword":"ティンバーランド フィールドブーツ"},
+    {"modelId":"timberland_motion_access_low","keyword":"Motion Access Low"},
+    {"modelId":"timberland_motion_access_low","keyword":"ティンバーランド モーション アクセス ロー"},
+    {"modelId":"timberland_motion_access_mid_waterproof","keyword":"Motion Access Mid Waterproof"},
+    {"modelId":"timberland_motion_access_mid_waterproof","keyword":"ティンバーランド モーション アクセス ミッド ウォータープルーフ"}
+  ],
+  "excludedBroadTerms": ["Boot","Boots","Waterproof","Hiker","Field","Motion","Access","Low","Mid","Timberland"],
+  "audit": {
+    "addedToRootJson": false,
+    "readyForRootJsonMerge": true,
+    "sourceNotes": [
+      "Names are established Timberland product families or canonical model names found in official or major-retailer usage.",
+      "Standalone category, feature and brand terms are excluded because they are too broad for model-level matching.",
+      "Japanese keywords retain the brand plus full model name to reduce cross-brand false positives."
+    ]
+  }
+}

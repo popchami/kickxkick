@@ -1,0 +1,58 @@
+{
+  "version": "0.6.8-merge-ready-audited",
+  "updatedAt": "2026-07-24",
+  "brandId": "under_armour",
+  "brandName": "UNDER ARMOUR",
+  "status": "merge_ready_expanded_audited",
+  "purpose": "High-confidence UNDER ARMOUR footwear model-family data confirmed against official Japan catalog pages and staged for deterministic merge.",
+  "models": [
+    {"id":"under_armour_infinite_elite_2","brandId":"under_armour","modelName":"UA Infinite Elite 2","category":"running","source":"master"},
+    {"id":"under_armour_infinite_pro_2","brandId":"under_armour","modelName":"UA Infinite Pro 2","category":"running","source":"master"},
+    {"id":"under_armour_velociti_elite_3","brandId":"under_armour","modelName":"UA Velociti Elite 3","category":"running","source":"master"},
+    {"id":"under_armour_velociti_pro_2","brandId":"under_armour","modelName":"UA Velociti Pro 2","category":"running","source":"master"},
+    {"id":"under_armour_velociti_pace","brandId":"under_armour","modelName":"UA Velociti Pace","category":"running","source":"master"},
+    {"id":"under_armour_flow_dynamic","brandId":"under_armour","modelName":"UA Flow Dynamic","category":"training","source":"master"},
+    {"id":"under_armour_tribase_reign_6","brandId":"under_armour","modelName":"UA TriBase Reign 6","category":"training","source":"master"},
+    {"id":"under_armour_curry_13","brandId":"under_armour","modelName":"Curry 13","category":"basketball","source":"master"}
+  ],
+  "aliases": [
+    {"modelId":"under_armour_infinite_elite_2","alias":"UnderArmourInfiniteElite2"},
+    {"modelId":"under_armour_infinite_pro_2","alias":"UnderArmourInfinitePro2"},
+    {"modelId":"under_armour_velociti_elite_3","alias":"UnderArmourVelocitiElite3"},
+    {"modelId":"under_armour_velociti_pro_2","alias":"UnderArmourVelocitiPro2"},
+    {"modelId":"under_armour_velociti_pace","alias":"UnderArmourVelocitiPace"},
+    {"modelId":"under_armour_flow_dynamic","alias":"UnderArmourFlowDynamic"},
+    {"modelId":"under_armour_tribase_reign_6","alias":"UnderArmourTriBaseReign6"},
+    {"modelId":"under_armour_curry_13","alias":"UnderArmourCurry13"}
+  ],
+  "searchKeywords": [
+    {"modelId":"under_armour_infinite_elite_2","keyword":"UNDER ARMOUR UA Infinite Elite 2"},
+    {"modelId":"under_armour_infinite_elite_2","keyword":"アンダーアーマー UA インフィニット エリート2"},
+    {"modelId":"under_armour_infinite_pro_2","keyword":"UNDER ARMOUR UA Infinite Pro 2"},
+    {"modelId":"under_armour_infinite_pro_2","keyword":"アンダーアーマー UA インフィニット プロ2"},
+    {"modelId":"under_armour_velociti_elite_3","keyword":"UNDER ARMOUR UA Velociti Elite 3"},
+    {"modelId":"under_armour_velociti_elite_3","keyword":"アンダーアーマー UA ベロシティ エリート3"},
+    {"modelId":"under_armour_velociti_pro_2","keyword":"UNDER ARMOUR UA Velociti Pro 2"},
+    {"modelId":"under_armour_velociti_pro_2","keyword":"アンダーアーマー UA ベロシティ プロ2"},
+    {"modelId":"under_armour_velociti_pace","keyword":"UNDER ARMOUR UA Velociti Pace"},
+    {"modelId":"under_armour_velociti_pace","keyword":"アンダーアーマー UA ベロシティ ペース"},
+    {"modelId":"under_armour_flow_dynamic","keyword":"UNDER ARMOUR UA Flow Dynamic"},
+    {"modelId":"under_armour_flow_dynamic","keyword":"アンダーアーマー UA フロー ダイナミック"},
+    {"modelId":"under_armour_tribase_reign_6","keyword":"UNDER ARMOUR UA TriBase Reign 6"},
+    {"modelId":"under_armour_tribase_reign_6","keyword":"アンダーアーマー UA トライベース レイン6"},
+    {"modelId":"under_armour_curry_13","keyword":"UNDER ARMOUR Curry 13"},
+    {"modelId":"under_armour_curry_13","keyword":"アンダーアーマー カリー13"}
+  ],
+  "excludedBroadTerms": ["UNDER ARMOUR","Under Armour","アンダーアーマー","UA","Infinite","Elite","Pro","Velociti","Flow","Dynamic","TriBase","Reign","Curry","Running","Training","Basketball","Shoes"],
+  "audit": {
+    "addedToRootJson": false,
+    "readyForRootJsonMerge": true,
+    "sourceNotes": [
+      "Official UNDER ARMOUR Japan feature pages confirm Infinite Elite 2 and Infinite Pro 2 as separate current running model families.",
+      "Official UNDER ARMOUR Japan VELOCITI pages confirm Velociti Elite 3, Velociti Pro 2 and Velociti Pace as separate model families.",
+      "Official UNDER ARMOUR Japan pages confirm Flow Dynamic, TriBase Reign 6 and Curry 13 as independently named footwear models.",
+      "Colors, gender, size, athlete editions and seasonal color stories were not promoted to separate model records.",
+      "Aliases and search keywords retain the complete model name with the brand attached."
+    ]
+  }
+}

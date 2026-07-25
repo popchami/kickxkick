@@ -1,0 +1,58 @@
+{
+  "version": "0.6.6-merge-ready-audited",
+  "updatedAt": "2026-07-21",
+  "brandId": "clarks",
+  "brandName": "CLARKS",
+  "status": "merge_ready_expanded_audited",
+  "purpose": "High-confidence CLARKS model-family data confirmed against the official Japan catalog and staged for deterministic merge.",
+  "models": [
+    {"id":"clarks_wallabee","brandId":"clarks","modelName":"Wallabee","category":"lifestyle","source":"master"},
+    {"id":"clarks_wallabee_boot","brandId":"clarks","modelName":"Wallabee Boot","category":"boots","source":"master"},
+    {"id":"clarks_desert_boot","brandId":"clarks","modelName":"Desert Boot","category":"boots","source":"master"},
+    {"id":"clarks_desert_trek","brandId":"clarks","modelName":"Desert Trek","category":"lifestyle","source":"master"},
+    {"id":"clarks_torhill_bee","brandId":"clarks","modelName":"Torhill Bee","category":"lifestyle","source":"master"},
+    {"id":"clarks_torhill_hi","brandId":"clarks","modelName":"Torhill Hi","category":"boots","source":"master"},
+    {"id":"clarks_wallabee_gtx","brandId":"clarks","modelName":"Wallabee GTX","category":"lifestyle","source":"master"},
+    {"id":"clarks_desert_boot_gtx","brandId":"clarks","modelName":"Desert Boot GTX","category":"boots","source":"master"}
+  ],
+  "aliases": [
+    {"modelId":"clarks_wallabee","alias":"ClarksWallabee"},
+    {"modelId":"clarks_wallabee_boot","alias":"ClarksWallabeeBoot"},
+    {"modelId":"clarks_desert_boot","alias":"ClarksDesertBoot"},
+    {"modelId":"clarks_desert_trek","alias":"ClarksDesertTrek"},
+    {"modelId":"clarks_torhill_bee","alias":"ClarksTorhillBee"},
+    {"modelId":"clarks_torhill_hi","alias":"ClarksTorhillHi"},
+    {"modelId":"clarks_wallabee_gtx","alias":"ClarksWallabeeGTX"},
+    {"modelId":"clarks_desert_boot_gtx","alias":"ClarksDesertBootGTX"}
+  ],
+  "searchKeywords": [
+    {"modelId":"clarks_wallabee","keyword":"CLARKS Wallabee"},
+    {"modelId":"clarks_wallabee","keyword":"クラークス ワラビー"},
+    {"modelId":"clarks_wallabee_boot","keyword":"CLARKS Wallabee Boot"},
+    {"modelId":"clarks_wallabee_boot","keyword":"クラークス ワラビーブーツ"},
+    {"modelId":"clarks_desert_boot","keyword":"CLARKS Desert Boot"},
+    {"modelId":"clarks_desert_boot","keyword":"クラークス デザートブーツ"},
+    {"modelId":"clarks_desert_trek","keyword":"CLARKS Desert Trek"},
+    {"modelId":"clarks_desert_trek","keyword":"クラークス デザートトレック"},
+    {"modelId":"clarks_torhill_bee","keyword":"CLARKS Torhill Bee"},
+    {"modelId":"clarks_torhill_bee","keyword":"クラークス トーヒルビー"},
+    {"modelId":"clarks_torhill_hi","keyword":"CLARKS Torhill Hi"},
+    {"modelId":"clarks_torhill_hi","keyword":"クラークス トーヒルハイ"},
+    {"modelId":"clarks_wallabee_gtx","keyword":"CLARKS Wallabee GTX"},
+    {"modelId":"clarks_wallabee_gtx","keyword":"クラークス ワラビー ゴアテックス"},
+    {"modelId":"clarks_desert_boot_gtx","keyword":"CLARKS Desert Boot GTX"},
+    {"modelId":"clarks_desert_boot_gtx","keyword":"クラークス デザートブーツ ゴアテックス"}
+  ],
+  "excludedBroadTerms": ["CLARKS","Clarks","クラークス","Wallabee","Boot","Desert","Trek","Torhill","Bee","Hi","GTX","GORE-TEX","ゴアテックス","Shoes","Lifestyle"],
+  "audit": {
+    "addedToRootJson": false,
+    "readyForRootJsonMerge": true,
+    "sourceNotes": [
+      "The official CLARKS Japan store confirms Wallabee, Wallabee Boot, Desert Boot and Desert Trek as icon model families.",
+      "The official CLARKS Japan store confirms Torhill Bee and Torhill Hi as independent current model families.",
+      "GTX records are retained only where the official catalog presents a distinct named product family.",
+      "Colors, materials, gender and seasonal editions were not promoted to separate model records.",
+      "Aliases and search keywords retain the complete model name with the brand attached."
+    ]
+  }
+}

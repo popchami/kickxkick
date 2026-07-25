@@ -1,0 +1,48 @@
+{
+  "version": "0.5.9-merge-ready-audited",
+  "updatedAt": "2026-07-12",
+  "brandId": "crocs",
+  "brandName": "crocs",
+  "status": "merge_ready_expanded_audited",
+  "purpose": "High-confidence crocs model data staged for deterministic merge into root JSON masters.",
+  "models": [
+    {"id":"crocs_classic_platform_clog","brandId":"crocs","modelName":"Classic Platform Clog","category":"clog","source":"master"},
+    {"id":"crocs_classic_crush_clog","brandId":"crocs","modelName":"Classic Crush Clog","category":"clog","source":"master"},
+    {"id":"crocs_mega_crush_clog","brandId":"crocs","modelName":"Mega Crush Clog","category":"clog","source":"master"},
+    {"id":"crocs_mellow_recovery_clog","brandId":"crocs","modelName":"Mellow Recovery Clog","category":"clog","source":"master"},
+    {"id":"crocs_dylan_clog","brandId":"crocs","modelName":"Dylan Clog","category":"clog","source":"master"},
+    {"id":"crocs_literide_360_clog","brandId":"crocs","modelName":"LiteRide 360 Clog","category":"clog","source":"master"}
+  ],
+  "aliases": [
+    {"modelId":"crocs_classic_platform_clog","alias":"CrocsClassicPlatformClog"},
+    {"modelId":"crocs_classic_crush_clog","alias":"CrocsClassicCrushClog"},
+    {"modelId":"crocs_mega_crush_clog","alias":"CrocsMegaCrushClog"},
+    {"modelId":"crocs_mellow_recovery_clog","alias":"CrocsMellowRecoveryClog"},
+    {"modelId":"crocs_dylan_clog","alias":"CrocsDylanClog"},
+    {"modelId":"crocs_literide_360_clog","alias":"CrocsLiteRide360Clog"}
+  ],
+  "searchKeywords": [
+    {"modelId":"crocs_classic_platform_clog","keyword":"Classic Platform Clog"},
+    {"modelId":"crocs_classic_platform_clog","keyword":"クロックス クラシック プラットフォーム クロッグ"},
+    {"modelId":"crocs_classic_crush_clog","keyword":"Classic Crush Clog"},
+    {"modelId":"crocs_classic_crush_clog","keyword":"クロックス クラシック クラッシュ クロッグ"},
+    {"modelId":"crocs_mega_crush_clog","keyword":"Mega Crush Clog"},
+    {"modelId":"crocs_mega_crush_clog","keyword":"クロックス メガ クラッシュ クロッグ"},
+    {"modelId":"crocs_mellow_recovery_clog","keyword":"Mellow Recovery Clog"},
+    {"modelId":"crocs_mellow_recovery_clog","keyword":"クロックス メロウ リカバリー クロッグ"},
+    {"modelId":"crocs_dylan_clog","keyword":"Dylan Clog"},
+    {"modelId":"crocs_dylan_clog","keyword":"クロックス ディラン クロッグ"},
+    {"modelId":"crocs_literide_360_clog","keyword":"LiteRide 360 Clog"},
+    {"modelId":"crocs_literide_360_clog","keyword":"クロックス ライトライド 360 クロッグ"}
+  ],
+  "excludedBroadTerms": ["Clog","Classic","Platform","Crush","Recovery","LiteRide","Crocs"],
+  "audit": {
+    "addedToRootJson": false,
+    "readyForRootJsonMerge": true,
+    "sourceNotes": [
+      "All six names are specific Crocs product-family/model names with established official or major-retailer usage.",
+      "Standalone category and family fragments are excluded because they are too broad for model-level matching.",
+      "Japanese keywords retain brand plus full model name to avoid cross-brand false positives."
+    ]
+  }
+}

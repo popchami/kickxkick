@@ -1,0 +1,42 @@
+name: Fix Task Board v0.6.5
+
+on:
+  push:
+    branches:
+      - agent/dr-martens-v0.5.7-sync
+    paths:
+      - data/fix_task_board_v0.6.5.py
+      - .github/workflows/fix-task-board-v0.6.5.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/dr-martens-v0.5.7-sync
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Fix stale task board status
+        run: |
+          python3 data/fix_task_board_v0.6.5.py
+          grep -F 'data/models.json・aliases.json・search_keywords.json と app/assets/data 側は v0.6.5 として同期済み。' specs/KICKXKICK_TASK_BOARD.md
+          grep -F -- '- [x] `python3 data/sync_dr_martens_v0.5.7.py` 実行' specs/KICKXKICK_TASK_BOARD.md
+      - name: Commit task board fix
+        run: |
+          if git diff --quiet -- specs/KICKXKICK_TASK_BOARD.md; then
+            echo 'No task board changes'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add specs/KICKXKICK_TASK_BOARD.md
+          git commit -m 'docs: align task board with data v0.6.5'
+          git push origin HEAD:agent/dr-martens-v0.5.7-sync
